@@ -47,7 +47,7 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 		}
 		updateCh <- Update{Phase: GETTING_INFO, Progress: config.ProgressGetInfo}
 		if ctx.Err() != nil {
-			tr.fail(fmt.Errorf("test stopped"), &finalResult, resultCh, updateCh)
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
 			return
 		}
 
@@ -66,10 +66,19 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
+
 		finalResult.Server = fmt.Sprintf("%s (%s)", serverInfo.Name, serverInfo.Country)
 		log.Printf("Selected server: %s\n", finalResult.Server)
 		updateCh <- Update{Phase: SERVER_SELECTED, Progress: config.ProgressServerSelect, Server: finalResult.Server}
 		tr.sleepOrCancel(ctx, 1*time.Second)
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
 
 		// Phase: Ping test
 		log.Println("TestRunner: Running ping test...")
@@ -79,9 +88,18 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
+
 		finalResult.Ping = float64(latency.Milliseconds())
 		updateCh <- Update{Phase: PING_TEST, Progress: config.ProgressPingEnd, Ping: finalResult.Ping}
 		tr.sleepOrCancel(ctx, 1*time.Second)
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
 
 		// Phase: Download test
 		log.Println("TestRunner: Starting download test...")
@@ -103,8 +121,17 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
+
 		finalResult.Download = downloadSpeed
 		tr.sleepOrCancel(ctx, 1*time.Second)
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
 
 		// Phase: Upload test
 		log.Println("TestRunner: Starting upload test...")
@@ -127,6 +154,11 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
+		if ctx.Err() != nil {
+			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+			return
+		}
+
 		finalResult.Upload = uploadSpeed
 
 		// Complete

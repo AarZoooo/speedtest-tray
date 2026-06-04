@@ -22,10 +22,16 @@ const (
 )
 
 // Test durations
-var (
+const (
 	TestDurationDownload = 10 * time.Second
 	TestDurationUpload   = 10 * time.Second
-	ResultTimeout        = 2 * time.Second
+	ResultTimeout        = 10 * time.Second
+)
+
+// Error messages
+const (
+	ErrTestStopped = "test stopped"
+	ErrTestTimeout = "test timeout"
 )
 
 // UI timing

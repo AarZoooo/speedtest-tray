@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"speedtest-tray/internal/config"
 	"speedtest-tray/internal/speedtest_util"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -25,9 +26,9 @@ func NewTestAdapter(ctx context.Context, tester speedtest_util.TestOrchestrator)
 }
 
 // RunTest orchestrates a speed test and emits Wails events
-func (ta *TestAdapter) RunTest() (<-chan speedtest_util.Result, error) {
+func (ta *TestAdapter) RunTest(ctx context.Context) (<-chan speedtest_util.Result, error) {
 	updateCh := make(chan speedtest_util.Update)
-	resultCh, err := speedtest_util.NewTestRunner(ta.tester).RunTest(context.Background(), updateCh)
+	resultCh, err := speedtest_util.NewTestRunner(ta.tester).RunTest(ctx, updateCh)
 	if err != nil {
 		return nil, err
 	}
@@ -53,9 +54,9 @@ func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, res
 		log.Printf("Adapter: Result received - Error=%v\n", result.Error)
 		event := serializeResult(result)
 		wailsRuntime.EventsEmit(ta.ctx, "test_complete", event)
-	case <-time.After(10 * time.Second):
+	case <-time.After(config.ResultTimeout):
 		log.Println("Adapter: Timeout waiting for result")
-		wailsRuntime.EventsEmit(ta.ctx, "test_complete", map[string]interface{}{"error": "Test timeout"})
+		wailsRuntime.EventsEmit(ta.ctx, "test_complete", map[string]interface{}{"error": config.ErrTestTimeout})
 	}
 }
 

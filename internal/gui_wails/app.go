@@ -61,7 +61,12 @@ func (a *App) Quit() {
 // StartTest starts a speed test
 func (a *App) StartTest() {
 	a.StopTest()
-	_, err := a.adapter.RunTest()
+
+	// Create a cancellable context for this specific test run
+	ctx, cancel := context.WithCancel(context.Background())
+	a.cancel = cancel
+
+	_, err := a.adapter.RunTest(ctx)
 	if err != nil {
 		wailsRuntime.EventsEmit(a.ctx, "test_error", err.Error())
 	}
@@ -69,7 +74,8 @@ func (a *App) StartTest() {
 
 // StopTest stops the running test
 func (a *App) StopTest() {
-	if a.adapter != nil && a.cancel != nil {
+	if a.cancel != nil {
 		a.cancel()
+		a.cancel = nil
 	}
 }
