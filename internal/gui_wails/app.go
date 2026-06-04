@@ -10,7 +10,7 @@ import (
 
 const (
 	WindowWidth  = 320
-	WindowHeight = 460
+	WindowHeight = 560
 )
 
 type App struct {

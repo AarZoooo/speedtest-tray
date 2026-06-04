@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="speedometer.css" />
         <title>Speedtest Tray</title>
     </head>
     <body>
@@ -23,35 +24,30 @@
                 </button>
             </header>
 
-            <main class="metrics-grid">
-                <div class="metric-row">
-                    <span class="label">Server Location:</span>
-                    <span id="server" class="value">--</span>
-                </div>
-                <div class="metric-row">
-                    <span class="label">Ping:</span>
-                    <span id="ping" class="value">--</span>
-                </div>
-
-                <div class="metric-group">
+            <main class="main-content">
+                <div class="metrics-container">
+                    <div class="metric-row">
+                        <span class="label">Server:</span>
+                        <span id="server" class="value">--</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Ping:</span>
+                        <span id="ping" class="value">--</span>
+                    </div>
                     <div class="metric-row">
                         <span class="label">Download:</span>
                         <span id="download" class="value">--</span>
                     </div>
-                    <div class="progress-bg">
-                        <div id="dl-progress" class="progress-bar"></div>
-                    </div>
-                </div>
-
-                <div class="metric-group">
                     <div class="metric-row">
                         <span class="label">Upload:</span>
                         <span id="upload" class="value">--</span>
                     </div>
-                    <div class="progress-bg">
-                        <div id="ul-progress" class="progress-bar"></div>
-                    </div>
                 </div>
+
+                <div class="spacer"></div>
+
+                <!-- Custom Speedometer Component -->
+                <speedometer-gauge id="speedometer"></speedometer-gauge>
             </main>
 
             <footer>
@@ -62,6 +58,7 @@
             </footer>
         </div>
 
+        <script src="speedometer.js"></script>
         <script src="main.js"></script>
     </body>
 </html>

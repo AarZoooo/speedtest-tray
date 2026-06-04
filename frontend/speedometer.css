@@ -1,0 +1,51 @@
+/* Speedometer Component Styles */
+
+.gauge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+
+#gauge {
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+}
+
+.gauge-bg {
+    stroke: var(--card-bg);
+    stroke-linecap: round;
+}
+
+.gauge-fill {
+    stroke: url(#gauge-gradient);
+    stroke-linecap: round;
+}
+
+.needle {
+    fill: var(--text-main);
+    stroke: var(--text-main);
+    stroke-width: 4;
+    stroke-linejoin: round;
+    transform-origin: 100px 100px;
+}
+
+.gauge-text {
+    fill: var(--text-main);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.gauge-unit {
+    fill: var(--text-dim);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.gauge-label {
+    fill: var(--text-dim);
+    font-size: 10px;
+    font-weight: 600;
+}

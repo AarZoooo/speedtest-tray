@@ -1,5 +1,38 @@
-const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-let spinnerInterval = null;
+const PHASES = {
+  INITIALIZING: "INITIALIZING",
+  GETTING_INFO: "GETTING_INFO",
+  FINDING_SERVERS: "FINDING_SERVERS",
+  SELECTING_SERVER: "SELECTING_SERVER",
+  SERVER_SELECTED: "SERVER_SELECTED",
+  PING_TEST: "PING_TEST",
+  STARTING_DOWNLOAD: "STARTING_DOWNLOAD",
+  DOWNLOADING: "DOWNLOADING",
+  STARTING_UPLOAD: "STARTING_UPLOAD",
+  UPLOADING: "UPLOADING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+};
+
+const EVENTS = {
+  WINDOW_SHOWN: "window_shown",
+  TEST_UPDATE: "test_update",
+  TEST_COMPLETE: "test_complete",
+  TEST_ERROR: "test_error",
+};
+
+const TEXT = {
+  INITIALIZING: "Initializing...",
+  TRY_AGAIN: "Try Again",
+  START_AGAIN: "Start Again",
+  TEST_FAILED: "Test Failed",
+  TEST_COMPLETED: "Test Completed",
+  ERROR_PREFIX: "Error: ",
+  MS_SUFFIX: " ms",
+  MBPS_SUFFIX: " Mbps",
+  DEFAULT_VAL: "--",
+  LOADER_HTML: '<div class="loader"></div>',
+};
+
 let canHide = false;
 
 const elements = {
@@ -7,13 +40,18 @@ const elements = {
   ping: document.getElementById("ping"),
   download: document.getElementById("download"),
   upload: document.getElementById("upload"),
-  dlProgress: document.getElementById("dl-progress"),
-  ulProgress: document.getElementById("ul-progress"),
   status: document.getElementById("status"),
   runBtn: document.getElementById("run-btn"),
+  speedometer: document.getElementById("speedometer"),
 };
 
-window.runtime.EventsOn("window_shown", () => {
+function updateGauge(speed) {
+  if (elements.speedometer) {
+    elements.speedometer.setValue(speed);
+  }
+}
+
+window.runtime.EventsOn(EVENTS.WINDOW_SHOWN, () => {
   canHide = false;
   setTimeout(() => {
     canHide = true;
@@ -35,88 +73,74 @@ document.addEventListener("visibilitychange", () => {
 });
 
 function startTest() {
+  console.log("JS: startTest called");
+  if (!elements.runBtn) return;
+
   elements.runBtn.disabled = true;
-  elements.status.innerText = "Initializing...";
+  elements.status.innerText = TEXT.INITIALIZING;
 
-  resetUI(spinnerFrames[0]);
-  startSpinner();
+  resetUI(TEXT.LOADER_HTML);
 
-  window.go.gui_wails.App.StartTest();
+  console.log("JS: Invoking backend StartTest");
+  window.go.gui_wails.App.StartTest()
+    .then(() => console.log("JS: Backend StartTest promise resolved"))
+    .catch((err) => console.error("JS: Backend StartTest failed:", err));
 }
 
 function resetUI(val) {
-  elements.server.innerText = val;
-  elements.ping.innerText = val;
-  elements.download.innerText = val;
-  elements.upload.innerText = val;
-  elements.dlProgress.style.width = "0%";
-  elements.ulProgress.style.width = "0%";
+  elements.server.innerHTML = val;
+  elements.ping.innerHTML = val;
+  elements.download.innerHTML = val;
+  elements.upload.innerHTML = val;
+  updateGauge(0);
 }
 
-function startSpinner() {
-  if (spinnerInterval) clearInterval(spinnerInterval);
-  let i = 0;
-  spinnerInterval = setInterval(() => {
-    const frame = spinnerFrames[i];
-    if (isSpinner(elements.server.innerText)) elements.server.innerText = frame;
-    if (isSpinner(elements.ping.innerText)) elements.ping.innerText = frame;
-    if (isSpinner(elements.download.innerText))
-      elements.download.innerText = frame;
-    if (isSpinner(elements.upload.innerText)) elements.upload.innerText = frame;
-    i = (i + 1) % spinnerFrames.length;
-  }, 100);
-}
-
-function stopSpinner() {
-  if (spinnerInterval) {
-    clearInterval(spinnerInterval);
-    spinnerInterval = null;
-  }
-}
-
-function isSpinner(text) {
-  return spinnerFrames.includes(text) || text === "--";
-}
-
-window.runtime.EventsOn("test_update", (data) => {
+window.runtime.EventsOn(EVENTS.TEST_UPDATE, (data) => {
   elements.status.innerText = data.status;
 
   if (data.server) elements.server.innerText = data.server;
 
   if (parseFloat(data.ping) > 0) {
-    elements.ping.innerText = data.ping + " ms";
+    elements.ping.innerText = data.ping + TEXT.MS_SUFFIX;
   }
 
-  if (parseFloat(data.download) > 0) {
-    elements.download.innerText = data.download + " Mbps";
-    let w = (parseFloat(data.download) / 1000) * 100;
-    elements.dlProgress.style.width = Math.min(w, 100) + "%";
-  }
-
-  if (parseFloat(data.upload) > 0) {
-    elements.upload.innerText = data.upload + " Mbps";
-    let w = (parseFloat(data.upload) / 1000) * 100;
-    elements.ulProgress.style.width = Math.min(w, 100) + "%";
+  if (data.phase === PHASES.DOWNLOADING) {
+    if (parseFloat(data.download) > 0) {
+      elements.speedometer.setMax(1000);
+      elements.download.innerText = data.download + TEXT.MBPS_SUFFIX;
+      updateGauge(data.download);
+    }
+  } else if (data.phase === PHASES.UPLOADING) {
+    if (parseFloat(data.upload) > 0) {
+      elements.speedometer.setMax(100);
+      elements.upload.innerText = data.upload + TEXT.MBPS_SUFFIX;
+      updateGauge(data.upload);
+    }
+  } else {
+    updateGauge(0);
   }
 });
 
-window.runtime.EventsOn("test_complete", (data) => {
-  stopSpinner();
+window.runtime.EventsOn(EVENTS.TEST_COMPLETE, (data) => {
   elements.runBtn.disabled = false;
-  elements.runBtn.innerText = data.error ? "Try Again" : "Start Again";
-  elements.status.innerText = data.error ? "Test Failed" : "Test Completed";
+  elements.runBtn.innerText = data.error ? TEXT.TRY_AGAIN : TEXT.START_AGAIN;
+  elements.status.innerText = data.error
+    ? TEXT.TEST_FAILED
+    : TEXT.TEST_COMPLETED;
+
+  updateGauge(0);
 
   if (!data.error) {
     elements.server.innerText = data.server;
-    elements.ping.innerText = data.ping + " ms";
-    elements.download.innerText = data.download + " Mbps";
-    elements.upload.innerText = data.upload + " Mbps";
+    elements.ping.innerText = data.ping + TEXT.MS_SUFFIX;
+    elements.download.innerText = data.download + TEXT.MBPS_SUFFIX;
+    elements.upload.innerText = data.upload + TEXT.MBPS_SUFFIX;
   }
 });
 
-window.runtime.EventsOn("test_error", (err) => {
-  stopSpinner();
+window.runtime.EventsOn(EVENTS.TEST_ERROR, (err) => {
   elements.runBtn.disabled = false;
-  elements.runBtn.innerText = "Try Again";
-  elements.status.innerText = "Error: " + err;
+  elements.runBtn.innerText = TEXT.TRY_AGAIN;
+  elements.status.innerText = TEXT.ERROR_PREFIX + err;
+  updateGauge(0);
 });
