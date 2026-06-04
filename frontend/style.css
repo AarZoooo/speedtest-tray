@@ -3,9 +3,16 @@
     --card-bg: #2d2d30;
     --text-main: #e3e2e9;
     --text-dim: #9999a5;
-    --accent-start: #733fc1;
-    --accent-end: #3f408a;
+    --accent-start: #8b40da;
+    --accent-end: #2b4076;
     --danger: #e74c3c;
+
+    /* Centralized Shadows - Minimalist Intensity */
+    --shadow-container: 0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-text: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+    --shadow-btn: 0 2px 5px rgba(0, 0, 0, 0.15);
+    --shadow-btn-hover: 0 4px 10px rgba(0, 0, 0, 0.2);
+    --shadow-btn-active: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -42,7 +49,7 @@ body {
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-container);
     border: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
     --wails-draggable: none;
@@ -109,7 +116,7 @@ header {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     display: inline-block;
-    filter: brightness(1.2);
+    filter: brightness(1.2) var(--shadow-text);
 }
 
 footer {
@@ -134,17 +141,21 @@ footer {
     font-weight: 600;
     cursor: pointer;
     width: 100%;
+    box-shadow: var(--shadow-btn);
     transition:
         filter 0.2s,
-        transform 0.1s;
+        transform 0.1s,
+        box-shadow 0.2s;
 }
 
 .main-btn:hover {
     filter: brightness(1.15);
+    box-shadow: var(--shadow-btn-hover);
 }
 
 .main-btn:active {
     transform: scale(0.98);
+    box-shadow: var(--shadow-btn-active);
 }
 
 .main-btn:disabled {
