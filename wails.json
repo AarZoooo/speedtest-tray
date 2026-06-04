@@ -4,11 +4,20 @@
   "frontend:dir": "frontend",
   "wailsjsdir": "./frontend/src",
   "main:dir": ".",
+  "version": "1.0.0",
   "author": {
     "name": "Aarju Pal",
     "email": "me@aarju.dev"
   },
   "info": {
+    "companyName": "Aarju Pal",
+    "productName": "SpeedTest Tray",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright © 2026 Aarju Pal",
+    "comments": "A small, high-performance system tray application for running internet speed tests.",
     "icon": "assets/icon.png"
+  },
+  "windows": {
+    "webviewUserDataPath": ""
   }
 }
