@@ -1,0 +1,30 @@
+// Phase constants (must match internal/config/phases.go)
+export const PHASES = {
+  INITIALIZING: "INITIALIZING",
+  GETTING_INFO: "GETTING_INFO",
+  FINDING_SERVERS: "FINDING_SERVERS",
+  SELECTING_SERVER: "SELECTING_SERVER",
+  SERVER_SELECTED: "SERVER_SELECTED",
+  PING_TEST: "PING_TEST",
+  STARTING_DOWNLOAD: "STARTING_DOWNLOAD",
+  DOWNLOADING: "DOWNLOADING",
+  STARTING_UPLOAD: "STARTING_UPLOAD",
+  UPLOADING: "UPLOADING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+};
+
+// Event constants
+export const EVENTS = {
+  WINDOW_SHOWN: "window_shown",
+  TEST_UPDATE: "test_update",
+  TEST_COMPLETE: "test_complete",
+  TEST_ERROR: "test_error",
+};
+
+// Configuration
+export const CONFIG = {
+  UI_HIDE_DELAY_MS: 1000,
+  GAUGE_MAX_DOWNLOAD: 1000,
+  GAUGE_MAX_UPLOAD: 100,
+};
