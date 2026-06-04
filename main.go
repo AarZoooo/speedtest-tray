@@ -64,7 +64,7 @@ func startTray(app *gui_wails.App) {
 
 		systray.AddSeparator()
 
-		saveLogs := systray.AddMenuItemCheckbox("Save logs to Documents", "Enable or disable file logging", appConfig.SaveLogs)
+		saveLogs := systray.AddMenuItemCheckbox("Enable Session Logging", "Save test logs to app data", appConfig.SaveLogs)
 		saveLogs.Click(func() {
 			if saveLogs.Checked() {
 				saveLogs.Uncheck()
