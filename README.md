@@ -25,9 +25,11 @@ A small, high-performance system tray application for running on-demand internet
 ```text
 .
 ├── main.go                    # Wails and tray entry point
-├── frontend/                  # Static UI assets and Web Components
+├── internal/config/           # Centralized configuration and constants
 ├── internal/gui_wails/        # Wails backend bindings and window integration
-├── internal/speedtest_util/   # Speed test lifecycle and phase updates
+├── internal/speedtest_util/   # Speed test core logic and orchestration
+├── frontend/                  # Modularized UI assets and Web Components
+├── docs/                      # Architecture and design documentation
 ├── assets/                    # Source app assets
 └── build/windows/             # Windows icon and Wails build metadata
 ```
