@@ -35,11 +35,17 @@
 - Build verified: ✓
 - **Commit**: Phase 4: Separate Wails layer from business logic
 
-## Phase 5: Frontend Modularization [PENDING]
-- [ ] Extract state management
-- [ ] Separate event handlers
-- [ ] Extract constants to modules
-- [ ] Move speedometer config
+## Phase 5: Frontend Modularization ✅ DONE
+- Created `frontend/src/constants.js`: PHASES, EVENTS, CONFIG (matches Go constants)
+- Created `frontend/src/state.js`: TestState class for centralized test state management
+- Created `frontend/src/ui.js`: UI update handlers (results, gauge, status, button)
+- Created `frontend/src/handlers.js`: Test control handlers (start, stop, button click)
+- Created `frontend/src/window.js`: Window event handlers (show, blur, visibility)
+- Created `frontend/src/speedometer-config.js`: Speedometer constants
+- Refactored `frontend/main.js`: imports modularized code, removed inline globals
+- Updated `frontend/index.html`: removed onclick handler, use type="module" for main.js
+- Build verified: ✓
+- **Commit**: Phase 5: Modularize frontend into state, handlers, constants
 
 ## Phase 6: Testing [PENDING]
 - [ ] Add Go unit tests
