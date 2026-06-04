@@ -5,6 +5,7 @@ const CONFIG = {
   GAUGE_MAX_UPLOAD: 100,
 };
 
+// Phase constants (must match internal/config/phases.go)
 const PHASES = {
   INITIALIZING: "INITIALIZING",
   GETTING_INFO: "GETTING_INFO",

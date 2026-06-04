@@ -31,12 +31,10 @@ func (st *SpeedTester) runDownloadTest(ctx context.Context, updateCh chan<- Upda
 	startTime := time.Now()
 
 	st.client.SetCallbackDownload(func(downRate speedtest.ByteRate) {
-		elapsed := time.Since(startTime)
-		phaseProgress := float64(elapsed) / float64(config.TestDurationDownload)
-		if phaseProgress > 1.0 {
-			phaseProgress = 1.0
-		}
-		totalProgress := config.ProgressDownStart + (phaseProgress * (config.ProgressDownEnd - config.ProgressDownStart))
+		elapsed := time.Since(startTime).Seconds()
+		duration := config.TestDurationDownload.Seconds()
+		phaseProgress := CalculatePhaseProgress(elapsed, duration)
+		totalProgress := MapPhaseProgressToTotal(config.ProgressDownStart, config.ProgressDownEnd, phaseProgress)
 
 		updateCh <- Update{
 			Phase:    DOWNLOADING,
@@ -67,12 +65,10 @@ func (st *SpeedTester) runUploadTest(ctx context.Context, updateCh chan<- Update
 	startTime := time.Now()
 
 	st.client.SetCallbackUpload(func(upRate speedtest.ByteRate) {
-		elapsed := time.Since(startTime)
-		phaseProgress := float64(elapsed) / float64(config.TestDurationUpload)
-		if phaseProgress > 1.0 {
-			phaseProgress = 1.0
-		}
-		totalProgress := config.ProgressUpStart + (phaseProgress * (config.ProgressUpEnd - config.ProgressUpStart))
+		elapsed := time.Since(startTime).Seconds()
+		duration := config.TestDurationUpload.Seconds()
+		phaseProgress := CalculatePhaseProgress(elapsed, duration)
+		totalProgress := MapPhaseProgressToTotal(config.ProgressUpStart, config.ProgressUpEnd, phaseProgress)
 
 		updateCh <- Update{
 			Phase:    UPLOADING,

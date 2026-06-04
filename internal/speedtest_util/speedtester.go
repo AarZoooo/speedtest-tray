@@ -24,6 +24,26 @@ func New() *SpeedTester {
 	}
 }
 
+// checkContextCancelled checks if context is cancelled and handles cleanup
+func (st *SpeedTester) checkContextCancelled(ctx context.Context, resultCh chan<- Result, updateCh chan<- Update) bool {
+	if ctx.Err() != nil {
+		log.Println("SpeedTester: Context cancelled, aborting test")
+		st.fail(fmt.Errorf("Test stopped"), &Result{}, resultCh, updateCh)
+		return true
+	}
+	return false
+}
+
+// sleepWithInterrupt sleeps for duration but can be interrupted by context cancellation
+func (st *SpeedTester) sleepWithInterrupt(ctx context.Context, d time.Duration, resultCh chan<- Result, updateCh chan<- Update) bool {
+	select {
+	case <-ctx.Done():
+		return st.checkContextCancelled(ctx, resultCh, updateCh)
+	case <-time.After(d):
+		return false
+	}
+}
+
 func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-chan Result, error) {
 	resultCh := make(chan Result, 1)
 	log.Println("SpeedTester: RunTest requested")
@@ -35,26 +55,6 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 			close(resultCh)
 		}()
 
-		// Helper to check if context was cancelled
-		checkCancel := func() bool {
-			if ctx.Err() != nil {
-				log.Println("SpeedTester: Context cancelled, aborting test")
-				st.fail(fmt.Errorf("Test stopped"), &Result{}, resultCh, updateCh)
-				return true
-			}
-			return false
-		}
-
-		// Helper for interruptible sleep
-		sleepWithContext := func(d time.Duration) bool {
-			select {
-			case <-ctx.Done():
-				return checkCancel()
-			case <-time.After(d):
-				return false
-			}
-		}
-
 		st.client.Reset()
 		finalResult := Result{}
 
@@ -64,7 +64,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
-		if checkCancel() { return }
+		if st.checkContextCancelled(ctx, resultCh, updateCh) { return }
 
 		log.Println("SpeedTester: Selecting best server...")
 		updateCh <- Update{Phase: SELECTING_SERVER, Progress: config.ProgressSelectServer}
@@ -72,7 +72,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
-		if sleepWithContext(1 * time.Second) { return }
+		if st.sleepWithInterrupt(ctx, 1*time.Second, resultCh, updateCh) { return }
 
 		log.Println("SpeedTester: Running ping test...")
 		updateCh <- Update{Phase: PING_TEST, Progress: config.ProgressPingStart}
@@ -80,7 +80,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
-		if sleepWithContext(1 * time.Second) { return }
+		if st.sleepWithInterrupt(ctx, 1*time.Second, resultCh, updateCh) { return }
 
 		log.Println("SpeedTester: Starting download...")
 		updateCh <- Update{Phase: STARTING_DOWNLOAD, Progress: config.ProgressDownStart, Ping: finalResult.Ping}
@@ -88,7 +88,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
-		if sleepWithContext(1 * time.Second) { return }
+		if st.sleepWithInterrupt(ctx, 1*time.Second, resultCh, updateCh) { return }
 
 		log.Println("SpeedTester: Starting upload...")
 		updateCh <- Update{Phase: STARTING_UPLOAD, Progress: config.ProgressUpStart, Ping: finalResult.Ping, Download: finalResult.Download}
