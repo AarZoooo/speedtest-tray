@@ -1,0 +1,14 @@
+{
+  "name": "SpeedTest Tray",
+  "outputfilename": "speedtest-tray.exe",
+  "frontend:dir": "frontend",
+  "wailsjsdir": "./frontend/src",
+  "main:dir": ".",
+  "author": {
+    "name": "Aarju Pal",
+    "email": "me@aarju.dev"
+  },
+  "info": {
+    "icon": "assets/icon.png"
+  }
+}

@@ -27,11 +27,10 @@ func (st *SpeedTester) runDownloadTest(ctx context.Context, updateCh chan<- Upda
 	updateCh <- Update{Phase: DOWNLOADING, Progress: 0.30, Ping: res.Ping}
 
 	startTime := time.Now()
-	testDuration := 10 * time.Second // Typical speedtest duration
+	testDuration := 10 * time.Second
 
 	st.client.SetCallbackDownload(func(downRate speedtest.ByteRate) {
 		elapsed := time.Since(startTime)
-		// Calculate progress within the downloading phase (0.30 to 0.70)
 		phaseProgress := float64(elapsed) / float64(testDuration)
 		if phaseProgress > 1.0 {
 			phaseProgress = 1.0
@@ -63,11 +62,10 @@ func (st *SpeedTester) runUploadTest(ctx context.Context, updateCh chan<- Update
 	}
 
 	startTime := time.Now()
-	testDuration := 10 * time.Second // Typical speedtest duration
+	testDuration := 10 * time.Second
 
 	st.client.SetCallbackUpload(func(upRate speedtest.ByteRate) {
 		elapsed := time.Since(startTime)
-		// Calculate progress within the uploading phase (0.70 to 0.95)
 		phaseProgress := float64(elapsed) / float64(testDuration)
 		if phaseProgress > 1.0 {
 			phaseProgress = 1.0

@@ -1,20 +1,22 @@
 package speedtest_util
 
+const AppName = "SpeedTest Tray"
+
 type Phase string
 
 const (
-	INITIALIZING     Phase = "INITIALIZING"
-	GETTING_INFO     Phase = "GETTING_INFO"
-	FINDING_SERVERS  Phase = "FINDING_SERVERS"
-	SELECTING_SERVER Phase = "SELECTING_SERVER"
-	SERVER_SELECTED  Phase = "SERVER_SELECTED"
-	PING_TEST        Phase = "PING_TEST"
+	INITIALIZING      Phase = "INITIALIZING"
+	GETTING_INFO      Phase = "GETTING_INFO"
+	FINDING_SERVERS   Phase = "FINDING_SERVERS"
+	SELECTING_SERVER  Phase = "SELECTING_SERVER"
+	SERVER_SELECTED   Phase = "SERVER_SELECTED"
+	PING_TEST         Phase = "PING_TEST"
 	STARTING_DOWNLOAD Phase = "STARTING_DOWNLOAD"
-	DOWNLOADING      Phase = "DOWNLOADING"
+	DOWNLOADING       Phase = "DOWNLOADING"
 	STARTING_UPLOAD   Phase = "STARTING_UPLOAD"
-	UPLOADING        Phase = "UPLOADING"
-	COMPLETED        Phase = "COMPLETED"
-	FAILED           Phase = "FAILED"
+	UPLOADING         Phase = "UPLOADING"
+	COMPLETED         Phase = "COMPLETED"
+	FAILED            Phase = "FAILED"
 )
 
 func (p Phase) String() string {
@@ -49,20 +51,20 @@ func (p Phase) String() string {
 }
 
 type Update struct {
-    Phase Phase
-    Progress float64
-    Ping float64
-    Download float64
-    Upload float64
-    Server string
-    Error error
+	Phase    Phase
+	Progress float64
+	Ping     float64
+	Download float64
+	Upload   float64
+	Server   string
+	Error    error
 }
 
 type Result struct {
-    Phase Phase
-    Ping float64
-    Download float64
-    Upload float64
-    Server string
-    Error error
+	Phase    Phase
+	Ping     float64
+	Download float64
+	Upload   float64
+	Server   string
+	Error    error
 }
