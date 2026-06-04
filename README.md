@@ -1,29 +1,31 @@
 # SpeedTest Tray
 
-A small Windows tray app for running an on-demand internet speed test from a compact Wails window.
+A small, high-performance system tray application for running on-demand internet speed tests from a compact, modern window.
 
-## What It Does
+## Key Features
 
-- Runs from the system tray.
-- Opens a fixed-size floating window near the cursor.
-- Measures server, ping, download speed, and upload speed.
-- Streams live progress updates to the UI during the test.
-- Hides the window on close or focus loss while keeping the tray app alive.
+- **System Tray Integration**: Stays out of your way until you need it.
+- **Modern Speedometer UI**: Features a custom-built, modular solid-sector gauge with a real-time synchronized kite needle.
+- **Vibrant Aesthetic**: Uses a premium dual-accent gradient theme with high-quality, color-matched bloom (glow) effects and softened shadows.
+- **Dynamic Scaling**: The speedometer automatically adjusts its scale for Download (1000 Mbps) and Upload (100 Mbps) phases to provide meaningful visual feedback.
+- **Test Cancellation**: Immediate termination support with a dedicated "Stop" button that instantly resets the UI.
+- **Persistent Logging**: Configurable file-based logging with support for standard and OneDrive-synced Documents folders.
+- **Cross-Platform Readiness**: Designed with agnostic pathing and logic for both Windows and macOS support.
 
 ## Tech Stack
 
-- Go
-- Wails v2
-- Plain HTML, CSS, and JavaScript
-- `github.com/showwin/speedtest-go` for speed tests
-- `github.com/energye/systray` for the tray integration
+- **Backend**: Go
+- **Frontend**: Wails v2 (HTML/CSS/JS)
+- **Speed Test Engine**: `github.com/showwin/speedtest-go`
+- **System Tray**: `github.com/energye/systray`
+- **UI Components**: Vanilla Web Components
 
 ## Project Layout
 
 ```text
 .
 ├── main.go                    # Wails and tray entry point
-├── frontend/                  # Static UI assets and Wails bindings
+├── frontend/                  # Static UI assets and Web Components
 ├── internal/gui_wails/        # Wails backend bindings and window integration
 ├── internal/speedtest_util/   # Speed test lifecycle and phase updates
 ├── assets/                    # Source app assets
@@ -31,12 +33,6 @@ A small Windows tray app for running an on-demand internet speed test from a com
 ```
 
 ## Development
-
-Run checks:
-
-```powershell
-go test ./...
-```
 
 Run the app in development mode:
 
@@ -52,4 +48,4 @@ wails build
 
 ## Notes
 
-The app is intentionally Windows-focused. Native Windows APIs are used for tray-window positioning and rounded corners.
+While the app features a platform-agnostic frontend, it utilizes native Win32 APIs on Windows for precise window positioning near the taskbar and hardware-accelerated rounded corners.
