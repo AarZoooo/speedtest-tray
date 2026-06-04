@@ -79,7 +79,7 @@ func newOptions(app *gui_wails.App) *options.App {
 			WebviewIsTransparent:              true,
 			WindowIsTranslucent:               false,
 			BackdropType:                      windows.None,
-			DisableWindowIcon:                 true,
+			DisableWindowIcon:                 false,
 			DisableFramelessWindowDecorations: true,
 			IsZoomControlEnabled:              false,
 			DisablePinchZoom:                  true,
