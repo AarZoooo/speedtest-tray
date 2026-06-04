@@ -16,16 +16,15 @@ var DefaultConfig = AppConfig{
 }
 
 // GetAppDir returns the application data directory
-// Tries OneDrive/Documents first, falls back to Documents
+// Uses os.UserConfigDir() (e.g., %APPDATA% on Windows, ~/.config on Linux/macOS)
 func GetAppDir() string {
-	home, _ := os.UserHomeDir()
-
-	// Try OneDrive first
-	dir := filepath.Join(home, "OneDrive", "Documents", AppName)
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		dir = filepath.Join(home, "Documents", AppName)
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		// Fallback to home directory if config dir is unavailable
+		home, _ := os.UserHomeDir()
+		return filepath.Join(home, "."+filepath.Base(AppName))
 	}
-	return dir
+	return filepath.Join(configDir, AppName)
 }
 
 // Load reads config from disk; returns DefaultConfig if not found
