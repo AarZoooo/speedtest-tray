@@ -25,10 +25,15 @@
 - Build verified: ✓
 - **Commit**: Phase 3: Create TestOrchestrator interface and simplify RunTest
 
-## Phase 4: Separate Wails/Business Logic [PENDING]
-- [ ] Create adapter layer
-- [ ] Move speedtest logic to separate package
-- [ ] Simplify App struct
+## Phase 4: Separate Wails/Business Logic ✅ DONE
+- Created TestAdapter: bridges Wails events and speedtest logic (adapter.go)
+- Created TestRunner: wraps orchestrator, handles test lifecycle (runner.go)
+- Simplified App struct: now minimal, delegates to adapter
+- Removed speedtest.go: logic moved to adapter
+- Added FormatNumber to progress.go for shared serialization
+- App no longer stores tester or test state; adapter handles it
+- Build verified: ✓
+- **Commit**: Phase 4: Separate Wails layer from business logic
 
 ## Phase 5: Frontend Modularization [PENDING]
 - [ ] Extract state management

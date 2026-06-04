@@ -1,5 +1,7 @@
 package speedtest_util
 
+import "fmt"
+
 // CalculatePhaseProgress calculates progress within a phase given elapsed time and total duration.
 // Returns clamped progress (0.0 to 1.0).
 func CalculatePhaseProgress(elapsed, duration float64) float64 {
@@ -16,4 +18,9 @@ func CalculatePhaseProgress(elapsed, duration float64) float64 {
 // Returns: total test progress
 func MapPhaseProgressToTotal(phaseStart, phaseEnd, phaseProgress float64) float64 {
 	return phaseStart + (phaseProgress * (phaseEnd - phaseStart))
+}
+
+// FormatNumber formats a float with specified decimal precision
+func FormatNumber(value float64, precision int) string {
+	return fmt.Sprintf("%.*f", precision, value)
 }
