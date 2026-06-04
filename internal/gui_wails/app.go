@@ -14,8 +14,9 @@ const (
 )
 
 type App struct {
-	ctx    context.Context
-	tester *speedtest_util.SpeedTester
+	ctx        context.Context
+	tester     *speedtest_util.SpeedTester
+	cancelFunc context.CancelFunc
 }
 
 func NewApp(tester *speedtest_util.SpeedTester) *App {

@@ -21,3 +21,7 @@ export function ShowWindow() {
 export function StartTest() {
   return window['go']['gui_wails']['App']['StartTest']();
 }
+
+export function StopTest() {
+  return window['go']['gui_wails']['App']['StopTest']();
+}

@@ -46,9 +46,11 @@ func (st *SpeedTester) runDownloadTest(ctx context.Context, updateCh chan<- Upda
 	})
 
 	if err := st.server.DownloadTestContext(ctx); err != nil {
+		st.client.SetCallbackDownload(nil) // Stop lingering updates
 		return fmt.Errorf("download test failed: %w", err)
 	}
 
+	st.client.SetCallbackDownload(nil)
 	res.Download = st.server.DLSpeed.Mbps()
 	return nil
 }
@@ -82,9 +84,11 @@ func (st *SpeedTester) runUploadTest(ctx context.Context, updateCh chan<- Update
 	})
 
 	if err := st.server.UploadTestContext(ctx); err != nil {
+		st.client.SetCallbackUpload(nil) // Stop lingering updates
 		return fmt.Errorf("upload test failed: %w", err)
 	}
 
+	st.client.SetCallbackUpload(nil)
 	res.Upload = st.server.ULSpeed.Mbps()
 	return nil
 }
