@@ -23,53 +23,57 @@ func New() *SpeedTester {
 
 func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-chan Result, error) {
 	resultCh := make(chan Result, 1)
-	log.Println("Starting speed test...")
+	log.Println("SpeedTester: RunTest requested")
 
 	go func() {
-		defer close(updateCh)
-		defer close(resultCh)
+		defer func() {
+			log.Println("SpeedTester: Test goroutine exiting")
+			close(updateCh)
+			close(resultCh)
+		}()
 
 		st.client.Reset()
 		finalResult := Result{}
 
-		log.Println("Initializing speedtest client...")
+		log.Println("SpeedTester: Initializing...")
+		updateCh <- Update{Phase: INITIALIZING, Progress: 0.05}
 		if err := st.initialize(ctx, updateCh); err != nil {
 			st.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
-		time.Sleep(1 * time.Second)
 
-		log.Println("Selecting best server...")
+		log.Println("SpeedTester: Selecting best server...")
+		updateCh <- Update{Phase: SELECTING_SERVER, Progress: 0.10}
 		if err := st.selectBestServer(ctx, updateCh, &finalResult); err != nil {
 			st.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
 		time.Sleep(1 * time.Second)
 
-		log.Println("Running ping test...")
+		log.Println("SpeedTester: Running ping test...")
+		updateCh <- Update{Phase: PING_TEST, Progress: 0.20}
 		if err := st.runPingTest(ctx, updateCh, &finalResult); err != nil {
 			st.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
-		updateCh <- Update{Phase: STARTING_DOWNLOAD, Progress: 0.30, Ping: finalResult.Ping}
 		time.Sleep(1 * time.Second)
 
-		log.Println("Running download test...")
+		log.Println("SpeedTester: Starting download...")
+		updateCh <- Update{Phase: STARTING_DOWNLOAD, Progress: 0.30, Ping: finalResult.Ping}
 		if err := st.runDownloadTest(ctx, updateCh, &finalResult); err != nil {
 			st.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
-		updateCh <- Update{Phase: STARTING_UPLOAD, Progress: 0.70, Ping: finalResult.Ping, Download: finalResult.Download}
 		time.Sleep(1 * time.Second)
 
-		log.Println("Running upload test...")
+		log.Println("SpeedTester: Starting upload...")
+		updateCh <- Update{Phase: STARTING_UPLOAD, Progress: 0.70, Ping: finalResult.Ping, Download: finalResult.Download}
 		if err := st.runUploadTest(ctx, updateCh, &finalResult); err != nil {
 			st.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
-		time.Sleep(1 * time.Second)
 
-		log.Printf("Test completed: Ping=%.2fms, DL=%.2fMbps, UL=%.2fMbps\n", finalResult.Ping, finalResult.Download, finalResult.Upload)
+		log.Printf("SpeedTester: Test completed: Ping=%.2fms, DL=%.2fMbps, UL=%.2fMbps\n", finalResult.Ping, finalResult.Download, finalResult.Upload)
 		updateCh <- Update{
 			Phase:    COMPLETED,
 			Progress: 1.0,

@@ -21,15 +21,20 @@ func (a *App) StartTest() {
 		return
 	}
 
+	log.Println("Wails: Test started successfully, forwarding events")
 	go a.forwardTestEvents(updateCh, resultCh)
 }
 
 func (a *App) forwardTestEvents(updateCh <-chan speedtest_util.Update, resultCh <-chan speedtest_util.Result) {
 	for update := range updateCh {
+		log.Printf("Wails: Test update received: Phase=%s, Progress=%.2f\n", update.Phase, update.Progress)
 		wailsRuntime.EventsEmit(a.ctx, "test_update", serializeUpdate(update))
 	}
 
+	log.Println("Wails: updateCh closed, waiting for final result")
 	result := <-resultCh
+	log.Printf("Wails: Final result received: Error=%v\n", result.Error)
+
 	event := map[string]interface{}{
 		"server":   result.Server,
 		"ping":     formatNumber(result.Ping, 0),
@@ -42,6 +47,7 @@ func (a *App) forwardTestEvents(updateCh <-chan speedtest_util.Update, resultCh 
 	}
 
 	wailsRuntime.EventsEmit(a.ctx, "test_complete", event)
+	log.Println("Wails: test_complete event emitted")
 }
 
 func serializeUpdate(update speedtest_util.Update) map[string]interface{} {
