@@ -58,44 +58,93 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		st.client.Reset()
 		finalResult := Result{}
 
+		// Phase: Initialize
 		log.Println("SpeedTester: Initializing...")
 		updateCh <- Update{Phase: INITIALIZING, Progress: config.ProgressInit}
-		if err := st.initialize(ctx, updateCh); err != nil {
+		if err := st.GetUserInfo(ctx); err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
+		updateCh <- Update{Phase: GETTING_INFO, Progress: config.ProgressGetInfo}
 		if st.checkContextCancelled(ctx, resultCh, updateCh) { return }
+
+		// Phase: Find and select server
+		log.Println("SpeedTester: Locating servers...")
+		updateCh <- Update{Phase: FINDING_SERVERS, Progress: config.ProgressFindServers}
+		if err := st.FindServers(ctx); err != nil {
+			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
+			return
+		}
 
 		log.Println("SpeedTester: Selecting best server...")
 		updateCh <- Update{Phase: SELECTING_SERVER, Progress: config.ProgressSelectServer}
-		if err := st.selectBestServer(ctx, updateCh, &finalResult); err != nil {
+		serverInfo, err := st.SelectBestServer(ctx)
+		if err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
+		finalResult.Server = fmt.Sprintf("%s (%s)", serverInfo.Name, serverInfo.Country)
+		log.Printf("Selected server: %s\n", finalResult.Server)
+		updateCh <- Update{Phase: SERVER_SELECTED, Progress: config.ProgressServerSelect, Server: finalResult.Server}
 		if st.sleepWithInterrupt(ctx, 1*time.Second, resultCh, updateCh) { return }
 
+		// Phase: Ping test
 		log.Println("SpeedTester: Running ping test...")
 		updateCh <- Update{Phase: PING_TEST, Progress: config.ProgressPingStart}
-		if err := st.runPingTest(ctx, updateCh, &finalResult); err != nil {
+		latency, err := st.RunPing(ctx)
+		if err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
+		finalResult.Ping = float64(latency.Milliseconds())
+		updateCh <- Update{Phase: PING_TEST, Progress: config.ProgressPingEnd, Ping: finalResult.Ping}
 		if st.sleepWithInterrupt(ctx, 1*time.Second, resultCh, updateCh) { return }
 
-		log.Println("SpeedTester: Starting download...")
+		// Phase: Download test
+		log.Println("SpeedTester: Starting download test...")
 		updateCh <- Update{Phase: STARTING_DOWNLOAD, Progress: config.ProgressDownStart, Ping: finalResult.Ping}
-		if err := st.runDownloadTest(ctx, updateCh, &finalResult); err != nil {
+		dlStart := time.Now()
+		downloadSpeed, err := st.RunDownload(ctx, func(mbps float64) {
+			elapsed := time.Since(dlStart).Seconds()
+			duration := config.TestDurationDownload.Seconds()
+			progress := CalculatePhaseProgress(elapsed, duration)
+			totalProgress := MapPhaseProgressToTotal(config.ProgressDownStart, config.ProgressDownEnd, progress)
+			updateCh <- Update{
+				Phase:    DOWNLOADING,
+				Progress: totalProgress,
+				Ping:     finalResult.Ping,
+				Download: mbps,
+			}
+		})
+		if err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
+		finalResult.Download = downloadSpeed
 		if st.sleepWithInterrupt(ctx, 1*time.Second, resultCh, updateCh) { return }
 
-		log.Println("SpeedTester: Starting upload...")
+		// Phase: Upload test
+		log.Println("SpeedTester: Starting upload test...")
 		updateCh <- Update{Phase: STARTING_UPLOAD, Progress: config.ProgressUpStart, Ping: finalResult.Ping, Download: finalResult.Download}
-		if err := st.runUploadTest(ctx, updateCh, &finalResult); err != nil {
+		ulStart := time.Now()
+		uploadSpeed, err := st.RunUpload(ctx, func(mbps float64) {
+			elapsed := time.Since(ulStart).Seconds()
+			duration := config.TestDurationUpload.Seconds()
+			progress := CalculatePhaseProgress(elapsed, duration)
+			totalProgress := MapPhaseProgressToTotal(config.ProgressUpStart, config.ProgressUpEnd, progress)
+			updateCh <- Update{
+				Phase:    UPLOADING,
+				Progress: totalProgress,
+				Ping:     finalResult.Ping,
+				Download: finalResult.Download,
+				Upload:   mbps,
+			}
+		})
+		if err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
 		}
+		finalResult.Upload = uploadSpeed
 
 		log.Printf("SpeedTester: Test completed: Ping=%.2fms, DL=%.2fMbps, UL=%.2fMbps\n", finalResult.Ping, finalResult.Download, finalResult.Upload)
 		updateCh <- Update{

@@ -16,10 +16,14 @@
 - Build verified: ✓
 - **Commit**: Phase 2: Unify phase constants and extract progress helpers
 
-## Phase 3: Modularize SpeedTester [PENDING]
-- [ ] Create TestOrchestrator interface
-- [ ] Simplify RunTest() orchestration
-- [ ] Extract phase execution logic
+## Phase 3: Modularize SpeedTester ✅ DONE
+- Created TestOrchestrator interface: defines contract for test execution
+- Implemented interface in SpeedTester: GetUserInfo, FindServers, SelectBestServer, RunPing, RunDownload, RunUpload
+- Simplified RunTest(): cleaner orchestration, easier to understand phase flow
+- Removed old phase methods: phases_init.go and phases_tests.go deleted
+- All test logic now in orchestrator methods (orchestrator_impl.go)
+- Build verified: ✓
+- **Commit**: Phase 3: Create TestOrchestrator interface and simplify RunTest
 
 ## Phase 4: Separate Wails/Business Logic [PENDING]
 - [ ] Create adapter layer
