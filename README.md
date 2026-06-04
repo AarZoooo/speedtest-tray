@@ -41,7 +41,7 @@
 ## 🚀 Installation
 
 ### Windows (Recommended)
-1. Download the latest `speedtest-tray.exe` from the **Releases** page.
+1. Download the latest `speedtest-tray.exe` from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.        
 2. Run the executable. It will automatically initialize in your system tray.
 
 ### From Source
