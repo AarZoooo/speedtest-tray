@@ -12,16 +12,23 @@
     width: 100%;
     height: auto;
     max-height: 240px;
+    /* Ensure bloom doesn't get clipped by SVG boundaries */
+    overflow: visible;
 }
 
 .gauge-bg {
     stroke: var(--card-bg);
-    stroke-linecap: round;
+}
+
+.gauge-bloom {
+    stroke: url(#gauge-gradient);
+    /* Color-matched bloom via high-quality CSS blur */
+    filter: blur(8px);
+    opacity: 0.6;
 }
 
 .gauge-fill {
     stroke: url(#gauge-gradient);
-    stroke-linecap: round;
 }
 
 .needle {
