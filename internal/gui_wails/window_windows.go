@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"speedtest-tray/internal/speedtest_util"
+	"speedtest-tray/internal/config"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -29,8 +29,8 @@ func (a *App) positionWindow() {
 	var cursor point
 	procGetCursorPos.Call(uintptr(unsafe.Pointer(&cursor)))
 
-	x := int(cursor.x) - WindowWidth/2
-	y := int(cursor.y) - WindowHeight - 10
+	x := int(cursor.x) - config.WindowWidth/2
+	y := int(cursor.y) - config.WindowHeight + config.WindowOffsetYPixels
 	if x < 0 {
 		x = 0
 	}
@@ -39,7 +39,7 @@ func (a *App) positionWindow() {
 }
 
 func (a *App) ApplyRoundedCorners() {
-	title, _ := syscall.UTF16PtrFromString(speedtest_util.AppName)
+	title, _ := syscall.UTF16PtrFromString(config.AppName)
 	hwnd, _, _ := procFindWindowW.Call(0, uintptr(unsafe.Pointer(title)))
 	if hwnd == 0 {
 		return
@@ -48,10 +48,10 @@ func (a *App) ApplyRoundedCorners() {
 	region, _, _ := procCreateRoundRectRgn.Call(
 		0,
 		0,
-		uintptr(WindowWidth),
-		uintptr(WindowHeight),
-		32,
-		32,
+		uintptr(config.WindowWidth),
+		uintptr(config.WindowHeight),
+		uintptr(config.WindowCornerRadius),
+		uintptr(config.WindowCornerRadius),
 	)
 	procSetWindowRgn.Call(hwnd, region, 1)
 }

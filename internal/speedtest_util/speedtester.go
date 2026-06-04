@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"speedtest-tray/internal/config"
+
 	"github.com/showwin/speedtest-go/speedtest"
 )
 
@@ -57,7 +59,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		finalResult := Result{}
 
 		log.Println("SpeedTester: Initializing...")
-		updateCh <- Update{Phase: INITIALIZING, Progress: 0.05}
+		updateCh <- Update{Phase: INITIALIZING, Progress: config.ProgressInit}
 		if err := st.initialize(ctx, updateCh); err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
@@ -65,7 +67,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		if checkCancel() { return }
 
 		log.Println("SpeedTester: Selecting best server...")
-		updateCh <- Update{Phase: SELECTING_SERVER, Progress: 0.10}
+		updateCh <- Update{Phase: SELECTING_SERVER, Progress: config.ProgressSelectServer}
 		if err := st.selectBestServer(ctx, updateCh, &finalResult); err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
@@ -73,7 +75,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		if sleepWithContext(1 * time.Second) { return }
 
 		log.Println("SpeedTester: Running ping test...")
-		updateCh <- Update{Phase: PING_TEST, Progress: 0.20}
+		updateCh <- Update{Phase: PING_TEST, Progress: config.ProgressPingStart}
 		if err := st.runPingTest(ctx, updateCh, &finalResult); err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
@@ -81,7 +83,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		if sleepWithContext(1 * time.Second) { return }
 
 		log.Println("SpeedTester: Starting download...")
-		updateCh <- Update{Phase: STARTING_DOWNLOAD, Progress: 0.30, Ping: finalResult.Ping}
+		updateCh <- Update{Phase: STARTING_DOWNLOAD, Progress: config.ProgressDownStart, Ping: finalResult.Ping}
 		if err := st.runDownloadTest(ctx, updateCh, &finalResult); err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
@@ -89,7 +91,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		if sleepWithContext(1 * time.Second) { return }
 
 		log.Println("SpeedTester: Starting upload...")
-		updateCh <- Update{Phase: STARTING_UPLOAD, Progress: 0.70, Ping: finalResult.Ping, Download: finalResult.Download}
+		updateCh <- Update{Phase: STARTING_UPLOAD, Progress: config.ProgressUpStart, Ping: finalResult.Ping, Download: finalResult.Download}
 		if err := st.runUploadTest(ctx, updateCh, &finalResult); err != nil {
 			if ctx.Err() == nil { st.fail(err, &finalResult, resultCh, updateCh) }
 			return
@@ -98,7 +100,7 @@ func (st *SpeedTester) RunTest(ctx context.Context, updateCh chan<- Update) (<-c
 		log.Printf("SpeedTester: Test completed: Ping=%.2fms, DL=%.2fMbps, UL=%.2fMbps\n", finalResult.Ping, finalResult.Download, finalResult.Upload)
 		updateCh <- Update{
 			Phase:    COMPLETED,
-			Progress: 1.0,
+			Progress: config.ProgressComplete,
 			Ping:     finalResult.Ping,
 			Download: finalResult.Download,
 			Upload:   finalResult.Upload,

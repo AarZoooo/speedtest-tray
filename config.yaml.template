@@ -1,0 +1,39 @@
+# SpeedTest Tray Configuration
+
+# Logging
+save_logs: false
+
+# Test Configuration
+test_duration_download_seconds: 10
+test_duration_upload_seconds: 10
+result_timeout_seconds: 2
+
+# Progress thresholds (0.0 to 1.0)
+progress_thresholds:
+  init: 0.05
+  get_info: 0.05
+  find_servers: 0.10
+  select_server: 0.12
+  server_selected: 0.15
+  ping_start: 0.20
+  ping_end: 0.30
+  download_start: 0.30
+  download_end: 0.70
+  upload_start: 0.70
+  upload_end: 0.95
+  complete: 1.0
+
+# UI/Window Configuration
+ui:
+  hide_delay_ms: 1000
+
+window:
+  width: 320
+  height: 560
+  corner_radius: 32
+  offset_y_pixels: -10
+
+# Gauge scales (Mbps)
+gauge:
+  max_download: 1000
+  max_upload: 100

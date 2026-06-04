@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"speedtest-tray/internal/config"
 	"speedtest-tray/internal/speedtest_util"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -68,7 +69,7 @@ func (a *App) forwardTestEvents(updateCh <-chan speedtest_util.Update, resultCh 
 
 		wailsRuntime.EventsEmit(a.ctx, "test_complete", event)
 		log.Println("Wails: test_complete event emitted")
-	case <-time.After(2 * time.Second):
+	case <-time.After(config.ResultTimeout):
 		log.Println("Wails: Timeout waiting for resultCh")
 		wailsRuntime.EventsEmit(a.ctx, "test_complete", map[string]interface{}{"error": "Test stopped"})
 	}

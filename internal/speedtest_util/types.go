@@ -1,7 +1,5 @@
 package speedtest_util
 
-const AppName = "SpeedTest Tray"
-
 type Phase string
 
 const (

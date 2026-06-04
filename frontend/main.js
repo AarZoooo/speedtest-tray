@@ -1,3 +1,10 @@
+// === Constants (from internal/config/constants.go) ===
+const CONFIG = {
+  UI_HIDE_DELAY_MS: 1000,
+  GAUGE_MAX_DOWNLOAD: 1000,
+  GAUGE_MAX_UPLOAD: 100,
+};
+
 const PHASES = {
   INITIALIZING: "INITIALIZING",
   GETTING_INFO: "GETTING_INFO",
@@ -58,7 +65,7 @@ window.runtime.EventsOn(EVENTS.WINDOW_SHOWN, () => {
   canHide = false;
   setTimeout(() => {
     canHide = true;
-  }, 1000);
+  }, CONFIG.UI_HIDE_DELAY_MS);
 });
 
 window.onblur = () => {
@@ -134,13 +141,13 @@ window.runtime.EventsOn(EVENTS.TEST_UPDATE, (data) => {
 
   if (data.phase === PHASES.DOWNLOADING) {
     if (parseFloat(data.download) > 0) {
-      elements.speedometer.setMax(1000);
+      elements.speedometer.setMax(CONFIG.GAUGE_MAX_DOWNLOAD);
       elements.download.innerText = data.download + TEXT.MBPS_SUFFIX;
       updateGauge(data.download);
     }
   } else if (data.phase === PHASES.UPLOADING) {
     if (parseFloat(data.upload) > 0) {
-      elements.speedometer.setMax(100);
+      elements.speedometer.setMax(CONFIG.GAUGE_MAX_UPLOAD);
       elements.upload.innerText = data.upload + TEXT.MBPS_SUFFIX;
       updateGauge(data.upload);
     }
