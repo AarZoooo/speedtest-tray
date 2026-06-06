@@ -35,8 +35,8 @@ type MockOrchestrator struct {
 	OnFindServers      func(context.Context)
 	OnSelectBestServer func(context.Context)
 	OnRunPing          func(context.Context)
-	OnRunDownload      func(context.Context)
-	OnRunUpload        func(context.Context)
+	OnRunDownload      func(context.Context, func(float64))
+	OnRunUpload        func(context.Context, func(float64))
 }
 
 func (m *MockOrchestrator) GetUserInfo(ctx context.Context) error {
@@ -80,7 +80,7 @@ func (m *MockOrchestrator) RunPing(ctx context.Context) (time.Duration, error) {
 func (m *MockOrchestrator) RunDownload(ctx context.Context, callback func(float64)) (float64, error) {
 	m.RunDownloadCalls++
 	if m.OnRunDownload != nil {
-		m.OnRunDownload(ctx)
+		m.OnRunDownload(ctx, callback)
 	}
 	for _, sample := range m.DownloadSamples {
 		callback(sample)
@@ -91,7 +91,7 @@ func (m *MockOrchestrator) RunDownload(ctx context.Context, callback func(float6
 func (m *MockOrchestrator) RunUpload(ctx context.Context, callback func(float64)) (float64, error) {
 	m.RunUploadCalls++
 	if m.OnRunUpload != nil {
-		m.OnRunUpload(ctx)
+		m.OnRunUpload(ctx, callback)
 	}
 	for _, sample := range m.UploadSamples {
 		callback(sample)

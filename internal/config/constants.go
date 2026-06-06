@@ -36,7 +36,8 @@ const (
 
 // UI timing
 const (
-	UIHideDelayMs = 2000
+	UIHideDelayMs      = 2000
+	PhaseSleepDuration = 1 * time.Second
 )
 
 // Window properties
@@ -58,4 +59,9 @@ const (
 const (
 	GaugeMaxDownload = 1000
 	GaugeMaxUpload   = 100
+)
+
+// Channel sizes
+const (
+	UpdateChannelSize = 64
 )

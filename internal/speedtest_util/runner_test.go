@@ -193,6 +193,34 @@ func TestRunTestErrorsStopDownstreamPhases(t *testing.T) {
 	}
 }
 
+func TestRunTestCallbackAfterClose(t *testing.T) {
+	var storedCallback func(float64)
+	mock := &MockOrchestrator{
+		OnRunDownload: func(ctx context.Context, cb func(float64)) {
+			storedCallback = cb
+		},
+		RunDownloadErr: errors.New("abort"),
+	}
+
+	updateCh := make(chan Update, 10)
+	runner := NewTestRunner(mock)
+	runner.sleep = func(context.Context, time.Duration) {}
+
+	resultCh, err := runner.RunTest(context.Background(), updateCh)
+	if err != nil {
+		t.Fatalf("RunTest() error = %v", err)
+	}
+	<-resultCh
+
+	time.Sleep(50 * time.Millisecond)
+
+	if storedCallback != nil {
+		storedCallback(100.0)
+	} else {
+		t.Fatal("callback not stored")
+	}
+}
+
 func runTestWithMock(t *testing.T, mock *MockOrchestrator) (Result, []Update) {
 	t.Helper()
 	return runTestWithContextAndMock(t, context.Background(), mock)

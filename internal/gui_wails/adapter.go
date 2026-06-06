@@ -31,7 +31,7 @@ func NewTestAdapter(ctx context.Context, tester speedtest_util.TestOrchestrator)
 
 // RunTest orchestrates a speed test and emits Wails events
 func (ta *TestAdapter) RunTest(ctx context.Context) (<-chan speedtest_util.Result, error) {
-	updateCh := make(chan speedtest_util.Update)
+	updateCh := make(chan speedtest_util.Update, config.UpdateChannelSize)
 	resultCh, err := speedtest_util.NewTestRunner(ta.tester).RunTest(ctx, updateCh)
 	if err != nil {
 		return nil, err
