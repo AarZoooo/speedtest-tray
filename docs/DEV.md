@@ -1,14 +1,28 @@
 # TO-DO for the project
 
-Here's the list of features to add to the application:
-- [ ] Add offline indicator support for when the test is run without an internet connection
-- [ ] Add ease-in-out animations for speedometer only for start and end of each test. When it shows speed, it needs to remain snappy.
-- [ ] Add a build for OSes other than Windows to try and test a MacOS build
-- [ ] Add an installer instead of portable exe to bind into windows to also support autostart through task manager.
-- [ ] Add an option to enable updates
+## Blocking bugs
 
+- [ ] On display scaling set to a value other than 100%, the UI gets stretched and clipped.
 
-Here are the list of existing bugs to fix:
+## Non-Blocking bugs
+
 - [ ] Retrying speed tests after completion or failure still shows the speed coming down from around 3000 Mbps
 - [ ] The 2-second sleep between each step is indistinguishable and the proper process labels aren't being shown in the sleep times.
-- [ ] On display scaling set to a value other than 100%, the UI gets stretched and clipped.
+
+## Features
+
+Here's the list of small features to add to the application:
+- [ ] Add offline indicator support for when the test is run without an internet connection
+- [ ] Add ease-in-out animations for speedometer only for start and end of each test. When it shows speed, it needs to remain snappy.
+- [ ] Add an option to enable updates
+- [ ] Add headless CLI mode for the app
+- [ ] Add retry loops for failures
+- [ ] Add better logger support with hardware utilization stats (use slog)
+
+## Major changes
+
+Here's the list of big changes to do to the application:
+- [ ] Add an installer instead of portable exe to bind into windows to also support autostart through task manager.
+- [ ] Add a build for OSes other than Windows to try and test a MacOS build
+- [ ] Add support for successful speedtest history being saved and available to view in UI
+- [ ] Revamp UI with a more sharp, minimal monochrome visual. Less animations, visual effects, more utility.

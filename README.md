@@ -25,7 +25,6 @@
 - [Usage](#-usage)
 - [Tech Stack](#-tech-stack)
 - [Project Layout](#-project-layout)
-- [Roadmap](#-roadmap)
 - [Development](#-development)
 - [License](#-license)
 
@@ -84,13 +83,6 @@ wails build
 ├── docs/                      # Architecture and design documentation
 └── build/windows/             # Windows icon and Wails build metadata
 ```
-
-## 🗺 Roadmap
-
-- [ ] **CLI Interface**: Add `--cli` flag for headless speed tests with JSON output.
-- [ ] **History View**: Implement local persistence (SQLite) to visualize performance trends.
-- [ ] **Error Recovery**: Add retry logic for transient network failures.
-- [ ] **Hardware Correlation**: Correlate system performance (CPU/RAM) with test results.
 
 ## 🛠 Development
 
