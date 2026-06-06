@@ -84,6 +84,14 @@ wails build
 └── build/windows/             # Windows icon and Wails build metadata
 ```
 
+## 📖 Documentation
+
+For more detailed information about the project's internals and guidelines, please refer to the following:
+
+- [**Architecture Overview**](docs/ARCHITECTURE.md): Deep dive into the system design, module structure, and data flow.
+- [**Development Roadmap**](docs/DEV.md): Current status, known bugs, and planned features.
+- [**Engineering Rules**](docs/RULES.md): Coding standards, testing requirements, and development workflows.
+
 ## 🛠 Development
 
 Run in development mode with hot-reload:
@@ -91,10 +99,17 @@ Run in development mode with hot-reload:
 wails dev
 ```
 
-Run unit tests:
+Run all tests (Go and Frontend):
 ```powershell
-go test ./internal/...
+# Backend
+go generate ./...
+go test ./...
+
+# Frontend
+npm test --prefix frontend
 ```
+
+For more details on our development workflow and testing standards, see [**docs/RULES.md**](docs/RULES.md).
 
 ## 📄 License
 
