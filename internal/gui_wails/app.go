@@ -3,7 +3,6 @@ package gui_wails
 import (
 	"context"
 
-	"speedtest-tray/internal/config"
 	"speedtest-tray/internal/speedtest_util"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -36,7 +35,6 @@ func (a *App) ShowWindow() {
 		return
 	}
 
-	wailsRuntime.WindowSetSize(a.ctx, config.WindowWidth, config.WindowHeight)
 	a.positionWindow()
 	wailsRuntime.WindowShow(a.ctx)
 	wailsRuntime.WindowUnminimise(a.ctx)
