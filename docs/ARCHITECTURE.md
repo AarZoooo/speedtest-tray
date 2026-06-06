@@ -259,15 +259,3 @@ This avoids drift between backend phases, frontend state handling, and UI timing
 ### 6. Deterministic Test Boundaries
 
 **Why**: The real speedtest library, Wails runtime, browser DOM, and user config directory are external systems. Tests use mocks, temp directories, injected emitters, and JSDOM so they remain fast and reliable.
-
-## Future Improvements
-
-Listed in ascending order of implementation difficulty:
-
-1. **Frontend Bundler**: Currently vanilla JS modules in browser. Migrating to Webpack or Vite would enable tree-shaking, minification, and more efficient CSS bundling.
-2. **CLI Interface**: Add a `--cli` flag to allow running headless speed tests with JSON output, making the tool useful for automation and scripting.
-3. **Error Recovery**: Improve resilience by implementing retry logic for transient network failures and supporting partial results if a specific phase (e.g., upload) fails.
-4. **Enhanced Logging**: Transition to structured logging (using Go's `slog`) and incorporate real-time hardware usage data (CPU, RAM) to correlate system performance with test results.
-5. **Memory Footprint Reduction**: Conduct deep profiling of the Wails/Webview lifecycle to minimize memory usage, ensuring the tray app remains as lightweight as possible during idle periods.
-6. **Historical Results**: Implement a local persistence layer (SQLite or JSON) to save test history and create a new UI view to visualize performance trends over time.
-7. **MacOS Native Builds**: Extend platform support to macOS, requiring native window positioning logic, tray handling adjustments, and a full notarization/packaging workflow.
