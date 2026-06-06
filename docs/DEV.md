@@ -2,7 +2,7 @@
 
 ## Blocking bugs
 
-- [ ] On display scaling set to a value other than 100%, the UI gets stretched and clipped.
+- [x] On display scaling set to a value other than 100%, the UI gets stretched and clipped.
 
 ## Non-Blocking bugs
 
