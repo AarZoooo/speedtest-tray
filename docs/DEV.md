@@ -2,14 +2,12 @@
 
 ## Blocking bugs
 
-- [x] On display scaling set to a value other than 100%, the UI gets stretched and clipped.
-- [x] When "Stop" is pressed during an ongoing download or upload test, the UI refreshes everything to blank except the button. The button stays disabled for a while, then it returns to the "Try again" state. Turns out the full 10 seconds of the ongoing test first needs to complete, then the button returnss to the cancelled state.
+None
 
 ## Non-Blocking bugs
 
 - [ ] Retrying speed tests after completion or failure still shows the speed coming down from around 3000 Mbps
 - [ ] The 2-second sleep between each step is indistinguishable and the proper process labels aren't being shown in the sleep times.
-- [x] The tests are buggy, incomplete, and don't cover everything.
 
 ## Features
 
