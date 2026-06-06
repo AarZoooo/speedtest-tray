@@ -7,17 +7,15 @@ import (
 	"path/filepath"
 )
 
-type AppConfig struct {
+type CustomConfig struct {
 	SaveLogs bool `json:"save_logs"`
 }
 
-var DefaultConfig = AppConfig{
+var DefaultConfig = CustomConfig{
 	SaveLogs: false,
 }
 
-// GetAppDir returns the application data directory
-// Uses os.UserConfigDir() (e.g., %APPDATA% on Windows, ~/.config on Linux/macOS)
-func GetAppDir() string {
+func GetConfigDir() string {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		// Fallback to home directory if config dir is unavailable
@@ -27,9 +25,8 @@ func GetAppDir() string {
 	return filepath.Join(configDir, AppName)
 }
 
-// Load reads config from disk; returns DefaultConfig if not found
-func Load() AppConfig {
-	dir := GetAppDir()
+func LoadConfigOrDefault() CustomConfig {
+	dir := GetConfigDir()
 	configPath := filepath.Join(dir, "config.json")
 
 	data, err := os.ReadFile(configPath)
@@ -42,9 +39,8 @@ func Load() AppConfig {
 	return cfg
 }
 
-// Save writes config to disk
-func Save(cfg AppConfig) error {
-	dir := GetAppDir()
+func SaveConfig(cfg CustomConfig) error {
+	dir := GetConfigDir()
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Printf("Failed to create config directory: %v\n", err)
 		return err
@@ -55,8 +51,7 @@ func Save(cfg AppConfig) error {
 	return os.WriteFile(configPath, data, 0644)
 }
 
-// GetLogFilePath returns the path to the log file
 func GetLogFilePath() string {
-	dir := GetAppDir()
+	dir := GetConfigDir()
 	return filepath.Join(dir, "app.log")
 }

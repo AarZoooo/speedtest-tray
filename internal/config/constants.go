@@ -7,7 +7,7 @@ const AppName = "SpeedTest Tray"
 
 // Progress thresholds (phase orchestration)
 const (
-	ProgressInit         = 0.05
+	ProgressInit         = 0.00
 	ProgressGetInfo      = 0.05
 	ProgressFindServers  = 0.10
 	ProgressSelectServer = 0.12
@@ -36,7 +36,7 @@ const (
 
 // UI timing
 const (
-	UIHideDelayMs = 1000
+	UIHideDelayMs = 2000
 )
 
 // Window properties
@@ -44,7 +44,7 @@ const (
 	WindowWidth         = 320
 	WindowHeight        = 560
 	WindowCornerRadius  = 32
-	WindowOffsetYPixels = -10
+	WindowOffsetYPixels = -20
 )
 
 // Gauge scales (Mbps)

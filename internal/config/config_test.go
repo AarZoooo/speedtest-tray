@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func TestProgressConstants(t *testing.T) {
-	tests := []struct {
+func TestProgressConstants(tester *testing.T) {
+	progressTests := []struct {
 		name     string
 		expected float64
 	}{
-		{"ProgressInit", 0.05},
+		{"ProgressInit", 0.00},
 		{"ProgressGetInfo", 0.05},
 		{"ProgressFindServers", 0.10},
 		{"ProgressSelectServer", 0.12},
@@ -20,11 +20,10 @@ func TestProgressConstants(t *testing.T) {
 		{"ProgressComplete", 1.0},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Verify constants are accessible and reasonable
+	for _, test := range progressTests {
+		tester.Run(test.name, func(tester *testing.T) {
 			if ProgressInit < 0 || ProgressInit > 1 {
-				t.Errorf("ProgressInit %v is outside valid range [0, 1]", ProgressInit)
+				tester.Errorf("ProgressInit %v is outside valid range [0, 1]", ProgressInit)
 			}
 		})
 	}
