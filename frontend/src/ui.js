@@ -117,7 +117,7 @@ export function handleTestComplete(data) {
     elements.runBtn.innerText = data.error || wasManualStop ? TEXT.TRY_AGAIN : TEXT.START_AGAIN;
   }
 
-  if (wasManualStop || data.error === "Test stopped") {
+  if (wasManualStop || data.error?.toLowerCase() === "test stopped") {
     setStatus(TEXT.TEST_STOPPED);
     resetUI(TEXT.DEFAULT_VAL);
   } else {

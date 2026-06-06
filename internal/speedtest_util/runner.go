@@ -13,12 +13,14 @@ import (
 type TestRunner struct {
 	orchestrator TestOrchestrator
 	cancel       context.CancelFunc
+	sleep        func(context.Context, time.Duration)
 }
 
 // NewTestRunner creates a new test runner
 func NewTestRunner(orchestrator TestOrchestrator) *TestRunner {
 	return &TestRunner{
 		orchestrator: orchestrator,
+		sleep:        sleepOrCancel,
 	}
 }
 
@@ -74,7 +76,7 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 		finalResult.Server = fmt.Sprintf("%s (%s)", serverInfo.Name, serverInfo.Country)
 		log.Printf("Selected server: %s\n", finalResult.Server)
 		updateCh <- Update{Phase: SERVER_SELECTED, Progress: config.ProgressServerSelect, Server: finalResult.Server}
-		tr.sleepOrCancel(ctx, 1*time.Second)
+		tr.sleep(ctx, 1*time.Second)
 		if ctx.Err() != nil {
 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
 			return
@@ -95,7 +97,7 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 
 		finalResult.Ping = float64(latency.Milliseconds())
 		updateCh <- Update{Phase: PING_TEST, Progress: config.ProgressPingEnd, Ping: finalResult.Ping}
-		tr.sleepOrCancel(ctx, 1*time.Second)
+		tr.sleep(ctx, 1*time.Second)
 		if ctx.Err() != nil {
 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
 			return
@@ -127,7 +129,7 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 		}
 
 		finalResult.Download = downloadSpeed
-		tr.sleepOrCancel(ctx, 1*time.Second)
+		tr.sleep(ctx, 1*time.Second)
 		if ctx.Err() != nil {
 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
 			return
@@ -194,7 +196,7 @@ func (tr *TestRunner) fail(err error, res *Result, resCh chan<- Result, updateCh
 }
 
 // sleepOrCancel sleeps but returns early if context is cancelled
-func (tr *TestRunner) sleepOrCancel(ctx context.Context, d time.Duration) {
+func sleepOrCancel(ctx context.Context, d time.Duration) {
 	select {
 	case <-ctx.Done():
 		return

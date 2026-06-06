@@ -34,6 +34,20 @@ func TestCalculatePhaseProgress(t *testing.T) {
 			description: "No elapsed time",
 		},
 		{
+			name:        "negative_elapsed",
+			elapsed:     -1,
+			duration:    10,
+			expected:    0.0,
+			description: "Negative elapsed time is clamped",
+		},
+		{
+			name:        "zero_duration",
+			elapsed:     1,
+			duration:    0,
+			expected:    0.0,
+			description: "Zero duration is clamped",
+		},
+		{
 			name:        "exceed_duration",
 			elapsed:     15,
 			duration:    10,
@@ -85,6 +99,22 @@ func TestMapPhaseProgressToTotal(t *testing.T) {
 			phaseProgress: 0.5,
 			expected:      0.7,
 			description:   "Download phase halfway (0.5 + (0.9-0.5)*0.5 = 0.7)",
+		},
+		{
+			name:          "phase_progress_below_zero",
+			phaseStart:    0.5,
+			phaseEnd:      0.9,
+			phaseProgress: -0.5,
+			expected:      0.5,
+			description:   "Phase progress below zero is clamped",
+		},
+		{
+			name:          "phase_progress_above_one",
+			phaseStart:    0.5,
+			phaseEnd:      0.9,
+			phaseProgress: 1.5,
+			expected:      0.9,
+			description:   "Phase progress above one is clamped",
 		},
 	}
 
