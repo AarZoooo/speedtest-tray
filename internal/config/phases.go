@@ -1,6 +1,5 @@
 package config
 
-// Phase represents a stage in the speed test lifecycle
 type Phase string
 
 const (
@@ -16,9 +15,9 @@ const (
 	PhaseUploading         Phase = "UPLOADING"
 	PhaseCompleted         Phase = "COMPLETED"
 	PhaseFailed            Phase = "FAILED"
+	PhaseStopped           Phase = "STOPPED"
 )
 
-// String returns human-readable phase name
 func (p Phase) String() string {
 	switch p {
 	case PhaseInitializing:
@@ -45,6 +44,8 @@ func (p Phase) String() string {
 		return "Test Completed"
 	case PhaseFailed:
 		return "Test Failed"
+	case PhaseStopped:
+	    return "Test Stopped"
 	default:
 		return string(p)
 	}
