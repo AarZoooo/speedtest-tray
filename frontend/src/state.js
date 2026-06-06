@@ -1,7 +1,7 @@
-import { PHASES, CONFIG } from "./constants.js";
+import { PHASES } from "./constants.js";
 
 // Test state manager
-class TestState {
+export class TestState {
   constructor() {
     this.isTesting = false;
     this.canHide = false;

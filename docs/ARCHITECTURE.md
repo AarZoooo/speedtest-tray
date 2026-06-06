@@ -16,8 +16,9 @@ Speedtest Tray is a modular speed testing application with clean separation of c
 **Purpose**: Single source of truth for all configuration values
 
 - `constants.go`: All hardcoded values (progress thresholds, window dimensions, gauge scales, test durations, UI timing)
-- `config.go`: Configuration file I/O (loading/saving YAML)
-- `phases.go`: Phase lifecycle constants (used by both Go and JavaScript)
+- `config.go`: Configuration file I/O (loading/saving JSON)
+- `phases.go`: Phase lifecycle constants
+- `cmd/gen-frontend-config`: Generates frontend shared constants from Go config with `go generate ./...`
 
 **Usage**: Import to access centralized values. Example:
 ```go
@@ -86,7 +87,8 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 
 - `index.html`: HTML structure (removed inline onclick handlers)
 - `main.js`: Module orchestrator (imports all modules, initializes app)
-- `src/constants.js`: Phase constants, event names, configuration (must match Go values)
+- `src/constants.js`: Frontend event names and re-exports for generated shared constants
+- `src/generated/config.js`: Generated phase and UI config constants from `internal/config`
 - `src/state.js`: TestState class (centralized test state management)
 - `src/ui.js`: UI update handlers (results, gauge, status, button state)
 - `src/handlers.js`: Test control (start, stop, button click)
@@ -127,7 +129,6 @@ TestRunner accepts TestOrchestrator interface, enabling:
 ### 2. Callback-Based Progress
 
 TestRunner uses callbacks instead of shared state:
-- Ping callback: `func(float64)` (milliseconds)
 - Download callback: `func(float64)` (Mbps)
 - Upload callback: `func(float64)` (Mbps)
 
@@ -159,7 +160,7 @@ const ProgressDownStart = 0.30  // Download starts at 30% total
 const ProgressDownEnd = 0.70    // Download ends at 70% total
 
 // UI timing
-const UIHideDelayMs = 1000      // Hide window after 1 second of showing
+const UIHideDelayMs = 2000      // Hide window after 2 seconds of showing
 
 // Window properties
 const WindowWidth = 320
@@ -170,28 +171,51 @@ const GaugeMaxDownload = 1000
 const GaugeMaxUpload = 100
 ```
 
-Edit here to tune behavior without touching business logic.
+Edit here to tune behavior without touching business logic. If a value is shared with the frontend, run:
+
+```bash
+go generate ./...
+```
+
+This regenerates `frontend/src/generated/config.js`, keeping Go as the source of truth.
 
 ## Testing
 
-**Unit Tests**:
+The project uses deterministic tests instead of live network tests or a running Wails window.
 
-- `internal/config/config_test.go`: Validates constants
-- `internal/speedtest_util/progress_test.go`: Tests progress calculations
-- `internal/speedtest_util/mock_orchestrator_test.go`: Mock implementation for testing
+**Backend Tests**:
+
+- `internal/config/config_test.go`: Validates constants, phase strings, and config file persistence with temp directories.
+- `internal/speedtest_util/progress_test.go`: Tests progress calculation, clamping, and formatting.
+- `internal/speedtest_util/mock_orchestrator_test.go`: Mock implementation of `TestOrchestrator`.
+- `internal/speedtest_util/runner_test.go`: Tests phase sequencing, progress mapping, cancellation, failures, channel closure, and final results.
+- `internal/gui_wails/adapter_test.go`: Tests serialization and Wails event routing through an injected emitter.
+
+**Frontend Tests**:
+
+- Vitest with JSDOM runs from `frontend/`.
+- `frontend/src/constants.test.js`: Verifies generated frontend constants stay aligned with Go.
+- `frontend/src/state.test.js`: Tests isolated `TestState` behavior.
+- `frontend/src/ui.test.js`: Tests DOM updates, gauge calls, completion, stop, and error states.
+- `frontend/src/handlers.test.js`: Tests start/stop button behavior with mocked Wails bindings.
+- `frontend/src/window.test.js`: Tests window event behavior with mocked runtime APIs.
 
 **Running Tests**:
 
 ```bash
-go test ./internal/...
+go generate ./...
+go test ./...
+npm test --prefix frontend
+go test -race ./internal/speedtest_util ./internal/gui_wails
 ```
 
 **Mock Orchestrator Usage**:
 
 ```go
 mock := &speedtest_util.MockOrchestrator{
-    UserInfoResult: &UserInfo{IP: "1.2.3.4"},
-    PingResult: 10.5,
+    PingResult: 20 * time.Millisecond,
+    DownloadResult: 90.5,
+    UploadResult: 18.2,
 }
 runner := speedtest_util.NewTestRunner(mock)
 ```
@@ -225,6 +249,16 @@ runner := speedtest_util.NewTestRunner(mock)
 - Maintainability (split by concern)
 - Reusability (export handlers, state)
 - Clear data flow (state → UI updates)
+
+### 5. Generated Shared Constants
+
+**Why**: Phase and UI config values are needed in both Go and browser JavaScript. Go remains the source of truth, while `go generate ./...` writes `frontend/src/generated/config.js`.
+
+This avoids drift between backend phases, frontend state handling, and UI timing/gauge values.
+
+### 6. Deterministic Test Boundaries
+
+**Why**: The real speedtest library, Wails runtime, browser DOM, and user config directory are external systems. Tests use mocks, temp directories, injected emitters, and JSDOM so they remain fast and reliable.
 
 ## Future Improvements
 

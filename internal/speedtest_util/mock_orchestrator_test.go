@@ -3,11 +3,12 @@ package speedtest_util
 import (
 	"context"
 	"testing"
+	"time"
 )
 
-// MockOrchestrator is a test implementation of TestOrchestrator
+var _ TestOrchestrator = (*MockOrchestrator)(nil)
+
 type MockOrchestrator struct {
-	// Track call counts
 	GetUserInfoCalls      int
 	FindServersCalls      int
 	SelectBestServerCalls int
@@ -15,70 +16,91 @@ type MockOrchestrator struct {
 	RunDownloadCalls      int
 	RunUploadCalls        int
 
-	// Control return values
-	UserInfoResult *UserInfo
-	ServersResult  []Server
-	ServerResult   *Server
-	PingResult     float64
+	ServerResult   *ServerInfo
+	PingResult     time.Duration
 	DownloadResult float64
 	UploadResult   float64
-	ErrorResult    error
+
+	GetUserInfoErr      error
+	FindServersErr      error
+	SelectBestServerErr error
+	RunPingErr          error
+	RunDownloadErr      error
+	RunUploadErr        error
+
+	DownloadSamples []float64
+	UploadSamples   []float64
+
+	OnGetUserInfo      func(context.Context)
+	OnFindServers      func(context.Context)
+	OnSelectBestServer func(context.Context)
+	OnRunPing          func(context.Context)
+	OnRunDownload      func(context.Context)
+	OnRunUpload        func(context.Context)
 }
 
-// UserInfo mock types
-type UserInfo struct {
-	IP   string
-	ISP  string
-	City string
-}
-
-type Server struct {
-	ID       string
-	Name     string
-	Distance float64
-}
-
-func (m *MockOrchestrator) GetUserInfo(ctx context.Context) (*UserInfo, error) {
+func (m *MockOrchestrator) GetUserInfo(ctx context.Context) error {
 	m.GetUserInfoCalls++
-	return m.UserInfoResult, m.ErrorResult
+	if m.OnGetUserInfo != nil {
+		m.OnGetUserInfo(ctx)
+	}
+	return m.GetUserInfoErr
 }
 
-func (m *MockOrchestrator) FindServers(ctx context.Context) ([]Server, error) {
+func (m *MockOrchestrator) FindServers(ctx context.Context) error {
 	m.FindServersCalls++
-	return m.ServersResult, m.ErrorResult
+	if m.OnFindServers != nil {
+		m.OnFindServers(ctx)
+	}
+	return m.FindServersErr
 }
 
-func (m *MockOrchestrator) SelectBestServer(ctx context.Context, servers []Server) (*Server, error) {
+func (m *MockOrchestrator) SelectBestServer(ctx context.Context) (*ServerInfo, error) {
 	m.SelectBestServerCalls++
-	return m.ServerResult, m.ErrorResult
+	if m.OnSelectBestServer != nil {
+		m.OnSelectBestServer(ctx)
+	}
+	if m.SelectBestServerErr != nil {
+		return nil, m.SelectBestServerErr
+	}
+	if m.ServerResult != nil {
+		return m.ServerResult, nil
+	}
+	return &ServerInfo{Name: "Test Server", Country: "Test Country"}, nil
 }
 
-func (m *MockOrchestrator) RunPing(ctx context.Context, server *Server, callback func(float64)) error {
+func (m *MockOrchestrator) RunPing(ctx context.Context) (time.Duration, error) {
 	m.RunPingCalls++
-	if callback != nil && m.PingResult > 0 {
-		callback(m.PingResult)
+	if m.OnRunPing != nil {
+		m.OnRunPing(ctx)
 	}
-	return m.ErrorResult
+	return m.PingResult, m.RunPingErr
 }
 
-func (m *MockOrchestrator) RunDownload(ctx context.Context, server *Server, callback func(float64)) error {
+func (m *MockOrchestrator) RunDownload(ctx context.Context, callback func(float64)) (float64, error) {
 	m.RunDownloadCalls++
-	if callback != nil && m.DownloadResult > 0 {
-		callback(m.DownloadResult)
+	if m.OnRunDownload != nil {
+		m.OnRunDownload(ctx)
 	}
-	return m.ErrorResult
+	for _, sample := range m.DownloadSamples {
+		callback(sample)
+	}
+	return m.DownloadResult, m.RunDownloadErr
 }
 
-func (m *MockOrchestrator) RunUpload(ctx context.Context, server *Server, callback func(float64)) error {
+func (m *MockOrchestrator) RunUpload(ctx context.Context, callback func(float64)) (float64, error) {
 	m.RunUploadCalls++
-	if callback != nil && m.UploadResult > 0 {
-		callback(m.UploadResult)
+	if m.OnRunUpload != nil {
+		m.OnRunUpload(ctx)
 	}
-	return m.ErrorResult
+	for _, sample := range m.UploadSamples {
+		callback(sample)
+	}
+	return m.UploadResult, m.RunUploadErr
 }
 
-// Test helper to verify mock was called the expected number of times
 func (m *MockOrchestrator) VerifyCalls(t *testing.T, expectedUserInfo, expectedServers, expectedSelect, expectedPing, expectedDL, expectedUL int) {
+	t.Helper()
 	if m.GetUserInfoCalls != expectedUserInfo {
 		t.Errorf("GetUserInfo called %d times, expected %d", m.GetUserInfoCalls, expectedUserInfo)
 	}
