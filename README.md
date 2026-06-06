@@ -48,7 +48,7 @@ If you prefer to build it yourself, ensure you have [Go](https://go.dev/) and [W
 
 ```powershell
 # Clone the repository
-git clone https://github.com/aarju/speedtest-tray.git
+git clone https://github.com/AarZoooo/speedtest-tray.git
 cd speedtest-tray
 
 # Build the application
