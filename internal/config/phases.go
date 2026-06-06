@@ -3,19 +3,19 @@ package config
 type Phase string
 
 const (
-	PhaseInitializing      Phase = "INITIALIZING"
-	PhaseGettingInfo       Phase = "GETTING_INFO"
-	PhaseFindingServers    Phase = "FINDING_SERVERS"
-	PhaseSelectingServer   Phase = "SELECTING_SERVER"
-	PhaseServerSelected    Phase = "SERVER_SELECTED"
-	PhasePingTest          Phase = "PING_TEST"
-	PhaseStartingDownload  Phase = "STARTING_DOWNLOAD"
-	PhaseDownloading       Phase = "DOWNLOADING"
-	PhaseStartingUpload    Phase = "STARTING_UPLOAD"
-	PhaseUploading         Phase = "UPLOADING"
-	PhaseCompleted         Phase = "COMPLETED"
-	PhaseFailed            Phase = "FAILED"
-	PhaseStopped           Phase = "STOPPED"
+	PhaseInitializing     Phase = "INITIALIZING"
+	PhaseGettingInfo      Phase = "GETTING_INFO"
+	PhaseFindingServers   Phase = "FINDING_SERVERS"
+	PhaseSelectingServer  Phase = "SELECTING_SERVER"
+	PhaseServerSelected   Phase = "SERVER_SELECTED"
+	PhasePingTest         Phase = "PING_TEST"
+	PhaseStartingDownload Phase = "STARTING_DOWNLOAD"
+	PhaseDownloading      Phase = "DOWNLOADING"
+	PhaseStartingUpload   Phase = "STARTING_UPLOAD"
+	PhaseUploading        Phase = "UPLOADING"
+	PhaseCompleted        Phase = "COMPLETED"
+	PhaseFailed           Phase = "FAILED"
+	PhaseStopped          Phase = "STOPPED"
 )
 
 func (p Phase) String() string {
@@ -45,7 +45,7 @@ func (p Phase) String() string {
 	case PhaseFailed:
 		return "Test Failed"
 	case PhaseStopped:
-	    return "Test Stopped"
+		return "Test Stopped"
 	default:
 		return string(p)
 	}

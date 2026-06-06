@@ -13,15 +13,19 @@ import (
 
 // TestAdapter bridges Wails events and speedtest logic
 type TestAdapter struct {
-	ctx    context.Context
-	tester speedtest_util.TestOrchestrator
+	ctx           context.Context
+	tester        speedtest_util.TestOrchestrator
+	emit          func(context.Context, string, ...interface{})
+	resultTimeout time.Duration
 }
 
 // NewTestAdapter creates a new adapter
 func NewTestAdapter(ctx context.Context, tester speedtest_util.TestOrchestrator) *TestAdapter {
 	return &TestAdapter{
-		ctx:    ctx,
-		tester: tester,
+		ctx:           ctx,
+		tester:        tester,
+		emit:          wailsRuntime.EventsEmit,
+		resultTimeout: config.ResultTimeout,
 	}
 }
 
@@ -44,7 +48,7 @@ func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, res
 	for update := range updateCh {
 		log.Printf("Adapter: Update - Phase=%s, Progress=%.2f\n", update.Phase, update.Progress)
 		event := serializeUpdate(update)
-		wailsRuntime.EventsEmit(ta.ctx, "test_update", event)
+		ta.emit(ta.ctx, "test_update", event)
 	}
 
 	log.Println("Adapter: Updates closed, waiting for result")
@@ -53,10 +57,10 @@ func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, res
 	case result := <-resultCh:
 		log.Printf("Adapter: Result received - Error=%v\n", result.Error)
 		event := serializeResult(result)
-		wailsRuntime.EventsEmit(ta.ctx, "test_complete", event)
-	case <-time.After(config.ResultTimeout):
+		ta.emit(ta.ctx, "test_complete", event)
+	case <-time.After(ta.resultTimeout):
 		log.Println("Adapter: Timeout waiting for result")
-		wailsRuntime.EventsEmit(ta.ctx, "test_complete", map[string]interface{}{"error": config.ErrTestTimeout})
+		ta.emit(ta.ctx, "test_complete", map[string]interface{}{"error": config.ErrTestTimeout})
 	}
 }
 

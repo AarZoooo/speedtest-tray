@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run ./cmd/gen-frontend-config
+
 import (
 	"embed"
 	"log"

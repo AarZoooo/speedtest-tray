@@ -1,3 +1,5 @@
 *.exe
 *.syso
 build/bin/
+frontend/node_modules/
+frontend/coverage/
