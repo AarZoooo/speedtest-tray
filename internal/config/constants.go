@@ -45,6 +45,13 @@ const (
 	WindowHeight        = 560
 	WindowCornerRadius  = 32
 	WindowOffsetYPixels = -20
+	StandardDPI         = 96.0
+)
+
+// Win32 constants
+const (
+	MonitorDefaultToNearest = 2
+	MdtEffectiveDpi         = 0
 )
 
 // Gauge scales (Mbps)
