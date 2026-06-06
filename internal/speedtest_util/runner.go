@@ -190,8 +190,14 @@ func (tr *TestRunner) Cancel() {
 func (tr *TestRunner) fail(err error, res *Result, resCh chan<- Result, updateCh chan<- Update) {
 	log.Printf("TestRunner: Test failed: %v\n", err)
 	res.Error = err
-	res.Phase = FAILED
-	updateCh <- Update{Phase: FAILED, Error: err}
+
+	phase := FAILED
+	if err.Error() == config.ErrTestStopped {
+		phase = config.PhaseStopped
+	}
+
+	res.Phase = phase
+	updateCh <- Update{Phase: phase, Error: err}
 	resCh <- *res
 }
 

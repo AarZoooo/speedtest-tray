@@ -95,11 +95,11 @@ func TestRunTestCanceledBeforeStart(t *testing.T) {
 	if result.Error == nil || result.Error.Error() != config.ErrTestStopped {
 		t.Fatalf("result error = %v, want %q", result.Error, config.ErrTestStopped)
 	}
-	if result.Phase != FAILED {
-		t.Fatalf("result phase = %s, want %s", result.Phase, FAILED)
+	if result.Phase != config.PhaseStopped {
+		t.Fatalf("result phase = %s, want %s", result.Phase, config.PhaseStopped)
 	}
-	if last := updates[len(updates)-1]; last.Phase != FAILED {
-		t.Fatalf("last update phase = %s, want %s", last.Phase, FAILED)
+	if last := updates[len(updates)-1]; last.Phase != config.PhaseStopped {
+		t.Fatalf("last update phase = %s, want %s", last.Phase, config.PhaseStopped)
 	}
 	mock.VerifyCalls(t, 1, 0, 0, 0, 0, 0)
 }
