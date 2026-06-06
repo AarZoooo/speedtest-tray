@@ -26,7 +26,7 @@ var iconBytes []byte
 var (
 	logFile          *os.File
 	isLoggingEnabled bool
-	appConfig        config.AppConfig
+	appConfig        config.CustomConfig
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 	tester := speedtest_util.New()
 	app := gui_wails.NewApp(tester)
 
-	appConfig = config.Load()
+	appConfig = config.LoadConfigOrDefault()
 	if appConfig.SaveLogs {
 		enableFileLogging()
 	}
@@ -75,7 +75,7 @@ func startTray(app *gui_wails.App) {
 				appConfig.SaveLogs = true
 				enableFileLogging()
 			}
-			config.Save(appConfig)
+			config.SaveConfig(appConfig)
 		})
 
 		systray.AddSeparator()
@@ -89,7 +89,7 @@ func startTray(app *gui_wails.App) {
 }
 
 func enableFileLogging() {
-	logDir := config.GetAppDir()
+	logDir := config.GetConfigDir()
 
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		log.Printf("Failed to create log directory: %v\n", err)
