@@ -1,3 +1,4 @@
 *.exe
 *.syso
 build/bin/
+*/node_modules/*
