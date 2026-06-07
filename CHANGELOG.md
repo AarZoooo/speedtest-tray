@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 - Panic and UI hang when stopping an ongoing download or upload test.
 - Corrected various small UI state bugs during test lifecycle.
 
-## [1.0.0] - 2026-05-15
+## [1.0.0] - 2026-06-05
 
 ### Added
 - Initial release of SpeedTest Tray.
