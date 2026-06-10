@@ -25,3 +25,5 @@ Here's the list of big changes to do to the application:
 - [ ] Add a build for OSes other than Windows to try and test a MacOS build
 - [ ] Add support for successful speedtest history being saved and available to view in UI
 - [ ] Revamp UI with a more sharp, minimal monochrome visual. Less animations, visual effects, more utility.
+- [ ] Replace `speedtest-go` with a custom speedtest implementation (reduces third-party dependency and gives full control over rate calculation).
+- [ ] Optimize per-run struct allocation (e.g. factory-based orchestrator injection) once a custom engine exists.
