@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-06-11
+
+### Changed
+- `SpeedTester` and `TestAdapter` are now created fresh for each test run instead of being reused for the application lifetime.
+
+### Fixed
+- Speedometer needle and Mbps display no longer spike to extremely high values when retrying a test after completion, failure, or stop.
+
 ## [1.0.1] - 2026-06-07
 
 ### Added

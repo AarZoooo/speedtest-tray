@@ -16,7 +16,6 @@ import (
 
 	"speedtest-tray/internal/config"
 	"speedtest-tray/internal/gui_wails"
-	"speedtest-tray/internal/speedtest_util"
 )
 
 //go:embed all:frontend
@@ -34,8 +33,7 @@ var (
 func main() {
 	log.Println("--- Application Starting ---")
 
-	tester := speedtest_util.New()
-	app := gui_wails.NewApp(tester)
+	app := gui_wails.NewApp()
 
 	appConfig = config.LoadConfigOrDefault()
 	if appConfig.SaveLogs {

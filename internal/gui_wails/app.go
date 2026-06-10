@@ -10,23 +10,18 @@ import (
 
 // App represents the Wails application binding
 type App struct {
-	ctx     context.Context
-	adapter *TestAdapter
-	tester  *speedtest_util.SpeedTester
-	cancel  context.CancelFunc
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // NewApp creates a new App instance
-func NewApp(tester *speedtest_util.SpeedTester) *App {
-	return &App{
-		tester: tester,
-	}
+func NewApp() *App {
+	return &App{}
 }
 
 // Startup initializes the app on Wails startup
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
-	a.adapter = NewTestAdapter(ctx, a.tester)
 }
 
 // ShowWindow displays the main window
@@ -64,7 +59,9 @@ func (a *App) StartTest() {
 	ctx, cancel := context.WithCancel(context.Background())
 	a.cancel = cancel
 
-	_, err := a.adapter.RunTest(ctx)
+	tester := speedtest_util.New()
+	adapter := NewTestAdapter(a.ctx, tester)
+	_, err := adapter.RunTest(ctx)
 	if err != nil {
 		wailsRuntime.EventsEmit(a.ctx, "test_error", err.Error())
 	}

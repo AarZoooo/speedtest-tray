@@ -65,12 +65,14 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 **Key Components**:
 
 1. **App Struct** (`app.go`)
-   - Minimal Wails binding layer
-   - Delegates to TestAdapter
+   - Minimal Wails binding layer for window, tray, and test control
+   - Holds only Wails context and the active test cancellation handle
+   - On each `StartTest`, creates a fresh `SpeedTester` and `TestAdapter` for that run
    - Methods: Startup, StartTest, StopTest
 
 2. **TestAdapter** (`adapter.go`)
    - Bridges Wails events with business logic
+   - Created per test run
    - Converts TestRunner callbacks to Wails runtime events
    - Serializes results for frontend consumption
    - Zero business logic dependency
@@ -107,9 +109,9 @@ handlers.js: startTest()
   ↓
 Calls window.go.gui_wails.App.StartTest()
   ↓
-Go: App.StartTest() → TestAdapter.Start()
+Go: App.StartTest() → fresh SpeedTester + TestAdapter → TestAdapter.RunTest()
   ↓
-TestRunner executes phases
+TestRunner executes phases (new instance per run)
   ↓
 Callbacks emit progress → window.runtime.EventsEmit()
   ↓
@@ -122,9 +124,11 @@ ui.js: handleTestUpdate() updates gauge/results
 
 ### 1. Dependency Injection
 
-TestRunner accepts TestOrchestrator interface, enabling:
-- Production use: real SpeedTester implementation
+`TestRunner` and `TestAdapter` accept a `TestOrchestrator` interface, enabling:
+- Production use: a fresh `SpeedTester` created in `App.StartTest()`
 - Testing: mock orchestrator for unit tests
+
+`App` constructs the production orchestrator on demand rather than receiving a long-lived instance from `main`.
 
 ### 2. Callback-Based Progress
 
@@ -259,3 +263,9 @@ This avoids drift between backend phases, frontend state handling, and UI timing
 ### 6. Deterministic Test Boundaries
 
 **Why**: The real speedtest library, Wails runtime, browser DOM, and user config directory are external systems. Tests use mocks, temp directories, injected emitters, and JSDOM so they remain fast and reliable.
+
+### 7. Per-Run Test Engine Lifecycle
+
+**Why**: Reusing a single `speedtest-go` client across runs leaked EWMA rate state into the first download/upload callbacks of the next test, causing the speedometer to briefly show thousands of Mbps. Creating a fresh `SpeedTester` and `TestAdapter` per run guarantees each test starts from zero without manual reset logic against library internals.
+
+**Trade-off**: A few extra allocations per test, which is negligible compared to network I/O and test buffers. Struct reuse or a custom speedtest engine can be revisited later if needed.
