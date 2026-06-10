@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CONFIG, PHASES } from "./constants.js";
+import { CONFIG, ERRORS, MESSAGES, PHASES } from "./constants.js";
 import { testState } from "./state.js";
 import {
   handleTestComplete,
@@ -117,6 +117,17 @@ describe("ui", () => {
     handleTestComplete({ error: "test stopped" });
 
     expect(text("status")).toBe("Test Stopped");
+    expect(text("run-btn")).toBe("Try Again");
+    expect(text("server")).toBe("--");
+  });
+
+  it("handles offline completion", () => {
+    testState.startTest();
+
+    handleTestComplete({ error: ERRORS.NO_INTERNET });
+
+    expect(testState.isTesting).toBe(false);
+    expect(text("status")).toBe(MESSAGES.NO_INTERNET);
     expect(text("run-btn")).toBe("Try Again");
     expect(text("server")).toBe("--");
   });

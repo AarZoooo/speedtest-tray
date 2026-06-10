@@ -9,15 +9,17 @@ import (
 )
 
 type TestRunner struct {
-	orchestrator TestOrchestrator
-	cancel       context.CancelFunc
-	sleep        func(context.Context, time.Duration)
+	orchestrator  TestOrchestrator
+	cancel        context.CancelFunc
+	sleep         func(context.Context, time.Duration)
+	checkInternet func(context.Context) error
 }
 
 func NewTestRunner(orchestrator TestOrchestrator) *TestRunner {
 	return &TestRunner{
-		orchestrator: orchestrator,
-		sleep:        sleepOrCancel,
+		orchestrator:  orchestrator,
+		sleep:         sleepOrCancel,
+		checkInternet: CheckInternet,
 	}
 }
 
@@ -35,6 +37,10 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 		finalResult := Result{}
 
 		tr.sendUpdate(ctx, updateCh, Update{Phase: INITIALIZING, Progress: config.ProgressInit})
+		if err := tr.checkInternet(ctx); err != nil {
+			tr.fail(err, &finalResult, resultCh, updateCh)
+			return
+		}
 		if err := tr.orchestrator.GetUserInfo(ctx); err != nil {
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return

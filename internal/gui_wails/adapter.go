@@ -68,7 +68,7 @@ func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, res
 func serializeUpdate(update speedtest_util.Update) map[string]interface{} {
 	return map[string]interface{}{
 		"phase":    update.Phase,
-		"status":   update.Phase.String(),
+		"status":   failureStatus(update),
 		"progress": update.Progress,
 		"ping":     formatNumber(update.Ping, 0),
 		"download": formatNumber(update.Download, 1),
@@ -94,4 +94,11 @@ func serializeResult(result speedtest_util.Result) map[string]interface{} {
 // formatNumber formats a float with specified precision
 func formatNumber(value float64, precision int) string {
 	return speedtest_util.FormatNumber(value, precision)
+}
+
+func failureStatus(update speedtest_util.Update) string {
+	if update.Error != nil && update.Error.Error() == config.ErrNoInternet {
+		return config.MsgNoInternet
+	}
+	return update.Phase.String()
 }

@@ -1,4 +1,4 @@
-export { CONFIG, PHASES } from "./generated/config.js";
+export { CONFIG, ERRORS, MESSAGES, PHASES } from "./generated/config.js";
 
 // Event constants
 export const EVENTS = {

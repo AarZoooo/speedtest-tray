@@ -45,16 +45,21 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 
 3. **TestRunner** (`runner.go`)
    - Orchestrates full test workflow
+   - Probes internet connectivity before any speedtest API calls
    - Manages context, cancellation, phase sequencing
    - Handles progress mapping (phase progress → total test progress)
-   - Lifecycle: Initialize → Ping → Download → Upload → Complete
+   - Lifecycle: Initialize → Connectivity check → Ping → Download → Upload → Complete
 
-4. **Progress Helpers** (`progress.go`)
+4. **Connectivity Check** (`connectivity.go`)
+   - HEAD request to a lightweight probe endpoint with a short timeout
+   - Fails fast with `ErrNoInternet` when the machine appears offline
+
+5. **Progress Helpers** (`progress.go`)
    - `CalculatePhaseProgress()`: Calculates progress within a single phase
    - `MapPhaseProgressToTotal()`: Maps phase progress to overall test progress
    - `FormatNumber()`: Consistent float formatting (2 decimal places)
 
-5. **Data Types** (`types.go`)
+6. **Data Types** (`types.go`)
    - `Update`: Progress notification to GUI
    - `Result`: Final test results
 
@@ -193,7 +198,8 @@ The project uses deterministic tests instead of live network tests or a running 
 - `internal/config/config_test.go`: Validates constants, phase strings, and config file persistence with temp directories.
 - `internal/speedtest_util/progress_test.go`: Tests progress calculation, clamping, and formatting.
 - `internal/speedtest_util/mock_orchestrator_test.go`: Mock implementation of `TestOrchestrator`.
-- `internal/speedtest_util/runner_test.go`: Tests phase sequencing, progress mapping, cancellation, failures, channel closure, and final results.
+- `internal/speedtest_util/connectivity_test.go`: Tests connectivity probing and offline error detection.
+- `internal/speedtest_util/runner_test.go`: Tests phase sequencing, progress mapping, cancellation, offline failure, failures, channel closure, and final results.
 - `internal/gui_wails/adapter_test.go`: Tests serialization and Wails event routing through an injected emitter.
 
 **Frontend Tests**:

@@ -37,6 +37,12 @@ func main() {
 	fmt.Fprintf(&out, "  UI_HIDE_DELAY_MS: %d,\n", config.UIHideDelayMs)
 	fmt.Fprintf(&out, "  GAUGE_MAX_DOWNLOAD: %d,\n", config.GaugeMaxDownload)
 	fmt.Fprintf(&out, "  GAUGE_MAX_UPLOAD: %d,\n", config.GaugeMaxUpload)
+	out.WriteString("};\n\n")
+	out.WriteString("export const ERRORS = {\n")
+	fmt.Fprintf(&out, "  NO_INTERNET: %q,\n", config.ErrNoInternet)
+	out.WriteString("};\n\n")
+	out.WriteString("export const MESSAGES = {\n")
+	fmt.Fprintf(&out, "  NO_INTERNET: %q,\n", config.MsgNoInternet)
 	out.WriteString("};\n")
 
 	targetDir := filepath.Join(root, "frontend", "src", "generated")

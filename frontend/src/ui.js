@@ -1,4 +1,4 @@
-import { PHASES, CONFIG } from "./constants.js";
+import { PHASES, CONFIG, ERRORS, MESSAGES } from "./constants.js";
 import { testState } from "./state.js";
 
 const TEXT = {
@@ -121,7 +121,7 @@ export function handleTestComplete(data) {
     setStatus(TEXT.TEST_STOPPED);
     resetUI(TEXT.DEFAULT_VAL);
   } else {
-    setStatus(data.error ? TEXT.TEST_FAILED : TEXT.TEST_COMPLETED);
+    setStatus(data.error ? failureStatus(data.error) : TEXT.TEST_COMPLETED);
 
     if (!data.error) {
       if (elements.server) elements.server.innerText = data.server;
@@ -134,6 +134,13 @@ export function handleTestComplete(data) {
   }
 
   updateGauge(0);
+}
+
+function failureStatus(error) {
+  if (error?.toLowerCase() === ERRORS.NO_INTERNET) {
+    return MESSAGES.NO_INTERNET;
+  }
+  return TEXT.TEST_FAILED;
 }
 
 // Handle test error

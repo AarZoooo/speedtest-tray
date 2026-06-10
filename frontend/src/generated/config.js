@@ -21,3 +21,11 @@ export const CONFIG = {
   GAUGE_MAX_DOWNLOAD: 1000,
   GAUGE_MAX_UPLOAD: 100,
 };
+
+export const ERRORS = {
+  NO_INTERNET: "no internet connection",
+};
+
+export const MESSAGES = {
+  NO_INTERNET: "No internet connection",
+};

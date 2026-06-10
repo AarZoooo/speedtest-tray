@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [1.0.2] - 2026-06-11
 
+### Added
+- Offline detection before a test starts, with a dedicated **No internet connection** status when no connectivity is available.
+
 ### Changed
 - `SpeedTester` and `TestAdapter` are now created fresh for each test run instead of being reused for the application lifetime.
 

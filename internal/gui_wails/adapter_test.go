@@ -29,6 +29,16 @@ func TestSerializeUpdate(t *testing.T) {
 	assertMapValue(t, got, "server", "Nearest (IN)")
 }
 
+func TestSerializeUpdateOfflineFailure(t *testing.T) {
+	got := serializeUpdate(speedtest_util.Update{
+		Phase: speedtest_util.FAILED,
+		Error: errors.New(config.ErrNoInternet),
+	})
+
+	assertMapValue(t, got, "phase", speedtest_util.FAILED)
+	assertMapValue(t, got, "status", config.MsgNoInternet)
+}
+
 func TestSerializeResultSuccess(t *testing.T) {
 	got := serializeResult(speedtest_util.Result{
 		Server:   "Nearest (IN)",

@@ -193,6 +193,45 @@ func TestRunTestErrorsStopDownstreamPhases(t *testing.T) {
 	}
 }
 
+func TestRunTestNoInternet(t *testing.T) {
+	mock := &MockOrchestrator{}
+	updateCh := make(chan Update, 8)
+	runner := NewTestRunner(mock)
+	runner.sleep = func(context.Context, time.Duration) {}
+	runner.checkInternet = func(context.Context) error {
+		return errors.New(config.ErrNoInternet)
+	}
+
+	resultCh, err := runner.RunTest(context.Background(), updateCh)
+	if err != nil {
+		t.Fatalf("RunTest() error = %v", err)
+	}
+
+	result := <-resultCh
+	if result.Error == nil || result.Error.Error() != config.ErrNoInternet {
+		t.Fatalf("result error = %v, want %q", result.Error, config.ErrNoInternet)
+	}
+	if result.Phase != FAILED {
+		t.Fatalf("result phase = %s, want %s", result.Phase, FAILED)
+	}
+
+	var updates []Update
+	for update := range updateCh {
+		updates = append(updates, update)
+	}
+
+	if len(updates) != 2 {
+		t.Fatalf("got %d updates, want 2: %+v", len(updates), updates)
+	}
+	if updates[0].Phase != INITIALIZING {
+		t.Fatalf("first phase = %s, want %s", updates[0].Phase, INITIALIZING)
+	}
+	if updates[1].Phase != FAILED {
+		t.Fatalf("last phase = %s, want %s", updates[1].Phase, FAILED)
+	}
+	mock.VerifyCalls(t, 0, 0, 0, 0, 0, 0)
+}
+
 func TestRunTestCallbackAfterClose(t *testing.T) {
 	var storedCallback func(float64)
 	mock := &MockOrchestrator{
@@ -205,6 +244,7 @@ func TestRunTestCallbackAfterClose(t *testing.T) {
 	updateCh := make(chan Update, 10)
 	runner := NewTestRunner(mock)
 	runner.sleep = func(context.Context, time.Duration) {}
+	runner.checkInternet = func(context.Context) error { return nil }
 
 	resultCh, err := runner.RunTest(context.Background(), updateCh)
 	if err != nil {
@@ -231,6 +271,7 @@ func runTestWithContextAndMock(t *testing.T, ctx context.Context, mock *MockOrch
 	updateCh := make(chan Update, 64)
 	runner := NewTestRunner(mock)
 	runner.sleep = func(context.Context, time.Duration) {}
+	runner.checkInternet = func(context.Context) error { return nil }
 
 	resultCh, err := runner.RunTest(ctx, updateCh)
 	if err != nil {

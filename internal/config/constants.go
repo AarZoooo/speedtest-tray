@@ -30,8 +30,16 @@ const (
 
 // Error messages
 const (
-	ErrTestStopped = "test stopped"
-	ErrTestTimeout = "test timeout"
+	ErrTestStopped  = "test stopped"
+	ErrTestTimeout  = "test timeout"
+	ErrNoInternet   = "no internet connection"
+	MsgNoInternet   = "No internet connection"
+)
+
+// Connectivity probe
+const (
+	ConnectivityProbeURL     = "https://clients3.google.com/generate_204"
+	ConnectivityCheckTimeout = 5 * time.Second
 )
 
 // UI timing

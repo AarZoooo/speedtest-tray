@@ -36,6 +36,7 @@
 - **Dynamic Scaling**: Automatically adjusts its scale for Download (1000 Mbps) and Upload (100 Mbps) phases for optimal visual feedback.
 - **Reliable Retests**: Each run uses a fresh test engine, so the speedometer starts at 0 Mbps on every retry.
 - **Clear Step Labels**: Status text updates to the upcoming phase during pauses between ping, download, and upload.
+- **Offline Detection**: Shows **No internet connection** and offers **Try Again** when a test is started without connectivity.
 - **Immediate Termination**: Dedicated "Stop" button for instant test cancellation and UI reset.
 - **Persistent Logging**: Configurable file-based logging stored in your system's application data folder.
 

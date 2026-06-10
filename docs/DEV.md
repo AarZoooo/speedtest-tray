@@ -11,7 +11,6 @@ None
 ## Features
 
 Here's the list of small features to add to the application:
-- [ ] Add offline indicator support for when the test is run without an internet connection
 - [ ] Add retry loops for failures
 - [ ] Add better logger support with hardware utilization stats (use slog)
 
