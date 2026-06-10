@@ -2,6 +2,7 @@ package speedtest_util
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -15,6 +16,8 @@ type TestRunner struct {
 	sleep         func(context.Context, time.Duration)
 	checkInternet func(context.Context) error
 	throttle      time.Duration
+	maxAttempts   int
+	retryDelay    time.Duration
 }
 
 func NewTestRunner(orchestrator TestOrchestrator) *TestRunner {
@@ -23,7 +26,29 @@ func NewTestRunner(orchestrator TestOrchestrator) *TestRunner {
 		sleep:         sleepOrCancel,
 		checkInternet: CheckInternet,
 		throttle:      100 * time.Millisecond,
+		maxAttempts:   config.MaxRetryAttempts,
+		retryDelay:    config.RetryDelay,
 	}
+}
+
+func (tr *TestRunner) retry(ctx context.Context, op func() error) error {
+	var err error
+	for attempt := 1; attempt <= tr.maxAttempts; attempt++ {
+		if err = op(); err == nil {
+			return nil
+		}
+		if ctx.Err() != nil || errors.Is(err, context.Canceled) || err.Error() == config.ErrTestStopped {
+			return errors.New(config.ErrTestStopped)
+		}
+		if attempt < tr.maxAttempts {
+			slog.Warn("Operation failed, retrying", "attempt", attempt, "maxAttempts", tr.maxAttempts, "error", err)
+			tr.sleep(ctx, tr.retryDelay)
+			if ctx.Err() != nil {
+				return errors.New(config.ErrTestStopped)
+			}
+		}
+	}
+	return err
 }
 
 func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-chan Result, error) {
@@ -47,49 +72,65 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
-		if err := tr.orchestrator.GetUserInfo(ctx); err != nil {
-			tr.fail(err, &finalResult, resultCh, updateCh)
-			return
-		}
-
-		tr.sendUpdate(ctx, updateCh, Update{Phase: GETTING_INFO, Progress: config.ProgressGetInfo})
-		if ctx.Err() != nil {
-			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
-			return
-		}
-
-		tr.sendUpdate(ctx, updateCh, Update{Phase: FINDING_SERVERS, Progress: config.ProgressFindServers})
-		if err := tr.orchestrator.FindServers(ctx); err != nil {
-			tr.fail(err, &finalResult, resultCh, updateCh)
-			return
-		}
-
-		tr.sendUpdate(ctx, updateCh, Update{Phase: SELECTING_SERVER, Progress: config.ProgressSelectServer})
-		serverInfo, err := tr.orchestrator.SelectBestServer(ctx)
+		err := tr.retry(ctx, func() error {
+			return tr.orchestrator.GetUserInfo(ctx)
+		})
 		if err != nil {
 			tr.fail(err, &finalResult, resultCh, updateCh)
 			return
 		}
-
-		if ctx.Err() != nil {
-			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
-			return
-		}
-
-		finalResult.Server = fmt.Sprintf("%s (%s)", serverInfo.Name, serverInfo.Country)
-		tr.sendUpdate(ctx, updateCh, Update{Phase: SERVER_SELECTED, Progress: config.ProgressServerSelect, Server: finalResult.Server})
-		tr.sleep(ctx, config.PhaseSleepDuration)
-		if ctx.Err() != nil {
-			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
-			return
-		}
-
-		tr.sendUpdate(ctx, updateCh, Update{Phase: PING_TEST, Progress: config.ProgressPingStart})
-		latency, err := tr.orchestrator.RunPing(ctx)
+ 
+ 		tr.sendUpdate(ctx, updateCh, Update{Phase: GETTING_INFO, Progress: config.ProgressGetInfo})
+ 		if ctx.Err() != nil {
+ 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+ 			return
+ 		}
+ 
+ 		tr.sendUpdate(ctx, updateCh, Update{Phase: FINDING_SERVERS, Progress: config.ProgressFindServers})
+		err = tr.retry(ctx, func() error {
+			return tr.orchestrator.FindServers(ctx)
+		})
 		if err != nil {
-			tr.fail(err, &finalResult, resultCh, updateCh)
-			return
-		}
+ 			tr.fail(err, &finalResult, resultCh, updateCh)
+ 			return
+ 		}
+ 
+ 		tr.sendUpdate(ctx, updateCh, Update{Phase: SELECTING_SERVER, Progress: config.ProgressSelectServer})
+		var serverInfo *ServerInfo
+		err = tr.retry(ctx, func() error {
+			var err error
+			serverInfo, err = tr.orchestrator.SelectBestServer(ctx)
+			return err
+		})
+		if err != nil {
+ 			tr.fail(err, &finalResult, resultCh, updateCh)
+ 			return
+ 		}
+ 
+ 		if ctx.Err() != nil {
+ 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+ 			return
+ 		}
+ 
+ 		finalResult.Server = fmt.Sprintf("%s (%s)", serverInfo.Name, serverInfo.Country)
+ 		tr.sendUpdate(ctx, updateCh, Update{Phase: SERVER_SELECTED, Progress: config.ProgressServerSelect, Server: finalResult.Server})
+ 		tr.sleep(ctx, config.PhaseSleepDuration)
+ 		if ctx.Err() != nil {
+ 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
+ 			return
+ 		}
+ 
+ 		tr.sendUpdate(ctx, updateCh, Update{Phase: PING_TEST, Progress: config.ProgressPingStart})
+		var latency time.Duration
+		err = tr.retry(ctx, func() error {
+			var err error
+			latency, err = tr.orchestrator.RunPing(ctx)
+			return err
+		})
+		if err != nil {
+ 			tr.fail(err, &finalResult, resultCh, updateCh)
+ 			return
+ 		}
 
 		if ctx.Err() != nil {
 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)

@@ -11,7 +11,7 @@ None
 ## Features
 
 Here's the list of small features to add to the application:
-- [ ] Add retry loops for failures
+None
 
 ## Major changes
 

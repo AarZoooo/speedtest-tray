@@ -28,6 +28,12 @@ const (
 	ResultTimeout             = 10 * time.Second
 )
 
+// Retry configuration
+const (
+	MaxRetryAttempts = 3
+	RetryDelay       = 1 * time.Second
+)
+
 // Error messages
 const (
 	ErrTestStopped  = "test stopped"

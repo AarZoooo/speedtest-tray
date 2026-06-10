@@ -270,6 +270,7 @@ func runTestWithContextAndMock(t *testing.T, ctx context.Context, mock *MockOrch
 	t.Helper()
 	updateCh := make(chan Update, 64)
 	runner := NewTestRunner(mock)
+	runner.maxAttempts = 1
 	runner.throttle = 0
 	runner.sleep = func(context.Context, time.Duration) {}
 	runner.checkInternet = func(context.Context) error { return nil }
@@ -308,4 +309,128 @@ func assertPhaseOrder(t *testing.T, updates []Update, want []Phase) {
 			t.Fatalf("update %d phase = %s, want %s", i, updates[i].Phase, want[i])
 		}
 	}
+}
+
+func TestRunTestRetrySuccess(t *testing.T) {
+	attempts := 0
+	var mock *MockOrchestrator
+	mock = &MockOrchestrator{
+		OnGetUserInfo: func(ctx context.Context) {
+			attempts++
+			if attempts == 1 {
+				mock.GetUserInfoErr = errors.New("temporary error")
+			} else {
+				mock.GetUserInfoErr = nil
+			}
+		},
+		ServerResult:    &ServerInfo{Name: "Nearest", Country: "IN"},
+		PingResult:      23 * time.Millisecond,
+		DownloadResult:  91.5,
+		UploadResult:    18.2,
+		DownloadSamples: []float64{91.5},
+		UploadSamples:   []float64{18.2},
+	}
+
+	updateCh := make(chan Update, 64)
+	runner := NewTestRunner(mock)
+	runner.maxAttempts = 3
+	runner.retryDelay = 1 * time.Millisecond
+	runner.throttle = 0
+	runner.sleep = func(context.Context, time.Duration) {}
+	runner.checkInternet = func(context.Context) error { return nil }
+
+	resultCh, err := runner.RunTest(context.Background(), updateCh)
+	if err != nil {
+		t.Fatalf("RunTest() error = %v", err)
+	}
+
+	result := <-resultCh
+	if result.Error != nil {
+		t.Fatalf("RunTest() result error = %v", result.Error)
+	}
+	if result.Phase != COMPLETED {
+		t.Fatalf("result phase = %s, want %s", result.Phase, COMPLETED)
+	}
+
+	if mock.GetUserInfoCalls != 2 {
+		t.Fatalf("GetUserInfo called %d times, want 2", mock.GetUserInfoCalls)
+	}
+
+	for range updateCh {}
+}
+
+func TestRunTestRetryFailure(t *testing.T) {
+	wantErr := errors.New("persistent error")
+	mock := &MockOrchestrator{
+		GetUserInfoErr: wantErr,
+	}
+
+	updateCh := make(chan Update, 64)
+	runner := NewTestRunner(mock)
+	runner.maxAttempts = 3
+	runner.retryDelay = 1 * time.Millisecond
+	runner.throttle = 0
+	runner.sleep = func(context.Context, time.Duration) {}
+	runner.checkInternet = func(context.Context) error { return nil }
+
+	resultCh, err := runner.RunTest(context.Background(), updateCh)
+	if err != nil {
+		t.Fatalf("RunTest() error = %v", err)
+	}
+
+	result := <-resultCh
+	if !errors.Is(result.Error, wantErr) {
+		t.Fatalf("result error = %v, want %v", result.Error, wantErr)
+	}
+	if result.Phase != FAILED {
+		t.Fatalf("result phase = %s, want %s", result.Phase, FAILED)
+	}
+
+	if mock.GetUserInfoCalls != 3 {
+		t.Fatalf("GetUserInfo called %d times, want 3", mock.GetUserInfoCalls)
+	}
+
+	for range updateCh {}
+}
+
+func TestRunTestRetryCanceledDuringSleep(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	var sleepCalled bool
+	mock := &MockOrchestrator{
+		GetUserInfoErr: errors.New("temporary error"),
+	}
+
+	updateCh := make(chan Update, 64)
+	runner := NewTestRunner(mock)
+	runner.maxAttempts = 3
+	runner.retryDelay = 10 * time.Second
+	runner.throttle = 0
+	runner.sleep = func(c context.Context, d time.Duration) {
+		sleepCalled = true
+		cancel()
+	}
+	runner.checkInternet = func(context.Context) error { return nil }
+
+	resultCh, err := runner.RunTest(ctx, updateCh)
+	if err != nil {
+		t.Fatalf("RunTest() error = %v", err)
+	}
+
+	result := <-resultCh
+	if result.Error == nil || result.Error.Error() != config.ErrTestStopped {
+		t.Fatalf("result error = %v, want %q", result.Error, config.ErrTestStopped)
+	}
+	if result.Phase != config.PhaseStopped {
+		t.Fatalf("result phase = %s, want %s", result.Phase, config.PhaseStopped)
+	}
+
+	if !sleepCalled {
+		t.Fatal("expected sleep function to be called")
+	}
+
+	if mock.GetUserInfoCalls != 1 {
+		t.Fatalf("GetUserInfo called %d times, want 1", mock.GetUserInfoCalls)
+	}
+
+	for range updateCh {}
 }

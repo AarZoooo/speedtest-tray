@@ -46,6 +46,7 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 3. **TestRunner** (`runner.go`)
    - Orchestrates full test workflow
    - Probes internet connectivity before any speedtest API calls
+   - Retries setup/initialization phases (`GetUserInfo`, `FindServers`, `SelectBestServer`, and `RunPing`) to handle transient network errors
    - Manages context, cancellation, phase sequencing
    - Handles progress mapping (phase progress → total test progress)
    - Lifecycle: Initialize → Connectivity check → Ping → Download → Upload → Complete
