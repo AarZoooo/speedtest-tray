@@ -16,8 +16,8 @@ func TestCalculatePhaseProgress(t *testing.T) {
 			name:        "complete_phase",
 			elapsed:     10,
 			duration:    10,
-			expected:    1.0,
-			description: "Phase complete",
+			expected:    0.99,
+			description: "Phase complete (time-wise), returns 0.99 to indicate still running",
 		},
 		{
 			name:        "half_phase",
@@ -51,8 +51,8 @@ func TestCalculatePhaseProgress(t *testing.T) {
 			name:        "exceed_duration",
 			elapsed:     15,
 			duration:    10,
-			expected:    1.0,
-			description: "Elapsed exceeds duration, clamped to 1.0",
+			expected:    0.9933333333333333,
+			description: "Elapsed exceeds duration, returns asymptotic progress towards 1.0 to indicate still running",
 		},
 	}
 

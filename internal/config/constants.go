@@ -23,9 +23,9 @@ const (
 
 // Test durations
 const (
-	TestDurationDownload = 10 * time.Second
-	TestDurationUpload   = 10 * time.Second
-	ResultTimeout        = 10 * time.Second
+	EstimatedDurationDownload = 15 * time.Second
+	EstimatedDurationUpload   = 15 * time.Second
+	ResultTimeout             = 10 * time.Second
 )
 
 // Error messages

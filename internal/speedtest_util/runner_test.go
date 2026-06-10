@@ -270,6 +270,7 @@ func runTestWithContextAndMock(t *testing.T, ctx context.Context, mock *MockOrch
 	t.Helper()
 	updateCh := make(chan Update, 64)
 	runner := NewTestRunner(mock)
+	runner.throttle = 0
 	runner.sleep = func(context.Context, time.Duration) {}
 	runner.checkInternet = func(context.Context) error { return nil }
 

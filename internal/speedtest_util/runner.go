@@ -14,6 +14,7 @@ type TestRunner struct {
 	cancel        context.CancelFunc
 	sleep         func(context.Context, time.Duration)
 	checkInternet func(context.Context) error
+	throttle      time.Duration
 }
 
 func NewTestRunner(orchestrator TestOrchestrator) *TestRunner {
@@ -21,6 +22,7 @@ func NewTestRunner(orchestrator TestOrchestrator) *TestRunner {
 		orchestrator:  orchestrator,
 		sleep:         sleepOrCancel,
 		checkInternet: CheckInternet,
+		throttle:      100 * time.Millisecond,
 	}
 }
 
@@ -107,11 +109,17 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			val float64
 			err error
 		}, 1)
+		lastDlUpdate := time.Now().Add(-tr.throttle)
 
 		go func() {
 			val, err := tr.orchestrator.RunDownload(ctx, func(mbps float64) {
+				if tr.throttle > 0 && time.Since(lastDlUpdate) < tr.throttle {
+					return
+				}
+				lastDlUpdate = time.Now()
+
 				elapsed := time.Since(dlStart).Seconds()
-				duration := config.TestDurationDownload.Seconds()
+				duration := config.EstimatedDurationDownload.Seconds()
 				progress := CalculatePhaseProgress(elapsed, duration)
 				totalProgress := MapPhaseProgressToTotal(config.ProgressDownStart, config.ProgressDownEnd, progress)
 				tr.sendUpdate(ctx, updateCh, Update{
@@ -150,11 +158,17 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			val float64
 			err error
 		}, 1)
+		lastUlUpdate := time.Now().Add(-tr.throttle)
 
 		go func() {
 			val, err := tr.orchestrator.RunUpload(ctx, func(mbps float64) {
+				if tr.throttle > 0 && time.Since(lastUlUpdate) < tr.throttle {
+					return
+				}
+				lastUlUpdate = time.Now()
+
 				elapsed := time.Since(ulStart).Seconds()
-				duration := config.TestDurationUpload.Seconds()
+				duration := config.EstimatedDurationUpload.Seconds()
 				progress := CalculatePhaseProgress(elapsed, duration)
 				totalProgress := MapPhaseProgressToTotal(config.ProgressUpStart, config.ProgressUpEnd, progress)
 				tr.sendUpdate(ctx, updateCh, Update{

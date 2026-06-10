@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"speedtest-tray/internal/config"
+
 	"github.com/showwin/speedtest-go/speedtest"
 )
 
-// GetUserInfo implements TestOrchestrator.GetUserInfo
 func (st *SpeedTester) GetUserInfo(ctx context.Context) error {
 	user, err := st.client.FetchUserInfoContext(ctx)
 	if err != nil {
@@ -18,7 +19,6 @@ func (st *SpeedTester) GetUserInfo(ctx context.Context) error {
 	return nil
 }
 
-// FindServers implements TestOrchestrator.FindServers
 func (st *SpeedTester) FindServers(ctx context.Context) error {
 	servers, err := st.client.FetchServers()
 	if err != nil {
@@ -28,7 +28,6 @@ func (st *SpeedTester) FindServers(ctx context.Context) error {
 	return nil
 }
 
-// SelectBestServer implements TestOrchestrator.SelectBestServer
 func (st *SpeedTester) SelectBestServer(ctx context.Context) (*ServerInfo, error) {
 	targets, err := st.servers.FindServer([]int{})
 	if err != nil {
@@ -41,7 +40,6 @@ func (st *SpeedTester) SelectBestServer(ctx context.Context) (*ServerInfo, error
 	}, nil
 }
 
-// RunPing implements TestOrchestrator.RunPing
 func (st *SpeedTester) RunPing(ctx context.Context) (time.Duration, error) {
 	if err := st.server.PingTestContext(ctx, nil); err != nil {
 		return 0, fmt.Errorf("ping test failed: %w", err)
@@ -49,8 +47,8 @@ func (st *SpeedTester) RunPing(ctx context.Context) (time.Duration, error) {
 	return st.server.Latency, nil
 }
 
-// RunDownload implements TestOrchestrator.RunDownload
 func (st *SpeedTester) RunDownload(ctx context.Context, callback func(float64)) (float64, error) {
+	st.client.SetCaptureTime(config.EstimatedDurationDownload)
 	st.client.SetCallbackDownload(func(rate speedtest.ByteRate) {
 		callback(rate.Mbps())
 	})
@@ -64,8 +62,8 @@ func (st *SpeedTester) RunDownload(ctx context.Context, callback func(float64)) 
 	return st.server.DLSpeed.Mbps(), nil
 }
 
-// RunUpload implements TestOrchestrator.RunUpload
 func (st *SpeedTester) RunUpload(ctx context.Context, callback func(float64)) (float64, error) {
+	st.client.SetCaptureTime(config.EstimatedDurationUpload)
 	st.client.SetCallbackUpload(func(rate speedtest.ByteRate) {
 		callback(rate.Mbps())
 	})

@@ -41,7 +41,7 @@ func (ta *TestAdapter) RunTest(ctx context.Context) (<-chan speedtest_util.Resul
 
 func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, resultCh <-chan speedtest_util.Result) {
 	for update := range updateCh {
-		slog.Info(config.LogAdapterUpdate, "phase", update.Phase, "progress", update.Progress)
+		slog.Debug(config.LogAdapterUpdate, "phase", update.Phase, "progress", update.Progress)
 		event := serializeUpdate(update)
 		ta.emit(ta.ctx, "test_update", event)
 	}

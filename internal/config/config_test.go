@@ -68,8 +68,8 @@ func TestTimingConstants(t *testing.T) {
 		name  string
 		value time.Duration
 	}{
-		{"TestDurationDownload", TestDurationDownload},
-		{"TestDurationUpload", TestDurationUpload},
+		{"EstimatedDurationDownload", EstimatedDurationDownload},
+		{"EstimatedDurationUpload", EstimatedDurationUpload},
 		{"ResultTimeout", ResultTimeout},
 	}
 
