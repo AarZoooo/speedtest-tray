@@ -153,6 +153,7 @@ Progress tracked as phases progress:
 - Each phase has start/end thresholds (e.g., download: 0.30-0.70)
 - Phase progress (0-1) mapped to total progress (start + (end-start)*phaseProgress)
 - Frontend displays percentage complete (total progress * 100)
+- Between major steps, `TestRunner` sleeps for `PhaseSleepDuration` (2 seconds). The next-phase update (e.g. `STARTING_DOWNLOAD`, `STARTING_UPLOAD`) is emitted **before** the sleep so the UI status label and gauge reset reflect the upcoming step during the pause, not the phase that just finished
 
 ## Configuration
 

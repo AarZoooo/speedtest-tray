@@ -6,8 +6,7 @@ None
 
 ## Non-Blocking bugs
 
-- [x] Retrying speed tests after completion or failure still shows the speed coming down from around 3000 Mbps
-- [ ] The 2-second sleep between each step is indistinguishable and the proper process labels aren't being shown in the sleep times.
+None
 
 ## Features
 

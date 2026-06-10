@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Speedometer needle and Mbps display no longer spike to extremely high values when retrying a test after completion, failure, or stop.
+- Status label and gauge now reflect the upcoming phase during 2-second pauses between ping → download and download → upload (e.g. "Starting download test..." and "Starting upload test..." instead of holding the previous phase).
 
 ## [1.0.1] - 2026-06-07
 

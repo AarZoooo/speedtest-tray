@@ -37,7 +37,7 @@ const (
 // UI timing
 const (
 	UIHideDelayMs      = 2000
-	PhaseSleepDuration = 1 * time.Second
+	PhaseSleepDuration = 2 * time.Second
 )
 
 // Window properties

@@ -35,6 +35,7 @@
 - **Vibrant Aesthetic**: Premium dual-accent gradient theme with color-matched bloom effects and softened shadows.
 - **Dynamic Scaling**: Automatically adjusts its scale for Download (1000 Mbps) and Upload (100 Mbps) phases for optimal visual feedback.
 - **Reliable Retests**: Each run uses a fresh test engine, so the speedometer starts at 0 Mbps on every retry.
+- **Clear Step Labels**: Status text updates to the upcoming phase during pauses between ping, download, and upload.
 - **Immediate Termination**: Dedicated "Stop" button for instant test cancellation and UI reset.
 - **Persistent Logging**: Configurable file-based logging stored in your system's application data folder.
 

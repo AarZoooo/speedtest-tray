@@ -86,13 +86,12 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 
 		finalResult.Ping = float64(latency.Milliseconds())
 		tr.sendUpdate(ctx, updateCh, Update{Phase: PING_TEST, Progress: config.ProgressPingEnd, Ping: finalResult.Ping})
+		tr.sendUpdate(ctx, updateCh, Update{Phase: STARTING_DOWNLOAD, Progress: config.ProgressDownStart, Ping: finalResult.Ping})
 		tr.sleep(ctx, config.PhaseSleepDuration)
 		if ctx.Err() != nil {
 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
 			return
 		}
-
-		tr.sendUpdate(ctx, updateCh, Update{Phase: STARTING_DOWNLOAD, Progress: config.ProgressDownStart, Ping: finalResult.Ping})
 		dlStart := time.Now()
 		dlResCh := make(chan struct {
 			val float64
@@ -130,13 +129,12 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 			return
 		}
 
+		tr.sendUpdate(ctx, updateCh, Update{Phase: STARTING_UPLOAD, Progress: config.ProgressUpStart, Ping: finalResult.Ping, Download: finalResult.Download})
 		tr.sleep(ctx, config.PhaseSleepDuration)
 		if ctx.Err() != nil {
 			tr.fail(fmt.Errorf(config.ErrTestStopped), &finalResult, resultCh, updateCh)
 			return
 		}
-
-		tr.sendUpdate(ctx, updateCh, Update{Phase: STARTING_UPLOAD, Progress: config.ProgressUpStart, Ping: finalResult.Ping, Download: finalResult.Download})
 		ulStart := time.Now()
 		ulResCh := make(chan struct {
 			val float64
