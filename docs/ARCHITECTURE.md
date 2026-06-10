@@ -125,6 +125,22 @@ Frontend receives test_update event
 ui.js: handleTestUpdate() updates gauge/results
 ```
 
+### 7. Logging and Telemetry
+
+**Purpose**: Structured logging and process performance tracking
+
+**Key Components**:
+
+1. **Structured Logging** (`log/slog`)
+   - Uses `slog.JSONHandler` for persistent file logging (`app.log`)
+   - Uses `slog.TextHandler` for standard output
+   - Global logger set via `slog.SetDefault()` in `main.go`
+   - Log messages and keys centralized in `internal/config/constants.go`
+
+2. **Process Telemetry** (`internal/speedtest_util/telemetry.go`)
+   - Captures process-specific metrics: `AllocMB`, `SysMB`, `NumGoroutine`
+   - Integrated into `TestRunner.RunTest()` to log hardware utilization at test start and completion
+
 ## Design Patterns
 
 ### 1. Dependency Injection

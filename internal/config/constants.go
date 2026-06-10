@@ -69,7 +69,31 @@ const (
 	GaugeMaxUpload   = 100
 )
 
-// Channel sizes
+// Log messages
+const (
+	LogAppStarting    = "--- Application Starting ---"
+	LogLoggingEnabled  = "--- File Logging Enabled ---"
+	LogLoggingDisabled = "--- File Logging Disabled ---"
+	ErrRunWails       = "Failed to run Wails app"
+	ErrCreateLogDir   = "Failed to create log directory"
+	ErrOpenLogFile    = "Failed to open log file"
+	ErrCreateConfigDir = "Failed to create config directory"
+	LogAdapterUpdate     = "Adapter: Update"
+	LogAdapterClosed     = "Adapter: Updates closed, waiting for result"
+	LogAdapterResult     = "Adapter: Result received"
+	LogAdapterTimeout    = "Adapter: Timeout waiting for result"
+	LogHardwareStats     = "Hardware Utilization"
+)
+
+const (
+	KeyAllocMB      = "alloc_mb"
+	KeySysMB        = "sys_mb"
+	KeyNumGoroutine = "num_goroutine"
+	KeyPhase        = "phase"
+	KeyProgress     = "progress"
+	KeyError        = "error"
+)
+
 const (
 	UpdateChannelSize = 64
 )

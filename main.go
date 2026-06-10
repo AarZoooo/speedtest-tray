@@ -4,7 +4,7 @@ package main
 
 import (
 	"embed"
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/energye/systray"
@@ -28,10 +28,14 @@ var (
 	logFile          *os.File
 	isLoggingEnabled bool
 	appConfig        config.CustomConfig
+	appLogger        *slog.Logger
 )
 
 func main() {
-	log.Println("--- Application Starting ---")
+	appLogger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	slog.SetDefault(appLogger)
+
+	appLogger.Info(config.LogAppStarting)
 
 	app := gui_wails.NewApp()
 
@@ -46,7 +50,8 @@ func main() {
 	options.Logger = logger.NewDefaultLogger()
 
 	if err := wails.Run(options); err != nil {
-		log.Fatal(err)
+		appLogger.Error(config.ErrRunWails, "error", err)
+		os.Exit(1)
 	}
 }
 
@@ -92,27 +97,30 @@ func enableFileLogging() {
 	logDir := config.GetConfigDir()
 
 	if err := os.MkdirAll(logDir, 0755); err != nil {
-		log.Printf("Failed to create log directory: %v\n", err)
+		appLogger.Error(config.ErrCreateLogDir, "error", err)
 		return
 	}
 
 	logPath := config.GetLogFilePath()
 	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
 	if err != nil {
-		log.Printf("Failed to open log file: %v\n", err)
+		appLogger.Error(config.ErrOpenLogFile, "error", err)
 		return
 	}
 
 	logFile = file
-	log.SetOutput(logFile)
+	handler := slog.NewJSONHandler(logFile, &slog.HandlerOptions{Level: slog.LevelDebug})
+	appLogger = slog.New(handler)
+	slog.SetDefault(appLogger)
 	isLoggingEnabled = true
-	log.Println("--- File Logging Enabled ---")
+	appLogger.Info(config.LogLoggingEnabled)
 }
 
 func disableFileLogging() {
 	if logFile != nil {
-		log.Println("--- File Logging Disabled ---")
-		log.SetOutput(os.Stdout)
+		appLogger.Info(config.LogLoggingDisabled)
+		appLogger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+		slog.SetDefault(appLogger)
 		logFile.Close()
 		logFile = nil
 	}

@@ -3,6 +3,7 @@ package speedtest_util
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"speedtest-tray/internal/config"
@@ -29,10 +30,13 @@ func (tr *TestRunner) RunTest(ctx context.Context, updateCh chan<- Update) (<-ch
 
 	go func() {
 		defer func() {
+			slog.Info(config.LogHardwareStats, GetProcessStats().LogAttr()...)
 			tr.cancel()
 			close(updateCh)
 			close(resultCh)
 		}()
+
+		slog.Info(config.LogHardwareStats, GetProcessStats().LogAttr()...)
 
 		finalResult := Result{}
 

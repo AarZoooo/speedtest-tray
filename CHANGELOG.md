@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Offline detection before a test starts, with a dedicated **No internet connection** status when no connectivity is available.
+- Migrated to structured logging using `log/slog` with JSON output for file logs and Text output for console.
+- Hardware utilization telemetry (Memory and Goroutines) logged at the start and end of every test run.
 
 ### Changed
 - `SpeedTester` and `TestAdapter` are now created fresh for each test run instead of being reused for the application lifetime.

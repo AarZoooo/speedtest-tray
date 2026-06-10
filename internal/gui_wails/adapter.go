@@ -2,7 +2,7 @@ package gui_wails
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"time"
 
 	"speedtest-tray/internal/config"
@@ -11,7 +11,6 @@ import (
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// TestAdapter bridges Wails events and speedtest logic
 type TestAdapter struct {
 	ctx           context.Context
 	tester        speedtest_util.TestOrchestrator
@@ -19,7 +18,6 @@ type TestAdapter struct {
 	resultTimeout time.Duration
 }
 
-// NewTestAdapter creates a new adapter
 func NewTestAdapter(ctx context.Context, tester speedtest_util.TestOrchestrator) *TestAdapter {
 	return &TestAdapter{
 		ctx:           ctx,
@@ -29,7 +27,6 @@ func NewTestAdapter(ctx context.Context, tester speedtest_util.TestOrchestrator)
 	}
 }
 
-// RunTest orchestrates a speed test and emits Wails events
 func (ta *TestAdapter) RunTest(ctx context.Context) (<-chan speedtest_util.Result, error) {
 	updateCh := make(chan speedtest_util.Update, config.UpdateChannelSize)
 	resultCh, err := speedtest_util.NewTestRunner(ta.tester).RunTest(ctx, updateCh)
@@ -37,34 +34,31 @@ func (ta *TestAdapter) RunTest(ctx context.Context) (<-chan speedtest_util.Resul
 		return nil, err
 	}
 
-	// Forward updates to Wails events
 	go ta.forwardUpdates(updateCh, resultCh)
 
 	return resultCh, nil
 }
 
-// forwardUpdates converts speedtest updates to Wails events
 func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, resultCh <-chan speedtest_util.Result) {
 	for update := range updateCh {
-		log.Printf("Adapter: Update - Phase=%s, Progress=%.2f\n", update.Phase, update.Progress)
+		slog.Info(config.LogAdapterUpdate, "phase", update.Phase, "progress", update.Progress)
 		event := serializeUpdate(update)
 		ta.emit(ta.ctx, "test_update", event)
 	}
 
-	log.Println("Adapter: Updates closed, waiting for result")
+	slog.Info(config.LogAdapterClosed)
 
 	select {
 	case result := <-resultCh:
-		log.Printf("Adapter: Result received - Error=%v\n", result.Error)
+		slog.Info(config.LogAdapterResult, "error", result.Error)
 		event := serializeResult(result)
 		ta.emit(ta.ctx, "test_complete", event)
 	case <-time.After(ta.resultTimeout):
-		log.Println("Adapter: Timeout waiting for result")
+		slog.Info(config.LogAdapterTimeout)
 		ta.emit(ta.ctx, "test_complete", map[string]interface{}{"error": config.ErrTestTimeout})
 	}
 }
 
-// serializeUpdate converts an Update to a Wails-compatible map
 func serializeUpdate(update speedtest_util.Update) map[string]interface{} {
 	return map[string]interface{}{
 		"phase":    update.Phase,
@@ -77,7 +71,6 @@ func serializeUpdate(update speedtest_util.Update) map[string]interface{} {
 	}
 }
 
-// serializeResult converts a Result to a Wails-compatible map
 func serializeResult(result speedtest_util.Result) map[string]interface{} {
 	if result.Error != nil {
 		return map[string]interface{}{"error": result.Error.Error()}
@@ -91,7 +84,6 @@ func serializeResult(result speedtest_util.Result) map[string]interface{} {
 	}
 }
 
-// formatNumber formats a float with specified precision
 func formatNumber(value float64, precision int) string {
 	return speedtest_util.FormatNumber(value, precision)
 }

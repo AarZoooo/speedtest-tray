@@ -12,7 +12,6 @@ None
 
 Here's the list of small features to add to the application:
 - [ ] Add retry loops for failures
-- [ ] Add better logger support with hardware utilization stats (use slog)
 
 ## Major changes
 

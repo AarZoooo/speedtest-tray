@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -18,7 +18,6 @@ var DefaultConfig = CustomConfig{
 func GetConfigDir() string {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
-		// Fallback to home directory if config dir is unavailable
 		home, _ := os.UserHomeDir()
 		return filepath.Join(home, "."+filepath.Base(AppName))
 	}
@@ -42,7 +41,7 @@ func LoadConfigOrDefault() CustomConfig {
 func SaveConfig(cfg CustomConfig) error {
 	dir := GetConfigDir()
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		log.Printf("Failed to create config directory: %v\n", err)
+		slog.Error(ErrCreateConfigDir, "error", err)
 		return err
 	}
 
