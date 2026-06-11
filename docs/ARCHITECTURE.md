@@ -192,8 +192,8 @@ All standard commits will automatically skip the compilation and packaging jobs.
 - **Windows Build:** Compiles the application using Wails for the `windows/amd64` platform and outputs a portable `.exe` executable.
 - **macOS Build:** 
   - Compiles the application as a universal binary (`darwin/universal`).
-  - Packages the resulting `SpeedTest Tray.app` bundle into a `.dmg` (Disk Image) file using macOS `hdiutil`.
-  - The DMG mounts with a custom volume icon (`.VolumeIcon.icns` generated from the app icon) and includes a symlink to `/Applications` for a native drag-to-install experience.
+  - Packages the resulting `SpeedTest Tray.app` bundle into a custom styled `.dmg` (Disk Image) file using the `create-dmg` tool.
+  - The DMG mounts with a custom volume icon, hides the `.app` file extension, and places the application icon (on the left) and the `/Applications` folder shortcut (on the right) aligned and centered for a professional drag-and-drop installer layout.
 
 ## Configuration
 
