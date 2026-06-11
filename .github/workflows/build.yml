@@ -78,13 +78,22 @@ jobs:
           go generate ./...
           wails build -platform darwin/universal -clean
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
       - name: Package macOS DMG
         run: |
-          mkdir -p build/dmg
-          cp -R "build/bin/SpeedTest Tray.app" build/dmg/
-          ln -s /Applications build/dmg/Applications
-          hdiutil create -volname "SpeedTest Tray" -srcfolder build/dmg -ov -format UDZO SpeedTest-Tray-macOS-Universal.dmg
-          rm -rf build/dmg
+          create-dmg \
+            --volname "SpeedTest Tray" \
+            --volicon "build/darwin/icon.icns" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "SpeedTest Tray.app" 175 190 \
+            --app-drop-link 425 190 \
+            --hide-extension "SpeedTest Tray.app" \
+            "SpeedTest-Tray-macOS-Universal.dmg" \
+            "build/bin/"
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
