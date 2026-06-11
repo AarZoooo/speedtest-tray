@@ -67,6 +67,8 @@ const (
 const (
 	MonitorDefaultToNearest = 2
 	MdtEffectiveDpi         = 0
+	SystrayIconID           = 100
+	WindowTrayGap           = 8
 )
 
 // Gauge scales (Mbps)
