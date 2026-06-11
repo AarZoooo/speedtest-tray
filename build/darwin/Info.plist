@@ -13,9 +13,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.wails.{{.Name}}</string>
     <key>CFBundleVersion</key>
-    <string>{{.Version}}</string>
+    <string>{{.Info.ProductVersion}}</string>
     <key>CFBundleShortVersionString</key>
-    <string>{{.Version}}</string>
+    <string>{{.Info.ProductVersion}}</string>
     <key>CFBundleIconFile</key>
     <string>icon.icns</string>
     <key>LSMinimumSystemVersion</key>
