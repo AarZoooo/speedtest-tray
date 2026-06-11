@@ -76,13 +76,16 @@ jobs:
           go generate ./...
           wails build -platform darwin/universal -clean
 
-      - name: Package macOS App Bundle
+      - name: Package macOS DMG
         run: |
-          cd build/bin
-          zip -r ../../SpeedTest-Tray-macOS-Universal.zip "SpeedTest Tray.app"
+          mkdir -p build/dmg
+          cp -R "build/bin/SpeedTest Tray.app" build/dmg/
+          ln -s /Applications build/dmg/Applications
+          hdiutil create -volname "SpeedTest Tray" -srcfolder build/dmg -ov -format UDZO SpeedTest-Tray-macOS-Universal.dmg
+          rm -rf build/dmg
 
-      - name: Upload macOS Zip
+      - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: SpeedTest-Tray-macOS-Universal
-          path: SpeedTest-Tray-macOS-Universal.zip
+          name: SpeedTest-Tray-macOS-Universal-DMG
+          path: SpeedTest-Tray-macOS-Universal.dmg
