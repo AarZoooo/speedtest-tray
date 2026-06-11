@@ -11,7 +11,8 @@ None
 ## Features
 
 Here's the list of small features to add to the application:
-None
+- [x] Package macOS build into a custom DMG with an Applications shortcut and custom volume icon.
+- [x] Optimize GitHub Actions workflow triggers with commit message filtering to save build minutes.
 
 ## Major changes
 
