@@ -85,7 +85,7 @@ jobs:
         run: |
           create-dmg \
             --volname "SpeedTest Tray" \
-            --volicon "build/darwin/icon.icns" \
+            --volicon "build/bin/SpeedTest Tray.app/Contents/Resources/icon.icns" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
