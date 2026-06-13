@@ -3,6 +3,7 @@ package main
 //go:generate go run ./cmd/gen-frontend-config
 
 import (
+	"bytes"
 	"embed"
 	"log/slog"
 	"os"
@@ -83,6 +84,13 @@ func startTray(app *gui_wails.App) {
 			config.SaveConfig(appConfig)
 		})
 
+		openLogs := systray.AddMenuItem("Open Logs Directory", "Open the directory containing the session logs")
+		openLogs.Click(func() {
+			if err := config.OpenDirectory(config.GetConfigDir()); err != nil {
+				appLogger.Error(config.ErrOpenLogsDir, "error", err)
+			}
+		})
+
 		systray.AddSeparator()
 
 		quit := systray.AddMenuItem("Quit", "Quit the application")
@@ -102,6 +110,8 @@ func enableFileLogging() {
 	}
 
 	logPath := config.GetLogFilePath()
+	truncateLogFile(logPath, config.MaxLogLines)
+
 	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
 	if err != nil {
 		appLogger.Error(config.ErrOpenLogFile, "error", err)
@@ -114,6 +124,28 @@ func enableFileLogging() {
 	slog.SetDefault(appLogger)
 	isLoggingEnabled = true
 	appLogger.Info(config.LogLoggingEnabled)
+}
+
+func truncateLogFile(logPath string, maxLines int) {
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		return
+	}
+
+	lines := bytes.Split(data, []byte("\n"))
+	if len(lines) > 0 && len(lines[len(lines)-1]) == 0 {
+		lines = lines[:len(lines)-1]
+	}
+
+	if len(lines) <= maxLines {
+		return
+	}
+
+	trimmedLines := lines[len(lines)-maxLines:]
+	output := bytes.Join(trimmedLines, []byte("\n"))
+	output = append(output, '\n')
+
+	_ = os.WriteFile(logPath, output, 0666)
 }
 
 func disableFileLogging() {
