@@ -104,4 +104,5 @@ const (
 
 const (
 	UpdateChannelSize = 64
+	MaxLogLines       = 5000
 )

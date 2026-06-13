@@ -3,3 +3,7 @@
 build/bin/
 frontend/node_modules/
 frontend/coverage/
+
+# Local development logs and configuration
+app.log
+config.json
