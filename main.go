@@ -12,6 +12,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
 	"speedtest-tray/internal/config"
@@ -23,6 +24,9 @@ var assets embed.FS
 
 //go:embed build/windows/icon.ico
 var iconBytes []byte
+
+//go:embed build/darwin/iconTemplate.png
+var macIconBytes []byte
 
 var (
 	logFile          *os.File
@@ -59,7 +63,7 @@ func startTray(app *gui_wails.App) {
 	go systray.Run(func() {
 		systray.SetTitle(config.AppName)
 		systray.SetTooltip(config.AppName)
-		systray.SetIcon(iconBytes)
+		systray.SetTemplateIcon(macIconBytes, iconBytes)
 		systray.SetOnClick(func(menu systray.IMenu) {
 			go app.ShowWindow()
 		})
@@ -157,6 +161,11 @@ func newOptions(app *gui_wails.App) *options.App {
 			DisableFramelessWindowDecorations: true,
 			IsZoomControlEnabled:              false,
 			DisablePinchZoom:                  true,
+		},
+		Mac: &mac.Options{
+			TitleBar:             mac.TitleBarHidden(),
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
 		},
 	}
 }
