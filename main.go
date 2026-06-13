@@ -84,6 +84,13 @@ func startTray(app *gui_wails.App) {
 			config.SaveConfig(appConfig)
 		})
 
+		openLogs := systray.AddMenuItem("Open Logs Directory", "Open the directory containing the session logs")
+		openLogs.Click(func() {
+			if err := config.OpenDirectory(config.GetConfigDir()); err != nil {
+				appLogger.Error(config.ErrOpenLogsDir, "error", err)
+			}
+		})
+
 		systray.AddSeparator()
 
 		quit := systray.AddMenuItem("Quit", "Quit the application")
