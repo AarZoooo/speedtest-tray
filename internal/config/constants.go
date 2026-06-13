@@ -86,6 +86,7 @@ const (
 	ErrCreateLogDir   = "Failed to create log directory"
 	ErrOpenLogFile    = "Failed to open log file"
 	ErrCreateConfigDir = "Failed to create config directory"
+	ErrOpenLogsDir     = "Failed to open logs directory"
 	LogAdapterUpdate     = "Adapter: Update"
 	LogAdapterClosed     = "Adapter: Updates closed, waiting for result"
 	LogAdapterResult     = "Adapter: Result received"

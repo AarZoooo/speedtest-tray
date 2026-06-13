@@ -3,7 +3,9 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -210,4 +212,49 @@ func setConfigHome(t *testing.T) string {
 	t.Setenv("APPDATA", dir)
 	t.Setenv("XDG_CONFIG_HOME", dir)
 	return dir
+}
+
+func TestOpenDirectory(t *testing.T) {
+	var calledName string
+	var calledArgs []string
+
+	oldExecCommand := execCommand
+	defer func() { execCommand = oldExecCommand }()
+
+	execCommand = func(name string, arg ...string) *exec.Cmd {
+		calledName = name
+		calledArgs = arg
+		return oldExecCommand("go", "version")
+	}
+
+	err := OpenDirectory("/test/path")
+	if err != nil {
+		t.Fatalf("OpenDirectory() error = %v", err)
+	}
+
+	var expectedCmd string
+	switch runtime.GOOS {
+	case "windows":
+		expectedCmd = "explorer"
+	case "darwin":
+		expectedCmd = "open"
+	default:
+		expectedCmd = "xdg-open"
+	}
+
+	if calledName != expectedCmd {
+		t.Errorf("expected command %q, got %q", expectedCmd, calledName)
+	}
+
+	if len(calledArgs) != 1 {
+		t.Fatalf("expected 1 arg, got %d", len(calledArgs))
+	}
+
+	expectedPath := "/test/path"
+	if runtime.GOOS == "windows" {
+		expectedPath = filepath.Clean(expectedPath)
+	}
+	if calledArgs[0] != expectedPath {
+		t.Errorf("expected arg %q, got %q", expectedPath, calledArgs[0])
+	}
 }
