@@ -16,6 +16,9 @@ var DefaultConfig = CustomConfig{
 }
 
 func GetConfigDir() string {
+	if IsDev {
+		return "."
+	}
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		home, _ := os.UserHomeDir()
