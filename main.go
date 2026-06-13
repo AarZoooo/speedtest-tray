@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/energye/systray"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -48,7 +47,16 @@ func main() {
 		enableFileLogging()
 	}
 
-	startTray(app)
+	gui_wails.StartTray(app, iconBytes, macIconBytes, &appConfig, func(enabled bool) {
+		if enabled {
+			appConfig.SaveLogs = true
+			enableFileLogging()
+		} else {
+			appConfig.SaveLogs = false
+			disableFileLogging()
+		}
+		config.SaveConfig(appConfig)
+	})
 
 	options := newOptions(app)
 	options.Logger = logger.NewDefaultLogger()
@@ -57,44 +65,6 @@ func main() {
 		appLogger.Error(config.ErrRunWails, "error", err)
 		os.Exit(1)
 	}
-}
-
-func startTray(app *gui_wails.App) {
-	go systray.Run(func() {
-		systray.SetTitle(config.AppName)
-		systray.SetTooltip(config.AppName)
-		systray.SetTemplateIcon(macIconBytes, iconBytes)
-		systray.SetOnClick(func(menu systray.IMenu) {
-			go app.ShowWindow()
-		})
-
-		show := systray.AddMenuItem("Show", "Show the speedtest window")
-		show.Click(app.ShowWindow)
-
-		systray.AddSeparator()
-
-		saveLogs := systray.AddMenuItemCheckbox("Enable Session Logging", "Save test logs to app data", appConfig.SaveLogs)
-		saveLogs.Click(func() {
-			if saveLogs.Checked() {
-				saveLogs.Uncheck()
-				appConfig.SaveLogs = false
-				disableFileLogging()
-			} else {
-				saveLogs.Check()
-				appConfig.SaveLogs = true
-				enableFileLogging()
-			}
-			config.SaveConfig(appConfig)
-		})
-
-		systray.AddSeparator()
-
-		quit := systray.AddMenuItem("Quit", "Quit the application")
-		quit.Click(func() {
-			app.Quit()
-			systray.Quit()
-		})
-	}, func() {})
 }
 
 func enableFileLogging() {
@@ -143,6 +113,7 @@ func newOptions(app *gui_wails.App) *options.App {
 		DisableResize:    true,
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 		OnStartup:        app.Startup,
+		OnShutdown:       app.Shutdown,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -165,7 +136,7 @@ func newOptions(app *gui_wails.App) *options.App {
 		Mac: &mac.Options{
 			TitleBar:             mac.TitleBarHidden(),
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  true,
+			WindowIsTranslucent:  false,
 		},
 	}
 }
