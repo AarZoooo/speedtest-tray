@@ -11,7 +11,7 @@ None
 ## Features
 
 Here's the list of small features to add to the application:
-None
+- [x] Anchor utility window directly to the Windows system tray icon (improving window positioning accuracy over cursor location).
 
 ## Major changes
 
