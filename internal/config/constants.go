@@ -52,6 +52,7 @@ const (
 const (
 	UIHideDelayMs      = 2000
 	PhaseSleepDuration = 2 * time.Second
+	ToggleThreshold    = 200 * time.Millisecond
 )
 
 // Window properties
