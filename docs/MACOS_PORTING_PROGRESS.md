@@ -52,6 +52,22 @@ To avoid compiling Windows-only dependencies (`github.com/energye/systray`) on m
 - **Cause**: CGO calls into Go callbacks are executed synchronously. Performing window actions (like showing or hiding) directly inside these callback routines blocked the OS/Objective-C main event loop.
 - **Fix**: Spawned all window and state updates asynchronously from Go (`go globalApp.ToggleWindow()`).
 
+### F. Double-Toggle (Glitchy Close) Bug
+- **Cause**: Clicking the status item when the window was visible would blur the window (hiding it and setting `windowVisible = false`), immediately followed by the click event calling `ToggleWindow()`, which would see `windowVisible = false` and show the window again.
+- **Fix**: Introduced a `ToggleThreshold` of `200ms` inside `internal/config/constants.go`. In `ToggleWindow()`, check if the time elapsed since the last hide event is less than this threshold, and skip showing if true.
+
+### G. Focus/Activation Bug (Sticky Window)
+- **Cause**: Wails accessory windows on macOS do not automatically gain key focus when shown. As a result, clicking away from the window did not trigger a blur event unless the user clicked inside the window first.
+- **Fix**: Added native CGO `activateApp()` which uses `[NSApp activateIgnoringOtherApps:YES]` and `makeKeyAndOrderFront:` to focus the window.
+
+### H. Platform Alignment
+- **Cause**: Behavior was inconsistent; clicking Windows tray icon only showed the window and never hid it, while macOS toggled it.
+- **Fix**: Updated `tray_windows.go` to use `ToggleWindow()` for click events to ensure uniform behavior on all platforms.
+
+### I. New Template Icon
+- **Cause**: Custom branding icon for the macOS menu bar.
+- **Fix**: Replaced `build/darwin/iconTemplate.png` with the new design from `assets/new mac menu bar icon.png`.
+
 ---
 
 ## 4. Verification & Testing

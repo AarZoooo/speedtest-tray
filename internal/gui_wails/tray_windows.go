@@ -13,7 +13,7 @@ func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *confi
 		systray.SetTooltip(config.AppName)
 		systray.SetTemplateIcon(macIconBytes, iconBytes)
 		systray.SetOnClick(func(menu systray.IMenu) {
-			go app.ShowWindow()
+			go app.ToggleWindow()
 		})
 
 		show := systray.AddMenuItem("Show", "Show the speedtest window")
