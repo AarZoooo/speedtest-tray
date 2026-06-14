@@ -5,6 +5,7 @@ package gui_wails
 /*
 #include <stdlib.h>
 void getStatusItemPosition(double *x, double *y, double *width, double *height, double *screenWidth);
+void activateApp(void);
 */
 import "C"
 import (
@@ -37,3 +38,7 @@ func (a *App) positionWindow() {
 }
 
 func (a *App) ApplyRoundedCorners() {}
+
+func (a *App) focusApp() {
+	C.activateApp()
+}

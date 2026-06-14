@@ -187,3 +187,14 @@ void getStatusItemPosition(double *x, double *y, double *width, double *height, 
         *height = frame.size.height;
     });
 }
+
+void activateApp(void) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [NSApp activateIgnoringOtherApps:YES];
+        for (NSWindow *window in [NSApp windows]) {
+            if (![window.className containsString:@"StatusBar"]) {
+                [window makeKeyAndOrderFront:nil];
+            }
+        }
+    });
+}
