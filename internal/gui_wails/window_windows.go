@@ -119,3 +119,5 @@ func (a *App) ApplyRoundedCorners() {
 	)
 	procSetWindowRgn.Call(hwnd, region, 1)
 }
+
+func (a *App) focusApp() {}
