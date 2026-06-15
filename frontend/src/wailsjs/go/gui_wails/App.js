@@ -25,3 +25,7 @@ export function StartTest() {
 export function StopTest() {
   return window['go']['gui_wails']['App']['StopTest']();
 }
+
+export function ToggleWindow() {
+  return window['go']['gui_wails']['App']['ToggleWindow']();
+}

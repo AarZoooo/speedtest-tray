@@ -209,5 +209,11 @@ func setConfigHome(t *testing.T) string {
 	dir := t.TempDir()
 	t.Setenv("APPDATA", dir)
 	t.Setenv("XDG_CONFIG_HOME", dir)
-	return dir
+	t.Setenv("HOME", dir)
+
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatalf("UserConfigDir error = %v", err)
+	}
+	return configDir
 }
