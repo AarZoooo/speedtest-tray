@@ -9,7 +9,7 @@
     <key>CFBundleName</key>
     <string>{{.Name}}</string>
     <key>CFBundleExecutable</key>
-    <string>{{.Name}}</string>
+    <string>speedtest-tray-portable</string>
     <key>CFBundleIdentifier</key>
     <string>com.wails.{{.Name}}</string>
     <key>CFBundleVersion</key>
@@ -17,7 +17,7 @@
     <key>CFBundleShortVersionString</key>
     <string>{{.Info.ProductVersion}}</string>
     <key>CFBundleIconFile</key>
-    <string>icon.icns</string>
+    <string>iconfile.icns</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.13.0</string>
     <key>NSHighResolutionCapable</key>

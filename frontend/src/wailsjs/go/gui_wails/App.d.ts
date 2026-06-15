@@ -12,3 +12,5 @@ export function ShowWindow():Promise<void>;
 export function StartTest():Promise<void>;
 
 export function StopTest():Promise<void>;
+
+export function ToggleWindow():Promise<void>;
