@@ -8,11 +8,11 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/energye/systray"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
 	"speedtest-tray/internal/config"
@@ -24,6 +24,9 @@ var assets embed.FS
 
 //go:embed build/windows/icon.ico
 var iconBytes []byte
+
+//go:embed build/darwin/iconTemplate.png
+var macIconBytes []byte
 
 var (
 	logFile          *os.File
@@ -45,7 +48,16 @@ func main() {
 		enableFileLogging()
 	}
 
-	startTray(app)
+	gui_wails.StartTray(app, iconBytes, macIconBytes, &appConfig, func(enabled bool) {
+		if enabled {
+			appConfig.SaveLogs = true
+			enableFileLogging()
+		} else {
+			appConfig.SaveLogs = false
+			disableFileLogging()
+		}
+		config.SaveConfig(appConfig)
+	})
 
 	options := newOptions(app)
 	options.Logger = logger.NewDefaultLogger()
@@ -56,50 +68,6 @@ func main() {
 	}
 }
 
-func startTray(app *gui_wails.App) {
-	go systray.Run(func() {
-		systray.SetTitle(config.AppName)
-		systray.SetTooltip(config.AppName)
-		systray.SetIcon(iconBytes)
-		systray.SetOnClick(func(menu systray.IMenu) {
-			go app.ShowWindow()
-		})
-
-		show := systray.AddMenuItem("Show", "Show the speedtest window")
-		show.Click(app.ShowWindow)
-
-		systray.AddSeparator()
-
-		saveLogs := systray.AddMenuItemCheckbox("Enable Session Logging", "Save test logs to app data", appConfig.SaveLogs)
-		saveLogs.Click(func() {
-			if saveLogs.Checked() {
-				saveLogs.Uncheck()
-				appConfig.SaveLogs = false
-				disableFileLogging()
-			} else {
-				saveLogs.Check()
-				appConfig.SaveLogs = true
-				enableFileLogging()
-			}
-			config.SaveConfig(appConfig)
-		})
-
-		openLogs := systray.AddMenuItem("Open Logs Directory", "Open the directory containing the session logs")
-		openLogs.Click(func() {
-			if err := config.OpenDirectory(config.GetConfigDir()); err != nil {
-				appLogger.Error(config.ErrOpenLogsDir, "error", err)
-			}
-		})
-
-		systray.AddSeparator()
-
-		quit := systray.AddMenuItem("Quit", "Quit the application")
-		quit.Click(func() {
-			app.Quit()
-			systray.Quit()
-		})
-	}, func() {})
-}
 
 func enableFileLogging() {
 	logDir := config.GetConfigDir()
@@ -171,6 +139,7 @@ func newOptions(app *gui_wails.App) *options.App {
 		DisableResize:    true,
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 		OnStartup:        app.Startup,
+		OnShutdown:       app.Shutdown,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -189,6 +158,11 @@ func newOptions(app *gui_wails.App) *options.App {
 			DisableFramelessWindowDecorations: true,
 			IsZoomControlEnabled:              false,
 			DisablePinchZoom:                  true,
+		},
+		Mac: &mac.Options{
+			TitleBar:             mac.TitleBarHidden(),
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  false,
 		},
 	}
 }
