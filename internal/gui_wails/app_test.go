@@ -2,6 +2,7 @@ package gui_wails
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -40,4 +41,27 @@ func TestToggleWindowThreshold(t *testing.T) {
 	if !app.windowVisible {
 		t.Fatal("Expected windowVisible to be true after waiting and toggling")
 	}
+}
+
+func TestToggleWindowStress(t *testing.T) {
+	app := NewApp()
+	app.ctx = context.Background()
+	app.isTesting = true
+
+	var wg sync.WaitGroup
+	numGoroutines := 100
+
+	for i := 0; i < numGoroutines; i++ {
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			app.ToggleWindow()
+		}()
+		go func() {
+			defer wg.Done()
+			app.HideWindow()
+		}()
+	}
+
+	wg.Wait()
 }
