@@ -46,6 +46,12 @@ func onToggleLoggingClick(enabled C.int) {
 	}
 }
 
+//export onOpenLogsClick
+func onOpenLogsClick() {
+	slog.Info("onOpenLogsClick received from Objective-C")
+	config.OpenDirectory(config.GetConfigDir())
+}
+
 func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool)) {
 	slog.Info("StartTray called on macOS")
 	app.MacIcon = macIconBytes

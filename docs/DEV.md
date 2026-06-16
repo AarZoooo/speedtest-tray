@@ -11,7 +11,9 @@ None
 ## Features
 
 Here's the list of small features to add to the application:
-None
+- [x] Anchor utility window directly to the Windows system tray icon (improving window positioning accuracy over cursor location).
+- [x] Implement environment-aware logging/config redirection in dev mode and add startup log truncation to 5,000 lines.
+- [x] Add an option to the system tray context menu to open the log directory in an OS-agnostic way.
 
 ## Major changes
 
