@@ -108,3 +108,25 @@ const (
 	UpdateChannelSize = 64
 	MaxLogLines       = 5000
 )
+
+const (
+	FlagCLI             = "cli"
+	FlagCLIShort        = "c"
+	FlagJSON            = "json"
+	FlagJSONShort       = "j"
+	FlagServer          = "server"
+	FlagServerShort     = "s"
+	CLIHeader           = "Speedtest Tray (Headless CLI)"
+	CLILineSeparator    = "------------------------------------------------------------"
+	CLIDoubleLine       = "============================================================"
+	CLIResultHeader     = "                     TEST RESULTS"
+	CLIStatusChecking   = "Checking connectivity..."
+	CLIStatusSelecting  = "Selecting server..."
+	CLIStatusPing       = "Running Ping test..."
+	CLIStatusDownload   = "Running Download test..."
+	CLIStatusUpload     = "Running Upload test..."
+	CLIStatusCompleted  = "Done."
+	JSONStatusSuccess   = "success"
+	JSONStatusFailed    = "failed"
+)
+
