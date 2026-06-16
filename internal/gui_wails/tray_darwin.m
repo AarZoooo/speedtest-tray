@@ -24,9 +24,7 @@ static NSMenuItem *loggingMenuItem = nil;
 - (void)statusItemClicked:(id)sender {
     NSEvent *event = [NSApp currentEvent];
     if (event.type == NSEventTypeRightMouseDown || 
-        event.type == NSEventTypeRightMouseUp || 
-        (event.type == NSEventTypeLeftMouseDown && (event.modifierFlags & NSEventModifierFlagControl)) ||
-        (event.type == NSEventTypeLeftMouseUp && (event.modifierFlags & NSEventModifierFlagControl))) {
+        (event.type == NSEventTypeLeftMouseDown && (event.modifierFlags & NSEventModifierFlagControl))) {
         
         printf("[objc] Right-click detected, popping up context menu\n");
         fflush(stdout);
@@ -100,7 +98,7 @@ void initStatusItem(const char* title, const void* iconData, int iconLength, int
         }
         
         // Enable right-click event tracking on the button
-        [button sendActionOn:(NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp | NSEventMaskRightMouseDown | NSEventMaskRightMouseUp)];
+        [button sendActionOn:(NSEventMaskLeftMouseDown | NSEventMaskRightMouseDown)];
         
         if (nsIconData != nil) {
             NSImage *image = [[NSImage alloc] initWithData:nsIconData];
