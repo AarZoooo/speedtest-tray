@@ -2,6 +2,7 @@ package gui_wails
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"speedtest-tray/internal/config"
@@ -14,6 +15,7 @@ import (
 type App struct {
 	ctx            context.Context
 	cancel         context.CancelFunc
+	mu             sync.Mutex
 	windowVisible  bool
 	MacIcon        []byte
 	lastHiddenTime time.Time
@@ -42,6 +44,10 @@ func (a *App) ShowWindow() {
 		return
 	}
 
+	a.mu.Lock()
+	a.windowVisible = true
+	a.mu.Unlock()
+
 	if !a.isTesting {
 		a.positionWindow()
 		wailsRuntime.WindowShow(a.ctx)
@@ -50,7 +56,6 @@ func (a *App) ShowWindow() {
 		a.ApplyRoundedCorners()
 		wailsRuntime.EventsEmit(a.ctx, "window_shown")
 	}
-	a.windowVisible = true
 }
 
 // HideWindow hides the main window
@@ -59,17 +64,24 @@ func (a *App) HideWindow() {
 		if !a.isTesting {
 			wailsRuntime.WindowHide(a.ctx)
 		}
+		a.mu.Lock()
 		a.windowVisible = false
 		a.lastHiddenTime = time.Now()
+		a.mu.Unlock()
 	}
 }
 
 // ToggleWindow toggles the main window visibility
 func (a *App) ToggleWindow() {
-	if a.windowVisible {
+	a.mu.Lock()
+	visible := a.windowVisible
+	lastHidden := a.lastHiddenTime
+	a.mu.Unlock()
+
+	if visible {
 		a.HideWindow()
 	} else {
-		if time.Since(a.lastHiddenTime) < config.ToggleThreshold {
+		if time.Since(lastHidden) < config.ToggleThreshold {
 			return
 		}
 		a.ShowWindow()
