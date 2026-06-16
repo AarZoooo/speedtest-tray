@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 )
 
 type CustomConfig struct {
@@ -16,6 +18,9 @@ var DefaultConfig = CustomConfig{
 }
 
 func GetConfigDir() string {
+	if IsDev {
+		return "."
+	}
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		home, _ := os.UserHomeDir()
@@ -53,4 +58,19 @@ func SaveConfig(cfg CustomConfig) error {
 func GetLogFilePath() string {
 	dir := GetConfigDir()
 	return filepath.Join(dir, "app.log")
+}
+
+var execCommand = exec.Command
+
+func OpenDirectory(path string) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = execCommand("explorer", filepath.Clean(path))
+	case "darwin":
+		cmd = execCommand("open", path)
+	default:
+		cmd = execCommand("xdg-open", path)
+	}
+	return cmd.Start()
 }

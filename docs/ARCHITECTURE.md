@@ -137,6 +137,8 @@ ui.js: handleTestUpdate() updates gauge/results
    - Uses `slog.TextHandler` for standard output
    - Global logger set via `slog.SetDefault()` in `main.go`
    - Log messages and keys centralized in `internal/config/constants.go`
+   - Automatically truncates `app.log` to the last 5,000 lines on startup to prevent unbounded file growth.
+   - Environment-aware routing: redirects `app.log` and `config.json` to the project root directory during development (when running via `wails dev`, built with the `dev` tag) and ignores them in Git.
 
 2. **Process Telemetry** (`internal/speedtest_util/telemetry.go`)
    - Captures process-specific metrics: `AllocMB`, `SysMB`, `NumGoroutine`
