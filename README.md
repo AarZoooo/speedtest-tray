@@ -47,8 +47,9 @@
 2. Run the executable. It will automatically initialize in your system tray.
 
 ### macOS
-1. Download the latest `SpeedTest Tray.app` bundle from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
-2. Drag it to your `Applications` folder and open it. It will initialize as a native menu bar accessory app.
+1. Download the latest `SpeedTest Tray.dmg` from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
+2. Open the `.dmg` file, and drag `SpeedTest Tray` to your `Applications` folder.
+3. Open it from your Applications folder. It will initialize as a native menu bar accessory app.
 
 ### From Source
 If you prefer to build it yourself, ensure you have [Go](https://go.dev/) and [Wails](https://wails.io/) installed.
