@@ -4,11 +4,13 @@
 extern void onStatusItemClick(void);
 extern void onQuitClick(void);
 extern void onToggleLoggingClick(int enabled);
+extern void onOpenLogsClick(void);
 
 @interface StatusItemHandler : NSObject
 - (void)statusItemClicked:(id)sender;
 - (void)showClicked:(id)sender;
 - (void)toggleLoggingClicked:(id)sender;
+- (void)openLogsClicked:(id)sender;
 - (void)quitClicked:(id)sender;
 @end
 
@@ -22,9 +24,7 @@ static NSMenuItem *loggingMenuItem = nil;
 - (void)statusItemClicked:(id)sender {
     NSEvent *event = [NSApp currentEvent];
     if (event.type == NSEventTypeRightMouseDown || 
-        event.type == NSEventTypeRightMouseUp || 
-        (event.type == NSEventTypeLeftMouseDown && (event.modifierFlags & NSEventModifierFlagControl)) ||
-        (event.type == NSEventTypeLeftMouseUp && (event.modifierFlags & NSEventModifierFlagControl))) {
+        (event.type == NSEventTypeLeftMouseDown && (event.modifierFlags & NSEventModifierFlagControl))) {
         
         printf("[objc] Right-click detected, popping up context menu\n");
         fflush(stdout);
@@ -50,6 +50,10 @@ static NSMenuItem *loggingMenuItem = nil;
     BOOL newState = (loggingMenuItem.state == NSControlStateValueOff);
     [loggingMenuItem setState:newState ? NSControlStateValueOn : NSControlStateValueOff];
     onToggleLoggingClick(newState ? 1 : 0);
+}
+
+- (void)openLogsClicked:(id)sender {
+    onOpenLogsClick();
 }
 
 - (void)quitClicked:(id)sender {
@@ -94,7 +98,7 @@ void initStatusItem(const char* title, const void* iconData, int iconLength, int
         }
         
         // Enable right-click event tracking on the button
-        [button sendActionOn:(NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp | NSEventMaskRightMouseDown | NSEventMaskRightMouseUp)];
+        [button sendActionOn:(NSEventMaskLeftMouseDown | NSEventMaskRightMouseDown)];
         
         if (nsIconData != nil) {
             NSImage *image = [[NSImage alloc] initWithData:nsIconData];
@@ -135,9 +139,13 @@ void initStatusItem(const char* title, const void* iconData, int iconLength, int
         loggingMenuItem.target = handler;
         [loggingMenuItem setState:initialLoggingState ? NSControlStateValueOn : NSControlStateValueOff];
         [contextMenu addItem:loggingMenuItem];
+
+        NSMenuItem *openLogsItem = [[NSMenuItem alloc] initWithTitle:@"Open Logs Directory" action:@selector(openLogsClicked:) keyEquivalent:@""];
+        openLogsItem.target = handler;
+        [contextMenu addItem:openLogsItem];
         
         [contextMenu addItem:[NSMenuItem separatorItem]];
-        
+
         NSMenuItem *quitItem = [[NSMenuItem alloc] initWithTitle:@"Quit" action:@selector(quitClicked:) keyEquivalent:@"q"];
         quitItem.target = handler;
         [contextMenu addItem:quitItem];

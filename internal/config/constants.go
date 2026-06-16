@@ -68,6 +68,8 @@ const (
 const (
 	MonitorDefaultToNearest = 2
 	MdtEffectiveDpi         = 0
+	SystrayIconID           = 100
+	WindowTrayGap           = 8
 )
 
 // Gauge scales (Mbps)
@@ -85,6 +87,7 @@ const (
 	ErrCreateLogDir   = "Failed to create log directory"
 	ErrOpenLogFile    = "Failed to open log file"
 	ErrCreateConfigDir = "Failed to create config directory"
+	ErrOpenLogsDir     = "Failed to open logs directory"
 	LogAdapterUpdate     = "Adapter: Update"
 	LogAdapterClosed     = "Adapter: Updates closed, waiting for result"
 	LogAdapterResult     = "Adapter: Result received"
@@ -103,4 +106,5 @@ const (
 
 const (
 	UpdateChannelSize = 64
+	MaxLogLines       = 5000
 )

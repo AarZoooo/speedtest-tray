@@ -32,6 +32,11 @@ func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *confi
 			}
 		})
 
+		openLogs := systray.AddMenuItem("Open Logs Directory", "Open the directory containing the session logs")
+		openLogs.Click(func() {
+			config.OpenDirectory(config.GetConfigDir())
+		})
+
 		systray.AddSeparator()
 
 		quit := systray.AddMenuItem("Quit", "Quit the application")
