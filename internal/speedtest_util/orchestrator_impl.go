@@ -29,9 +29,19 @@ func (st *SpeedTester) FindServers(ctx context.Context) error {
 }
 
 func (st *SpeedTester) SelectBestServer(ctx context.Context) (*ServerInfo, error) {
-	targets, err := st.servers.FindServer([]int{})
+	var targetIDs []int
+	if st.TargetServerID != "" {
+		var id int
+		if _, err := fmt.Sscanf(st.TargetServerID, "%d", &id); err == nil {
+			targetIDs = append(targetIDs, id)
+		}
+	}
+	targets, err := st.servers.FindServer(targetIDs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find target server: %w", err)
+	}
+	if len(targets) == 0 {
+		return nil, fmt.Errorf("no server found with ID %s", st.TargetServerID)
 	}
 	st.server = targets[0]
 	return &ServerInfo{
@@ -39,6 +49,7 @@ func (st *SpeedTester) SelectBestServer(ctx context.Context) (*ServerInfo, error
 		Country: st.server.Country,
 	}, nil
 }
+
 
 func (st *SpeedTester) RunPing(ctx context.Context) (time.Duration, error) {
 	if err := st.server.PingTestContext(ctx, nil); err != nil {
