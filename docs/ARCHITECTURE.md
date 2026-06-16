@@ -7,6 +7,7 @@ Speedtest Tray is a modular speed testing application with clean separation of c
 - **Config Layer** (`internal/config/`): Centralized configuration and constants
 - **Business Logic** (`internal/speedtest_util/`): Speed testing orchestration and progress calculation
 - **GUI Layer** (`internal/gui_wails/`): Wails framework integration
+- **CLI Layer** (`internal/cli/`): Headless CLI framework integration and progress output
 - **Frontend** (`frontend/`): Modularized JavaScript with state, handlers, and constants
 
 ## Module Structure
@@ -86,6 +87,18 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 3. **Window Management** (`window_windows.go`)
    - Platform-specific window setup (Windows)
    - Uses config constants for sizing, corner radius
+
+### internal/cli
+
+**Purpose**: Headless CLI framework integration layer
+
+**Key Components**:
+
+1. **CLI Engine** (`cli.go`)
+   - Handles headless execution of speed testing using a custom terminal renderer
+   - Listens to the `Update` channel emitted by `TestRunner`
+   - Supports two output formats: interactive pretty-print with carriage returns (`\r`), and parseable JSON output
+   - Methods: Run
 
 ### frontend
 
