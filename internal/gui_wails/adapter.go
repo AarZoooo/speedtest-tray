@@ -51,6 +51,11 @@ func (ta *TestAdapter) forwardUpdates(updateCh <-chan speedtest_util.Update, res
 	select {
 	case result := <-resultCh:
 		slog.Info(config.LogAdapterResult, "error", result.Error)
+		if result.Error == nil {
+			if err := speedtest_util.SaveToHistory(result.Server, result.Ping, result.Download, result.Upload); err != nil {
+				slog.Error("Failed to save to history", "error", err)
+			}
+		}
 		event := serializeResult(result)
 		ta.emit(ta.ctx, "test_complete", event)
 	case <-time.After(ta.resultTimeout):

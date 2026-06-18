@@ -7,3 +7,4 @@ frontend/coverage/
 # Local development logs and configuration
 app.log
 config.json
+history.json

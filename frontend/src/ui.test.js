@@ -12,6 +12,8 @@ import {
   setStatus,
   updateGauge,
   updateResults,
+  renderHistory,
+  updateHistoryToggleState,
 } from "./ui.js";
 
 describe("ui", () => {
@@ -24,6 +26,15 @@ describe("ui", () => {
       <div id="status">Ready</div>
       <button id="run-btn">Start</button>
       <speedometer-gauge id="speedometer"></speedometer-gauge>
+      <button id="history-toggle-btn">🕒</button>
+      <div id="test-view" class="view-active"></div>
+      <div id="history-view" class="view-hidden">
+        <div class="history-header">
+          <button id="clear-history-btn">Clear history</button>
+          <button id="open-json-btn">Open json</button>
+        </div>
+        <div id="history-list"></div>
+      </div>
     `;
     document.getElementById("speedometer").setValue = vi.fn();
     document.getElementById("speedometer").setMax = vi.fn();
@@ -141,6 +152,44 @@ describe("ui", () => {
     expect(text("status")).toBe("Error: network failed");
     expect(text("run-btn")).toBe("Try Again");
     expect(text("server")).toBe("--");
+  });
+
+  it("updates history toggle state", () => {
+    const toggleBtn = document.getElementById("history-toggle-btn");
+
+    setButtonState(true);
+    expect(toggleBtn.disabled).toBe(true);
+    expect(toggleBtn.style.opacity).toBe("0.5");
+
+    setButtonState(false);
+    expect(toggleBtn.disabled).toBe(false);
+    expect(toggleBtn.style.opacity).toBe("1");
+  });
+
+  it("renders history entries", () => {
+    const historyList = document.getElementById("history-list");
+    const clearBtn = document.getElementById("clear-history-btn");
+
+    renderHistory([]);
+    expect(historyList.innerHTML).toContain("No test history yet");
+    expect(clearBtn.disabled).toBe(true);
+
+    const mockHistory = [
+      {
+        timestamp: "2026-06-16T15:53:05Z",
+        server: "Test Server",
+        ping: 15.5,
+        download: 120.4,
+        upload: 45.2,
+      }
+    ];
+    renderHistory(mockHistory);
+    expect(historyList.innerHTML).not.toContain("No test history yet");
+    expect(historyList.innerHTML).toContain("Test Server");
+    expect(historyList.innerHTML).toContain("120.4");
+    expect(historyList.innerHTML).toContain("45.2");
+    expect(historyList.innerHTML).toContain("16");
+    expect(clearBtn.disabled).toBe(false);
   });
 });
 

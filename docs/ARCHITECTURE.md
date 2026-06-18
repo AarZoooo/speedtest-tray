@@ -5,8 +5,9 @@
 Speedtest Tray is a modular speed testing application with clean separation of concerns:
 
 - **Config Layer** (`internal/config/`): Centralized configuration and constants
-- **Business Logic** (`internal/speedtest_util/`): Speed testing orchestration and progress calculation
+- **Business Logic** (`internal/speedtest_util/`): Speed testing orchestration, progress calculation, and data persistence (history management)
 - **GUI Layer** (`internal/gui_wails/`): Wails framework integration
+- **CLI Layer** (`internal/cli/`): Headless CLI framework integration and progress output
 - **Frontend** (`frontend/`): Modularized JavaScript with state, handlers, and constants
 
 ## Module Structure
@@ -64,6 +65,12 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
    - `Update`: Progress notification to GUI
    - `Result`: Final test results
 
+7. **History Management** (`history.go`)
+   - `HistoryEntry`: Data struct representing a speedtest result
+   - `SaveToHistory()`: Prepends successful speedtest results up to a maximum cap (50 entries)
+   - `LoadHistory()`: Reads and unmarshals JSON records, filtering out invalid/corrupted ones
+   - `ClearHistory()`: Resets the history file by writing an empty array `[]`
+
 ### internal/gui_wails
 
 **Purpose**: Wails framework integration layer
@@ -87,6 +94,18 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
    - Platform-specific window setup (Windows)
    - Uses config constants for sizing, corner radius
 
+### internal/cli
+
+**Purpose**: Headless CLI framework integration layer
+
+**Key Components**:
+
+1. **CLI Engine** (`cli.go`)
+   - Handles headless execution of speed testing using a custom terminal renderer
+   - Listens to the `Update` channel emitted by `TestRunner`
+   - Supports two output formats: interactive pretty-print with carriage returns (`\r`), and parseable JSON output
+   - Methods: Run
+
 ### frontend
 
 **Purpose**: Modularized vanilla JavaScript UI
@@ -98,8 +117,8 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 - `src/constants.js`: Frontend event names and re-exports for generated shared constants
 - `src/generated/config.js`: Generated phase and UI config constants from `internal/config`
 - `src/state.js`: TestState class (centralized test state management)
-- `src/ui.js`: UI update handlers (results, gauge, status, button state)
-- `src/handlers.js`: Test control (start, stop, button click)
+- `src/ui.js`: UI update handlers (results, gauge, status, button state, rendering history cards)
+- `src/handlers.js`: App controls (start/stop speedtests, toggle history view, clear history with 2-click confirm, open json natively)
 - `src/window.js`: Window events (show, blur, visibility)
 - `speedometer.js`: Custom gauge component (Web Component)
 - `src/speedometer-config.js`: Gauge configuration constants

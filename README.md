@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="frontend/banner.png" alt="SpeedTest Tray Banner" width="360">
+  <img src="frontend/assets/banner.png" alt="SpeedTest Tray Banner" width="360">
 </p>
 
 <p align="center">
@@ -39,6 +39,8 @@
 - **Offline Detection**: Shows **No internet connection** and offers **Try Again** when a test is started without connectivity.
 - **Immediate Termination**: Dedicated "Stop" button for instant test cancellation and UI reset.
 - **Persistent Logging**: Configurable file-based logging stored in your system's application data folder.
+- **Speedtest History**: Persists and displays recent speedtest run records (Download, Upload, Ping, Server, and Timestamp) directly in the UI. Features a 2-click clear confirmation flow and a button to open the raw JSON file natively.
+- **Headless CLI Mode**: Run speed tests directly from command line interfaces with interactive progress bars (`-c`/`--cli`) or parseable structured JSON (`-j`/`--json`).
 
 ## 🚀 Installation
 
@@ -71,6 +73,26 @@ wails build
 4. **Stop**: Click **Stop** at any time to abort the test.
 5. **Logs**: View your test history in your `%APPDATA%/SpeedTest Tray` folder (on Windows) or `~/Library/Application Support/SpeedTest Tray` folder (on macOS).
 
+### 🖥️ Headless CLI Mode
+
+Run speed tests directly in the terminal without spawning the GUI:
+
+```bash
+# Run test with interactive terminal progress bar
+speedtest-tray-portable.exe -c
+
+# Output results as structured JSON (ideal for scripts/cron jobs)
+speedtest-tray-portable.exe -j
+
+# Select a specific speedtest server by ID
+speedtest-tray-portable.exe -s <server_id>
+```
+
+> [!NOTE]
+> **Windows Terminal Execution**: Because the compiled portable app is a GUI subsystem binary, Windows shells (PowerShell/CMD) launch it in the background asynchronously by default. To output to the terminal synchronously, pipe it to a host stream:
+> * **PowerShell**: `.\speedtest-tray-portable.exe -c | Out-Host`
+> * **CMD**: `speedtest-tray-portable.exe -c | cat`
+
 ## 🛠 Tech Stack
 
 - **Backend**: [Go](https://go.dev/)
@@ -84,6 +106,7 @@ wails build
 ```text
 .
 ├── main.go                    # Wails and tray entry point
+├── internal/cli/              # Headless CLI loop and progress rendering
 ├── internal/config/           # Centralized configuration and constants
 ├── internal/gui_wails/        # Wails backend bindings and window integration
 ├── internal/speedtest_util/   # Speed test core logic and orchestration

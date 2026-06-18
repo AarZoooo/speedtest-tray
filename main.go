@@ -4,7 +4,11 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"embed"
+	"flag"
+	"fmt"
+	"io"
 	"log/slog"
 	"os"
 
@@ -15,8 +19,10 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 
+	"speedtest-tray/internal/cli"
 	"speedtest-tray/internal/config"
 	"speedtest-tray/internal/gui_wails"
+	"speedtest-tray/internal/speedtest_util"
 )
 
 //go:embed all:frontend
@@ -36,6 +42,58 @@ var (
 )
 
 func main() {
+	cliFlag := flag.Bool(config.FlagCLI, false, config.UsageCLI)
+	cliFlagShort := flag.Bool(config.FlagCLIShort, false, config.UsageCLI)
+	jsonFlag := flag.Bool(config.FlagJSON, false, config.UsageJSON)
+	jsonFlagShort := flag.Bool(config.FlagJSONShort, false, config.UsageJSON)
+	serverFlag := flag.String(config.FlagServer, "", config.UsageServer)
+	serverFlagShort := flag.String(config.FlagServerShort, "", config.UsageServer)
+	historyFlag := flag.Bool(config.FlagHistory, false, config.UsageHistory)
+	historyFlagShort := flag.Bool(config.FlagHistoryShort, false, config.UsageHistory)
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", config.AppName)
+		fmt.Fprintf(os.Stderr, "  %s [flags]\n\n", os.Args[0])
+		fmt.Fprintln(os.Stderr, "Flags:")
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	isCLI := *cliFlag || *cliFlagShort || *jsonFlag || *jsonFlagShort || *serverFlag != "" || *serverFlagShort != "" || *historyFlag || *historyFlagShort
+	if isCLI {
+		attachConsole()
+		jsonMode := *jsonFlag || *jsonFlagShort
+
+		if *historyFlag || *historyFlagShort {
+			if err := cli.PrintHistory(os.Stdout, jsonMode); err != nil {
+				os.Exit(1)
+			}
+			os.Exit(0)
+		}
+
+		serverID := *serverFlag
+		if serverID == "" {
+			serverID = *serverFlagShort
+		}
+
+		appConfig = config.LoadConfigOrDefault()
+		if appConfig.SaveLogs {
+			enableFileLogging()
+		} else {
+			slog.SetDefault(slog.New(slog.NewTextHandler(io.Discard, nil)))
+		}
+
+		tester := speedtest_util.New()
+		tester.TargetServerID = serverID
+
+		ctx := context.Background()
+		err := cli.Run(ctx, jsonMode, serverID, tester, os.Stdout)
+		if err != nil {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
 	appLogger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	slog.SetDefault(appLogger)
 
