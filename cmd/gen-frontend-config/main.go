@@ -37,6 +37,7 @@ func main() {
 	fmt.Fprintf(&out, "  UI_HIDE_DELAY_MS: %d,\n", config.UIHideDelayMs)
 	fmt.Fprintf(&out, "  GAUGE_MAX_DOWNLOAD: %d,\n", config.GaugeMaxDownload)
 	fmt.Fprintf(&out, "  GAUGE_MAX_UPLOAD: %d,\n", config.GaugeMaxUpload)
+	fmt.Fprintf(&out, "  APP_VERSION: %q,\n", config.AppVersion)
 	out.WriteString("};\n\n")
 	out.WriteString("export const ERRORS = {\n")
 	fmt.Fprintf(&out, "  NO_INTERNET: %q,\n", config.ErrNoInternet)

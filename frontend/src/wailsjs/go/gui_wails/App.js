@@ -10,6 +10,10 @@ export function ApplyUpdate() {
   return window['go']['gui_wails']['App']['ApplyUpdate']();
 }
 
+export function CheckForUpdate() {
+  return window['go']['gui_wails']['App']['CheckForUpdate']();
+}
+
 export function ClearHistory() {
   return window['go']['gui_wails']['App']['ClearHistory']();
 }
@@ -38,12 +42,12 @@ export function Quit() {
   return window['go']['gui_wails']['App']['Quit']();
 }
 
-export function ShowWindow() {
-  return window['go']['gui_wails']['App']['ShowWindow']();
-}
-
 export function SetLaunchAtLogin(arg1) {
   return window['go']['gui_wails']['App']['SetLaunchAtLogin'](arg1);
+}
+
+export function ShowWindow() {
+  return window['go']['gui_wails']['App']['ShowWindow']();
 }
 
 export function SkipUpdate(arg1) {

@@ -8,14 +8,35 @@
         <title>Speedtest Tray</title>
     </head>
     <body>
+        <svg class="hidden-defs" width="0" height="0">
+            <defs>
+                <linearGradient id="accent-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--accent-start)" />
+                    <stop offset="100%" stop-color="var(--accent-end)" />
+                </linearGradient>
+            </defs>
+        </svg>
         <div id="app" class="container">
             <header>
                 <img
                     src="assets/banner.png"
                     alt="Speedtest Tray"
                     class="header-logo"
+                    id="header-banner"
                 />
                 <div class="header-actions">
+                    <button
+                        id="update-toggle-btn"
+                        class="icon-btn"
+                        title="Check for Updates"
+                    >
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12A8 8 0 0 1 18.93 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 12A8 8 0 0 1 5.07 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14 8 19 8 19 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="10 16 5 16 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                     <button
                         id="history-toggle-btn"
                         class="icon-btn"
@@ -84,6 +105,61 @@
                     </div>
                     <div id="history-list" class="history-list">
                         <!-- History items will be inserted here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Update View -->
+                <div id="update-view" class="view-hidden">
+                    <!-- Checking State -->
+                    <div id="update-checking-state" class="update-state-container view-hidden">
+                        <div class="loader"></div>
+                        <div class="update-status-msg">Checking for updates...</div>
+                    </div>
+
+                    <!-- Up to Date State -->
+                    <div id="update-uptodate-state" class="update-state-container view-hidden">
+                        <h2 class="update-title">SpeedTest Tray</h2>
+                        <div class="update-center-content">
+                            <svg class="update-dim-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <span class="update-version-text" id="current-version-display">--</span>
+                            <div class="update-size-container">
+                                <span class="update-size-label">You're up to date!</span>
+                            </div>
+                        </div>
+                        <div class="update-actions">
+                            <button id="manual-check-btn" class="update-action-btn primary-btn">Check again</button>
+                        </div>
+                    </div>
+
+                    <!-- Update Available State -->
+                    <div id="update-available-state" class="update-state-container view-hidden">
+                        <h2 class="update-title">New Version Available!</h2>
+                        
+                        <div class="update-center-content">
+                            <svg class="update-dim-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 12A8 8 0 0 1 18.93 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M20 12A8 8 0 0 1 5.07 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="14 8 19 8 19 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="10 16 5 16 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span id="update-version-val" class="update-version-text">--</span>
+                            <div class="update-size-container">
+                                <span class="update-size-label">Update Size:</span>
+                                <span id="update-size-val" class="update-size-val">--</span>
+                            </div>
+                        </div>
+
+                        <div class="update-notes-link">
+                            <a href="#" id="update-notes-btn">View Release Notes</a>
+                        </div>
+
+                        <div class="update-actions">
+                            <button id="update-now-btn" class="update-action-btn primary-btn">Update Now</button>
+                            <button id="update-skip-btn" class="update-action-btn secondary-btn">Skip Version</button>
+                        </div>
                     </div>
                 </div>
             </main>

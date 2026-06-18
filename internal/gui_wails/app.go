@@ -45,7 +45,15 @@ func (a *App) Startup(ctx context.Context) {
 		a.autostartMgr = mgr
 	}
 
-	go a.checkForUpdate()
+	go func() {
+		info, err := a.CheckForUpdate()
+		if err == nil && info.HasUpdate {
+			slog.Info(config.LogUpdateFound, "version", info.LatestVersion)
+			wailsRuntime.EventsEmit(a.ctx, "update:available", info)
+		} else if err == nil {
+			slog.Info(config.LogUpdateNoneFound)
+		}
+	}()
 	a.initMacStatusItem()
 }
 
@@ -184,9 +192,15 @@ func (a *App) GetUpdateInfo() updater.UpdateInfo {
 }
 
 func (a *App) ApplyUpdate() {
-	if err := updater.Apply(a.GetUpdateInfo()); err != nil {
-		slog.Error(config.ErrUpdateApply, config.KeyError, err)
-	}
+	go func() {
+		err := updater.Apply(a.GetUpdateInfo(), func(percent int) {
+			wailsRuntime.EventsEmit(a.ctx, "update:progress", percent)
+		})
+		if err != nil {
+			slog.Error(config.ErrUpdateApply, config.KeyError, err)
+			wailsRuntime.EventsEmit(a.ctx, "update:error", err.Error())
+		}
+	}()
 }
 
 func (a *App) SkipUpdate(version string) {
@@ -197,7 +211,7 @@ func (a *App) SkipUpdate(version string) {
 	}
 }
 
-func (a *App) checkForUpdate() {
+func (a *App) CheckForUpdate() (updater.UpdateInfo, error) {
 	cfg := config.LoadConfigOrDefault()
 	info, err := updater.Check(
 		config.AppVersion,
@@ -207,17 +221,12 @@ func (a *App) checkForUpdate() {
 	)
 	if err != nil {
 		slog.Error(config.ErrUpdateCheck, config.KeyError, err)
-		return
+		return updater.UpdateInfo{}, err
 	}
 
 	a.mu.Lock()
 	a.updateInfo = info
 	a.mu.Unlock()
 
-	if info.HasUpdate {
-		slog.Info(config.LogUpdateFound, "version", info.LatestVersion)
-		wailsRuntime.EventsEmit(a.ctx, "update:available", info)
-		return
-	}
-	slog.Info(config.LogUpdateNoneFound)
+	return info, nil
 }

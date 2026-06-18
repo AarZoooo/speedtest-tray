@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -153,4 +154,24 @@ func CleanupStagedInstaller() {
 	if _, err := os.Stat(path); err == nil {
 		_ = os.Remove(path)
 	}
+}
+
+type progressWriter struct {
+	w          io.Writer
+	total      int64
+	written    int64
+	onProgress func(percent int)
+}
+
+func (pw *progressWriter) Write(p []byte) (int, error) {
+	n, err := pw.w.Write(p)
+	if err != nil {
+		return n, err
+	}
+	pw.written += int64(n)
+	if pw.total > 0 && pw.onProgress != nil {
+		percent := int(pw.written * 100 / pw.total)
+		pw.onProgress(percent)
+	}
+	return n, nil
 }
