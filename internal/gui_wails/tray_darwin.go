@@ -5,21 +5,23 @@ package gui_wails
 /*
 #cgo LDFLAGS: -framework AppKit -framework Foundation
 #include <stdlib.h>
-void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState);
+void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState, int initialLaunchAtLoginState);
 void getStatusItemPosition(double *x, double *y, double *width, double *height, double *screenWidth);
 void removeStatusItem(void);
 */
 import "C"
 import (
 	"log/slog"
-	"unsafe"
 	"speedtest-tray/internal/config"
+	"unsafe"
 )
 
 var (
-	globalApp             *App
-	toggleLoggingCallback func(bool)
-	initialLoggingVal     bool
+	globalApp                   *App
+	toggleLoggingCallback       func(bool)
+	toggleLaunchAtLoginCallback func(bool)
+	initialLoggingVal           bool
+	initialLaunchAtLoginVal     bool
 )
 
 //export onStatusItemClick
@@ -46,17 +48,27 @@ func onToggleLoggingClick(enabled C.int) {
 	}
 }
 
+//export onLaunchAtLoginClick
+func onLaunchAtLoginClick(enabled C.int) {
+	slog.Info("onLaunchAtLoginClick received from Objective-C", "enabled", enabled != 0)
+	if toggleLaunchAtLoginCallback != nil {
+		go toggleLaunchAtLoginCallback(enabled != 0)
+	}
+}
+
 //export onOpenLogsClick
 func onOpenLogsClick() {
 	slog.Info("onOpenLogsClick received from Objective-C")
 	config.OpenDirectory(config.GetConfigDir())
 }
 
-func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool)) {
+func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool)) {
 	slog.Info("StartTray called on macOS")
 	app.MacIcon = macIconBytes
 	toggleLoggingCallback = toggleLogging
+	toggleLaunchAtLoginCallback = toggleLaunchAtLogin
 	initialLoggingVal = appConfig.SaveLogs
+	initialLaunchAtLoginVal = app.GetLaunchAtLogin()
 }
 
 func (a *App) initMacStatusItem() {
@@ -80,7 +92,12 @@ func (a *App) initMacStatusItem() {
 		loggingVal = C.int(1)
 	}
 
-	C.initStatusItem(title, iconPtr, iconLen, loggingVal)
+	launchAtLoginVal := C.int(0)
+	if initialLaunchAtLoginVal {
+		launchAtLoginVal = C.int(1)
+	}
+
+	C.initStatusItem(title, iconPtr, iconLen, loggingVal, launchAtLoginVal)
 }
 
 func (a *App) cleanupMacStatusItem() {
