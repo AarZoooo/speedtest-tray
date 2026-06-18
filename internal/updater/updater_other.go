@@ -7,6 +7,6 @@ import (
 	"runtime"
 )
 
-func Apply(info UpdateInfo) error {
+func Apply(info UpdateInfo, onProgress func(percent int)) error {
 	return fmt.Errorf("updates are not supported on %s", runtime.GOOS)
 }
