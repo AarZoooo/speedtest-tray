@@ -9,5 +9,30 @@ if [ -L "$CLI_LINK" ]; then
 fi
 ln -sf "$APP_BINARY" "$CLI_LINK"
 
-# Placeholder: LaunchAgent setup added by feature/installer/autostart
+# Install LaunchAgent for current user
+PLIST_DIR="$HOME/Library/LaunchAgents"
+PLIST_PATH="$PLIST_DIR/dev.aarju.speedtest-tray.plist"
+
+mkdir -p "$PLIST_DIR"
+cat > "$PLIST_PATH" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>dev.aarju.speedtest-tray</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/SpeedTest Tray.app/Contents/MacOS/SpeedTest Tray</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
+EOF
+
+launchctl unload "$PLIST_PATH" 2>/dev/null || true
+launchctl load "$PLIST_PATH" 2>/dev/null || true
+
 exit 0
