@@ -17,6 +17,7 @@ master
 └── feature/installer          ← ROOT: core scaffolding (this branch)
     ├── feature/installer/cli-alias     ← PATH registration + /usr/local/bin symlink
     ├── feature/installer/autostart     ← Launch at Login toggle (tray + Wails bindings)
+    ├── feature/installer/update-ui     ← Update panel UI (SVG icon, Wails events, panel)
     └── feature/installer/tests         ← unit tests + complete release.yml
 ```
 
@@ -933,6 +934,346 @@ jobs:
           generate_release_notes: true
 ```
 
+## Sub-Branch 4: `feature/installer/update-ui`
+
+### Branches from: `feature/installer`
+### Merges back to: `feature/installer`
+### Commit message: `add update panel UI, update-toggle-btn, badge, skip and install update interaction`
+
+### Goal
+Implement the frontend update UI:
+- Add a new header action button: `update-toggle-btn` to the left of history button.
+- Toggle-able update panel/view that matches the styling and layout of `history-view`.
+- Handle the `update:available` event from Wails and update the button/view dynamically.
+- Implement click handlers for Update and Skip buttons.
+
+### 1. `frontend/index.html`
+
+In the header actions container:
+```html
+<div class="header-actions">
+    <!-- Add before history-toggle-btn -->
+    <button
+        id="update-toggle-btn"
+        class="icon-btn update-btn-hidden"
+        title="Update Available"
+    >
+        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12A8 8 0 0 1 18.93 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 12A8 8 0 0 1 5.07 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14 8 19 8 19 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="10 16 5 16 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+    <button
+        id="history-toggle-btn"
+...
+```
+
+Add the `update-view` inside the `<main class="main-content">` tag, below the `history-view`:
+```html
+<!-- Update View -->
+<div id="update-view" class="view-hidden">
+    <div class="update-card">
+        <h2 class="update-title">New Version Available!</h2>
+        <div class="update-info-group">
+            <div class="update-info-row">
+                <span class="update-info-label">Version:</span>
+                <span id="update-version-val" class="update-info-val">v1.2.0</span>
+            </div>
+            <div class="update-info-row">
+                <span class="update-info-label">File Size:</span>
+                <span id="update-size-val" class="update-info-val">--</span>
+            </div>
+        </div>
+        <div class="update-actions">
+            <button id="update-now-btn" class="update-action-btn primary-btn">Update Now</button>
+            <button id="update-skip-btn" class="update-action-btn secondary-btn">Skip Version</button>
+        </div>
+        <div class="update-notes-link">
+            <a href="#" id="update-notes-btn">View Release Notes</a>
+        </div>
+    </div>
+</div>
+```
+
+### 2. `frontend/style.css`
+
+Add update UI styles:
+```css
+/* Update Button styling with badge */
+#update-toggle-btn {
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.update-btn-hidden {
+    display: none !important;
+}
+
+.update-btn-visible {
+    display: block !important;
+}
+
+#update-toggle-btn.has-badge::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger);
+    border-radius: 50%;
+    border: 1.5px solid var(--bg-color);
+}
+
+/* Update Panel */
+.update-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid var(--border-dim);
+    margin: auto 0;
+}
+
+.update-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: center;
+}
+
+.update-info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 200px;
+    margin: 8px 0;
+}
+
+.update-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.update-info-label {
+    color: var(--text-dim);
+}
+
+.update-info-val {
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.update-actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.update-action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.update-action-btn:active {
+    transform: scale(0.98);
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    color: white;
+    box-shadow: var(--shadow-btn);
+}
+
+.primary-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: var(--shadow-btn-hover);
+}
+
+.secondary-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-dim);
+    color: var(--text-dim);
+}
+
+.secondary-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+}
+
+.update-notes-link {
+    margin-top: 8px;
+}
+
+.update-notes-link a {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.update-notes-link a:hover {
+    color: var(--text-main);
+}
+
+.update-status-msg {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin: 12px 0;
+}
+```
+
+### 3. `frontend/src/handlers.js`
+
+Add and export update view handling functions:
+
+```javascript
+let updateData = null;
+
+export function handleUpdateAvailable(info) {
+    updateData = info;
+    const toggleBtn = document.getElementById("update-toggle-btn");
+    const versionVal = document.getElementById("update-version-val");
+    const sizeVal = document.getElementById("update-size-val");
+
+    if (toggleBtn) {
+        toggleBtn.classList.replace("update-btn-hidden", "update-btn-visible");
+        toggleBtn.classList.add("has-badge");
+    }
+
+    if (versionVal) {
+        versionVal.innerText = "v" + info.LatestVersion;
+    }
+
+    if (sizeVal) {
+        // Format size: e.g. 4.52 MB
+        const mb = (info.AssetSizeBytes / (1024 * 1024)).toFixed(2);
+        sizeVal.innerText = mb + " MB";
+    }
+}
+
+export function handleUpdateToggleClick() {
+    if (testState.isTesting) return;
+
+    const testView = document.getElementById("test-view");
+    const updateView = document.getElementById("update-view");
+    const historyView = document.getElementById("history-view");
+    const toggleBtn = document.getElementById("update-toggle-btn");
+
+    if (!testView || !updateView || !toggleBtn) return;
+
+    // Remove badge on click
+    toggleBtn.classList.remove("has-badge");
+
+    if (testView.classList.contains("view-active")) {
+        testView.classList.replace("view-active", "view-hidden");
+        updateView.classList.replace("view-hidden", "view-active");
+        toggleBtn.innerHTML = SPEED_ICON_HTML;
+        toggleBtn.title = "Run Test";
+    } else {
+        updateView.classList.replace("view-active", "view-hidden");
+        testView.classList.replace("view-hidden", "view-active");
+        toggleBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12A8 8 0 0 1 18.93 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20 12A8 8 0 0 1 5.07 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14 8 19 8 19 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="10 16 5 16 5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+        toggleBtn.title = "Update Available";
+    }
+}
+
+export function handleUpdateNowClick() {
+    const card = document.querySelector(".update-card");
+    if (!card) return;
+
+    // Swap content with spinner and progress message
+    card.innerHTML = `
+        <div class="loader"></div>
+        <div class="update-status-msg">Downloading and installing update...<br>App will restart automatically.</div>
+    `;
+
+    // Trigger backend apply
+    window.go.gui_wails.App.ApplyUpdate();
+}
+
+export function handleUpdateSkipClick() {
+    if (!updateData) return;
+
+    // Notify backend to save skipped version
+    window.go.gui_wails.App.SkipUpdate(updateData.LatestVersion);
+
+    // Hide update toggle button and return to test view
+    const toggleBtn = document.getElementById("update-toggle-btn");
+    if (toggleBtn) {
+        toggleBtn.classList.replace("update-btn-visible", "update-btn-hidden");
+    }
+
+    const testView = document.getElementById("test-view");
+    const updateView = document.getElementById("update-view");
+    if (testView && updateView && updateView.classList.contains("view-active")) {
+        updateView.classList.replace("view-active", "view-hidden");
+        testView.classList.replace("view-hidden", "view-active");
+    }
+}
+
+export function handleReleaseNotesClick(e) {
+    e.preventDefault();
+    if (updateData && updateData.ReleasePageURL) {
+        window.runtime.BrowserOpenURL(updateData.ReleasePageURL);
+    }
+}
+
+export function initializeUpdateHandlers() {
+    const toggleBtn = document.getElementById("update-toggle-btn");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", handleUpdateToggleClick);
+    }
+
+    const updateNowBtn = document.getElementById("update-now-btn");
+    if (updateNowBtn) {
+        updateNowBtn.addEventListener("click", handleUpdateNowClick);
+    }
+
+    const updateSkipBtn = document.getElementById("update-skip-btn");
+    if (updateSkipBtn) {
+        updateSkipBtn.addEventListener("click", handleUpdateSkipClick);
+    }
+
+    const notesBtn = document.getElementById("update-notes-btn");
+    if (notesBtn) {
+        notesBtn.addEventListener("click", handleReleaseNotesClick);
+    }
+}
+```
+
+### 4. `frontend/main.js`
+
+Import and initialize update handlers and register Wails runtime event:
+
+```javascript
+import { initializeUpdateHandlers, handleUpdateAvailable } from "./src/handlers.js";
+
+// Inside DOMContentLoaded listener:
+initializeUpdateHandlers();
+
+// Register the update event:
+window.runtime.EventsOn("update:available", handleUpdateAvailable);
+```
+
 ---
 
 ## Merge Order
@@ -940,15 +1281,16 @@ jobs:
 ```
 feature/installer/cli-alias  ──┐
 feature/installer/autostart  ──┼──► feature/installer ──► master
+feature/installer/update-ui  ──┤
 feature/installer/tests      ──┘
 ```
 
-No merge order dependency between the three sub-branches. Merge conflicts
-between `cli-alias` and `autostart` on `project.nsi` / `postinstall` are
-expected and resolvable (they edit different sections).
+No merge order dependency between the four sub-branches. Merge conflicts
+are expected to be minimal and easily resolvable.
 
-After all three are merged into `feature/installer`, run the full manual QA
+After all four are merged into `feature/installer`, run the full manual QA
 checklist from the implementation_plan.md artifact before merging to master.
+
 
 ---
 
