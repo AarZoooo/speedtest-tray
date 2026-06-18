@@ -32,13 +32,12 @@ and manual QA passes.
 
 ### Goal
 Lay the foundation that all three sub-branches depend on:
-- Version and GitHub constants in config
-- `internal/updater/` package (core logic, no tests yet)
-- `internal/autostart/` package (core logic, no tests yet)
-- NSIS installer script scaffold (Windows)
-- PKG installer scripts scaffold (macOS)
-- Skeleton `release.yml` CI workflow
-- Version bump to 1.2.0
+- [x] Version and GitHub constants in config (kept at 1.0.2 per user feedback)
+- [x] `internal/updater/` package (core logic, no tests yet)
+- [x] `internal/autostart/` package (core logic, no tests yet)
+- [x] NSIS installer script scaffold (Windows)
+- [x] PKG installer scripts scaffold (macOS)
+- [x] Skeleton `release.yml` CI workflow
 
 ### Commit message
 `add installer scaffolding, updater and autostart packages [ci]`

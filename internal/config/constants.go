@@ -5,6 +5,13 @@ import "time"
 // App branding
 const AppName = "SpeedTest Tray"
 
+const AppVersion = "1.0.2"
+
+const (
+	GitHubOwner = "AarZoooo"
+	GitHubRepo  = "speedtest-tray"
+)
+
 // Progress thresholds (phase orchestration)
 const (
 	ProgressInit         = 0.00
@@ -93,6 +100,18 @@ const (
 	LogAdapterResult     = "Adapter: Result received"
 	LogAdapterTimeout    = "Adapter: Timeout waiting for result"
 	LogHardwareStats     = "Hardware Utilization"
+
+	LogUpdateCheckStart   = "Update check started"
+	LogUpdateFound        = "Update available"
+	LogUpdateNoneFound    = "No update available"
+	LogUpdateApplying     = "Applying update"
+	LogUpdateCleanup      = "Cleaned up staged installer"
+	ErrUpdateCheck        = "Failed to check for update"
+	ErrUpdateApply        = "Failed to apply update"
+	ErrUpdateDownload     = "Failed to download update"
+	ErrUpdateBadChecksum  = "Downloaded installer size mismatch, aborting"
+	ErrAutostartEnable    = "Failed to enable launch at login"
+	ErrAutostartDisable   = "Failed to disable launch at login"
 )
 
 const (
