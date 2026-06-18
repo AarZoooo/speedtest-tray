@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+# Placeholder: CLI symlink added by feature/installer/cli-alias
+# Placeholder: LaunchAgent setup added by feature/installer/autostart
+exit 0

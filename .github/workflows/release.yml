@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  verify-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify AppVersion matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          GO_VERSION=$(grep 'AppVersion' internal/config/constants.go | grep -oP '"[^"]+"' | tr -d '"')
+          if [ "$TAG_VERSION" != "$GO_VERSION" ]; then
+            echo "ERROR: Tag $GITHUB_REF_NAME does not match AppVersion=$GO_VERSION in constants.go"
+            exit 1
+          fi
+          echo "Version sync OK: $GO_VERSION"
+
+  build-windows-amd64:
+    needs: verify-version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO: full build steps added by feature/installer/tests
+
+  build-windows-arm64:
+    needs: verify-version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO: full build steps added by feature/installer/tests
+
+  build-macos-intel:
+    needs: verify-version
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO: full build steps added by feature/installer/tests
+
+  build-macos-arm:
+    needs: verify-version
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO: full build steps added by feature/installer/tests
+
+  create-release:
+    needs: [build-windows-amd64, build-windows-arm64, build-macos-intel, build-macos-arm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO: asset collection and release creation added by feature/installer/tests

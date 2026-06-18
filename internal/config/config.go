@@ -10,11 +10,13 @@ import (
 )
 
 type CustomConfig struct {
-	SaveLogs bool `json:"save_logs"`
+	SaveLogs       bool   `json:"save_logs"`
+	SkippedVersion string `json:"skipped_version,omitempty"`
 }
 
 var DefaultConfig = CustomConfig{
-	SaveLogs: false,
+	SaveLogs:       false,
+	SkippedVersion: "",
 }
 
 func GetConfigDir() string {
