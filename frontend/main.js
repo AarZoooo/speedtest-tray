@@ -8,7 +8,7 @@ import {
   handleTestError 
 } from "./src/ui.js";
 import { initializeWindowEvents } from "./src/window.js";
-import { initializeButtonHandler, initializeHistoryHandlers } from "./src/handlers.js";
+import { initializeButtonHandler, initializeHistoryHandlers, initializeCloseHandler } from "./src/handlers.js";
 
 // Initialize on DOM ready
 document.addEventListener("DOMContentLoaded", function () {
@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeWindowEvents();
   initializeButtonHandler();
   initializeHistoryHandlers();
+  initializeCloseHandler();
 
   // Setup Wails runtime events
   window.runtime.EventsOn(EVENTS.TEST_UPDATE, handleTestUpdate);
