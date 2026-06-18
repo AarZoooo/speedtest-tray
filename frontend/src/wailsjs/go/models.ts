@@ -42,3 +42,27 @@ export namespace speedtest_util {
 
 }
 
+export namespace updater {
+
+	export class UpdateInfo {
+	    LatestVersion: string;
+	    ReleasePageURL: string;
+	    AssetSizeBytes: number;
+	    HasUpdate: boolean;
+	    DownloadURL: string;
+
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfo(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.LatestVersion = source["LatestVersion"];
+	        this.ReleasePageURL = source["ReleasePageURL"];
+	        this.AssetSizeBytes = source["AssetSizeBytes"];
+	        this.HasUpdate = source["HasUpdate"];
+	        this.DownloadURL = source["DownloadURL"];
+	    }
+	}
+
+}

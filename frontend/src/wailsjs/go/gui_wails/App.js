@@ -6,12 +6,24 @@ export function ApplyRoundedCorners() {
   return window['go']['gui_wails']['App']['ApplyRoundedCorners']();
 }
 
+export function ApplyUpdate() {
+  return window['go']['gui_wails']['App']['ApplyUpdate']();
+}
+
 export function ClearHistory() {
   return window['go']['gui_wails']['App']['ClearHistory']();
 }
 
 export function GetHistory() {
   return window['go']['gui_wails']['App']['GetHistory']();
+}
+
+export function GetLaunchAtLogin() {
+  return window['go']['gui_wails']['App']['GetLaunchAtLogin']();
+}
+
+export function GetUpdateInfo() {
+  return window['go']['gui_wails']['App']['GetUpdateInfo']();
 }
 
 export function HideWindow() {
@@ -28,6 +40,14 @@ export function Quit() {
 
 export function ShowWindow() {
   return window['go']['gui_wails']['App']['ShowWindow']();
+}
+
+export function SetLaunchAtLogin(arg1) {
+  return window['go']['gui_wails']['App']['SetLaunchAtLogin'](arg1);
+}
+
+export function SkipUpdate(arg1) {
+  return window['go']['gui_wails']['App']['SkipUpdate'](arg1);
 }
 
 export function StartTest() {

@@ -6,7 +6,7 @@ import (
 	"speedtest-tray/internal/config"
 )
 
-func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool)) {
+func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool)) {
 }
 
 func (a *App) initMacStatusItem() {}

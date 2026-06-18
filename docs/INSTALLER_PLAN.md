@@ -16,7 +16,7 @@ structured to match the git branching strategy below.
 master
 └── feature/installer          ← ROOT: core scaffolding (this branch)
     ├── feature/installer/cli-alias     ← PATH registration + /usr/local/bin symlink
-    ├── feature/installer/autostart     ← Launch at Login toggle (tray + Wails bindings)
+    ├── feature/installer-autostart     ← Launch at Login toggle (tray + Wails bindings)
     ├── feature/installer/update-ui     ← Update panel UI (SVG icon, Wails events, panel)
     └── feature/installer/tests         ← unit tests + complete release.yml
 ```
@@ -445,7 +445,7 @@ fi
 
 ---
 
-## Sub-Branch 2: `feature/installer/autostart`
+## Sub-Branch 2: `feature/installer-autostart` [DONE]
 
 ### Branches from: `feature/installer`
 ### Merges back to: `feature/installer`
@@ -1279,7 +1279,7 @@ window.runtime.EventsOn("update:available", handleUpdateAvailable);
 
 ```
 feature/installer/cli-alias  ──┐
-feature/installer/autostart  ──┼──► feature/installer ──► master
+feature/installer-autostart  ──┼──► feature/installer ──► master
 feature/installer/update-ui  ──┤
 feature/installer/tests      ──┘
 ```
