@@ -31,6 +31,9 @@
 ## ✨ Key Features
 
 - **System Tray & Menu Bar Integration**: Stays docked in your taskbar (Windows) or status bar (macOS), launching a focused window only when needed.
+- **System Installer & CLI PATH Registration**: Per-user system installers that place the app in local user programs and register the command-line command (`speedtest-tray`) in the system `PATH` dynamically.
+- **In-App Self-Updates**: Fully automated version checking against the GitHub Releases API with a dedicated Update panel UI for installing updates or skipping versions.
+- **Launch at Login (Autostart)**: Optional configuration via system tray context menu or setup options to boot the application on user login.
 - **Modern Speedometer UI**: Features a custom-built, modular solid-sector gauge with a real-time synchronized kite needle.
 - **Vibrant Aesthetic**: Premium dual-accent gradient theme with color-matched bloom effects and softened shadows.
 - **Dynamic Scaling**: Automatically adjusts its scale for Download (1000 Mbps) and Upload (100 Mbps) phases for optimal visual feedback.
@@ -45,13 +48,14 @@
 ## 🚀 Installation
 
 ### Windows (Recommended)
-1. Download the latest `speedtest-tray-portable.exe` from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.        
-2. Run the executable. It will automatically initialize in your system tray.
+1. Download the latest installer `speedtest-tray-amd64-installer.exe` (or `-arm64-installer.exe`) from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
+2. Run the installer. It will install the application per-user and register the `speedtest-tray` command-line executable in your user path.
+3. Open the app. It will launch and dock itself into your system tray.
 
 ### macOS
-1. Download the latest `SpeedTest Tray.dmg` from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
+1. Download the latest `SpeedTest-Tray-macOS-ARM.dmg` (or `-Intel.dmg`) from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
 2. Open the `.dmg` file, and drag `SpeedTest Tray` to your `Applications` folder.
-3. Open it from your Applications folder. It will initialize as a native menu bar accessory app.
+3. Run the application to register the native menu bar accessory. The PKG version automates CLI symlinking to `/usr/local/bin/speedtest-tray`.
 
 ### From Source
 If you prefer to build it yourself, ensure you have [Go](https://go.dev/) and [Wails](https://wails.io/) installed.
@@ -79,19 +83,19 @@ Run speed tests directly in the terminal without spawning the GUI:
 
 ```bash
 # Run test with interactive terminal progress bar
-speedtest-tray-portable.exe -c
+speedtest-tray -c
 
 # Output results as structured JSON (ideal for scripts/cron jobs)
-speedtest-tray-portable.exe -j
+speedtest-tray -j
 
 # Select a specific speedtest server by ID
-speedtest-tray-portable.exe -s <server_id>
+speedtest-tray -s <server_id>
 ```
 
 > [!NOTE]
-> **Windows Terminal Execution**: Because the compiled portable app is a GUI subsystem binary, Windows shells (PowerShell/CMD) launch it in the background asynchronously by default. To output to the terminal synchronously, pipe it to a host stream:
-> * **PowerShell**: `.\speedtest-tray-portable.exe -c | Out-Host`
-> * **CMD**: `speedtest-tray-portable.exe -c | cat`
+> **Windows Terminal Execution**: Because the compiled app is a GUI subsystem binary, Windows shells (PowerShell/CMD) launch it in the background asynchronously by default. To output to the terminal synchronously, pipe it to a host stream:
+> * **PowerShell**: `speedtest-tray -c | Out-Host`
+> * **CMD**: `speedtest-tray -c | cat`
 
 ## 🛠 Tech Stack
 
