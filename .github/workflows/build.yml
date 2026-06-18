@@ -15,7 +15,7 @@ jobs:
   build-windows:
     name: Build Windows
     runs-on: windows-latest
-    if: contains(github.event.head_commit.message, '[release commit]') || github.event_name == 'workflow_dispatch'
+    if: contains(github.event.head_commit.message, '[ci]') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
   build-macos:
     name: Build macOS
     runs-on: macos-latest
-    if: contains(github.event.head_commit.message, '[release commit]') || github.event_name == 'workflow_dispatch'
+    if: contains(github.event.head_commit.message, '[ci]') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
