@@ -47,10 +47,13 @@ jobs:
         run: npm test
 
   build-windows:
-    name: Build Windows
+    name: Build Windows (${{ matrix.arch }})
     runs-on: windows-latest
     needs: test
     if: contains(github.event.head_commit.message, '[ci]') || github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -75,19 +78,26 @@ jobs:
       - name: Build Wails App
         run: |
           go generate ./...
-          wails build -platform windows/amd64 -o speedtest-tray-portable.exe -clean
+          wails build -platform windows/${{ matrix.arch }} -o speedtest-tray-windows-${{ matrix.arch }}.exe -clean
 
       - name: Upload Windows Executable
         uses: actions/upload-artifact@v4
         with:
-          name: SpeedTest-Tray-Windows
-          path: build/bin/speedtest-tray-portable.exe
+          name: SpeedTest-Tray-Windows-${{ matrix.arch }}
+          path: build/bin/speedtest-tray-windows-${{ matrix.arch }}.exe
 
   build-macos:
-    name: Build macOS
+    name: Build macOS (${{ matrix.arch }})
     runs-on: macos-latest
     needs: test
     if: contains(github.event.head_commit.message, '[ci]') || github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            dmg_label: Intel
+          - arch: arm64
+            dmg_label: ARM
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -109,10 +119,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build Wails App (Universal macOS)
+      - name: Build Wails App
         run: |
           go generate ./...
-          wails build -platform darwin/universal -clean
+          wails build -platform darwin/${{ matrix.arch }} -clean
 
       - name: Install Packaging Tools
         run: brew install create-dmg fileicon
@@ -121,6 +131,7 @@ jobs:
         run: |
           ICON_PATH=$(find "build/bin/SpeedTest Tray.app/Contents/Resources" -name "*.icns" | head -n 1)
           echo "Found volume icon at: $ICON_PATH"
+          DMG_NAME="SpeedTest-Tray-macOS-${{ matrix.dmg_label }}.dmg"
           create-dmg \
             --volname "SpeedTest Tray" \
             --volicon "$ICON_PATH" \
@@ -130,14 +141,14 @@ jobs:
             --icon "SpeedTest Tray.app" 175 190 \
             --app-drop-link 425 190 \
             --hide-extension "SpeedTest Tray.app" \
-            "SpeedTest-Tray-macOS-Universal.dmg" \
+            "$DMG_NAME" \
             "build/bin/"
-          
+
           # Set the DMG file icon itself
-          fileicon set SpeedTest-Tray-macOS-Universal.dmg "$ICON_PATH"
+          fileicon set "$DMG_NAME" "$ICON_PATH"
 
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
-          name: SpeedTest-Tray-macOS-Universal-DMG
-          path: SpeedTest-Tray-macOS-Universal.dmg
+          name: SpeedTest-Tray-macOS-${{ matrix.dmg_label }}-DMG
+          path: SpeedTest-Tray-macOS-${{ matrix.dmg_label }}.dmg
