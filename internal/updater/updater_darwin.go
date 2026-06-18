@@ -18,7 +18,7 @@ import (
 // Apply downloads the appropriate release asset for the current
 // OS/arch, verifies the download size, then performs a platform-
 // specific binary swap or installer launch.
-func Apply(info UpdateInfo) error {
+func Apply(info UpdateInfo, onProgress func(percent int)) error {
 	if info.DownloadURL == "" {
 		return errors.New("empty download URL")
 	}
@@ -50,7 +50,13 @@ func Apply(info UpdateInfo) error {
 		return err
 	}
 
-	n, err := io.Copy(out, resp.Body)
+	pw := &progressWriter{
+		w:          out,
+		total:      info.AssetSizeBytes,
+		onProgress: onProgress,
+	}
+
+	n, err := io.Copy(pw, resp.Body)
 	_ = out.Close()
 	if err != nil {
 		return err
