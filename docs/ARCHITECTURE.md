@@ -198,6 +198,24 @@ Progress tracked as phases progress:
 - Frontend displays percentage complete (total progress * 100)
 - Between major steps, `TestRunner` sleeps for `PhaseSleepDuration` (2 seconds). The next-phase update (e.g. `STARTING_DOWNLOAD`, `STARTING_UPLOAD`) is emitted **before** the sleep so the UI status label and gauge reset reflect the upcoming step during the pause, not the phase that just finished
 
+## CI/CD and Build Pipeline
+
+The project uses GitHub Actions (defined in `.github/workflows/build.yml`) to build and package releases for Windows and macOS.
+
+### Job Trigger Restrictions
+To save GitHub Actions runner minutes (which are limited to 2,000 free minutes per month for private repositories), the build jobs only run under two conditions:
+1. The commit message contains the string `[release commit]`.
+2. The workflow is manually dispatched from the GitHub Actions UI.
+
+All standard commits will automatically skip the compilation and packaging jobs.
+
+### Platform Builds
+- **Windows Build:** Compiles the application using Wails for the `windows/amd64` platform and outputs a portable `.exe` executable.
+- **macOS Build:** 
+  - Compiles the application as a universal binary (`darwin/universal`).
+  - Packages the resulting `SpeedTest Tray.app` bundle into a custom styled `.dmg` (Disk Image) file using the `create-dmg` tool.
+  - The DMG mounts with a custom volume icon, hides the `.app` file extension, and places the application icon (on the left) and the `/Applications` folder shortcut (on the right) aligned and centered for a professional drag-and-drop installer layout.
+
 ## Configuration
 
 All configurable values in `internal/config/constants.go`:

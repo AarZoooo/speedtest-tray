@@ -1,6 +1,6 @@
 {
   "name": "SpeedTest Tray",
-  "outputfilename": "speedtest-tray-portable.exe",
+  "outputfilename": "SpeedTest Tray",
   "frontend:dir": "frontend",
   "wailsjsdir": "./frontend/src",
   "main:dir": ".",

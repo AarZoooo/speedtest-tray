@@ -18,6 +18,9 @@ Here's the list of small features to add to the application:
 - [x] Implement macOS application activation and window key focus on show.
 - [x] Implement timing-based double-toggle click prevention for tray/status bar clicks across Windows and macOS.
 - [x] Port the Open Logs Directory system tray option to the macOS status item menu.
+- [x] Package macOS build into a custom DMG with an Applications shortcut and custom volume icon.
+- [x] Optimize GitHub Actions workflow triggers with commit message filtering to save build minutes.
+- [ ] Expand GitHub Action workflow to generate builds for various system architectures like x64 and arm for windows, intel and arm for macOS etc.
 - [ ] Remove the click-elsewhere-to-close-ui feature (rely entirely on the close button to close the UI window).
 
 ## Major changes
