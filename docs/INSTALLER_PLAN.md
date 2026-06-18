@@ -680,7 +680,7 @@ fi
 
 ---
 
-## Sub-Branch 3: `feature/installer/tests`
+## Sub-Branch 3: `feature/installer/tests` [DONE]
 
 ### Branches from: `feature/installer`
 ### Merges back to: `feature/installer`
