@@ -6,8 +6,20 @@ export function ApplyRoundedCorners() {
   return window['go']['gui_wails']['App']['ApplyRoundedCorners']();
 }
 
+export function ClearHistory() {
+  return window['go']['gui_wails']['App']['ClearHistory']();
+}
+
+export function GetHistory() {
+  return window['go']['gui_wails']['App']['GetHistory']();
+}
+
 export function HideWindow() {
   return window['go']['gui_wails']['App']['HideWindow']();
+}
+
+export function OpenHistoryJSON() {
+  return window['go']['gui_wails']['App']['OpenHistoryJSON']();
 }
 
 export function Quit() {
