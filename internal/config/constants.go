@@ -107,6 +107,7 @@ const (
 const (
 	UpdateChannelSize = 64
 	MaxLogLines       = 5000
+	MaxHistoryEntries = 50
 )
 
 const (

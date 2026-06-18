@@ -2,6 +2,7 @@ package gui_wails
 
 import (
 	"context"
+	"os"
 	"sync"
 	"time"
 
@@ -117,4 +118,26 @@ func (a *App) StopTest() {
 		a.cancel()
 		a.cancel = nil
 	}
+}
+
+func (a *App) GetHistory() []speedtest_util.HistoryEntry {
+	history, err := speedtest_util.LoadHistory()
+	if err != nil {
+		return []speedtest_util.HistoryEntry{}
+	}
+	return history
+}
+
+func (a *App) ClearHistory() error {
+	return speedtest_util.ClearHistory()
+}
+
+func (a *App) OpenHistoryJSON() error {
+	path := speedtest_util.GetHistoryPath()
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := speedtest_util.ClearHistory(); err != nil {
+			return err
+		}
+	}
+	return config.OpenDirectory(path)
 }
