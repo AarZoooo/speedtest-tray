@@ -21,7 +21,7 @@ Here's the list of small features to add to the application:
 - [x] Package macOS build into a custom DMG with an Applications shortcut and custom volume icon.
 - [x] Optimize GitHub Actions workflow triggers with commit message filtering to save build minutes.
 - [x] Add GitHub Actions CI test automation for both backend (Go) and frontend (Vitest) on every push.
-- [ ] Expand GitHub Action workflow to generate builds for various system architectures like x64 and arm for windows, intel and arm for macOS etc.
+- [x] Expand GitHub Action workflow to generate builds for various system architectures like x64 and arm for windows, intel and arm for macOS etc.
 - [x] Remove the click-elsewhere-to-close-ui feature (rely entirely on the close button to close the UI window).
 
 ## Major changes
