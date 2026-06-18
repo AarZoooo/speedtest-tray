@@ -27,7 +27,7 @@ Here's the list of big changes to do to the application:
 - [x] Add headless CLI mode for the app
 - [ ] Automatically register the CLI command in the system PATH (or as a wrapper symlink) on installation/setup for easy global access (e.g., `speedtest-tray`). Note: This should only be implemented after the application has moved out of a portable-only build (i.e., once the system installer is added).
 - [x] Add a build for OSes other than Windows to try and test a MacOS build
-- [ ] Add support for successful speedtest history being saved and available to view in UI
+- [x] Add support for successful speedtest history being saved and available to view in UI
 - [ ] Revamp UI with a more sharp, minimal monochrome visual. Less animations, visual effects, more utility.
 - [ ] Replace `speedtest-go` with a custom speedtest implementation (reduces third-party dependency and gives full control over rate calculation).
 - [ ] Optimize per-run struct allocation (e.g. factory-based orchestrator injection) once a custom engine exists.

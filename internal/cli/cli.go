@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"speedtest-tray/internal/config"
@@ -251,4 +252,50 @@ func printJSONError(stdout io.Writer, err error) {
 	encoder := json.NewEncoder(stdout)
 	encoder.SetIndent("", "  ")
 	_ = encoder.Encode(output)
+}
+
+func PrintHistory(stdout io.Writer, jsonMode bool) error {
+	history, err := speedtest_util.LoadHistory()
+	if err != nil {
+		if os.IsNotExist(err) {
+			history = []speedtest_util.HistoryEntry{}
+		} else {
+			return err
+		}
+	}
+
+	if jsonMode {
+		data, err := json.MarshalIndent(history, "", "  ")
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(stdout, string(data))
+		return nil
+	}
+
+	if len(history) == 0 {
+		fmt.Fprintln(stdout, "No speedtest history found.")
+		return nil
+	}
+
+	fmt.Fprintln(stdout, "Speedtest History:")
+	fmt.Fprintln(stdout, "--------------------------------------------------------------------------------")
+	fmt.Fprintf(stdout, "%-25s %-25s %-12s %-12s %-8s\n", "Date/Time", "Server", "Download", "Upload", "Ping")
+	fmt.Fprintln(stdout, "--------------------------------------------------------------------------------")
+	for _, entry := range history {
+		localTime := entry.Timestamp.Local().Format("2006-01-02 15:04:05")
+		downloadStr := fmt.Sprintf("%.1f Mbps", entry.Download)
+		uploadStr := fmt.Sprintf("%.1f Mbps", entry.Upload)
+		pingStr := fmt.Sprintf("%.0f ms", entry.Ping)
+
+		serverName := entry.Server
+		if len(serverName) > 23 {
+			serverName = serverName[:20] + "..."
+		}
+
+		fmt.Fprintf(stdout, "%-25s %-25s %-12s %-12s %-8s\n",
+			localTime, serverName, downloadStr, uploadStr, pingStr)
+	}
+	fmt.Fprintln(stdout, "--------------------------------------------------------------------------------")
+	return nil
 }
