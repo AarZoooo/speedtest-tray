@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="frontend/banner.png" alt="SpeedTest Tray Banner" width="360">
+  <img src="frontend/assets/banner.png" alt="SpeedTest Tray Banner" width="360">
 </p>
 
 <p align="center">
@@ -39,6 +39,7 @@
 - **Offline Detection**: Shows **No internet connection** and offers **Try Again** when a test is started without connectivity.
 - **Immediate Termination**: Dedicated "Stop" button for instant test cancellation and UI reset.
 - **Persistent Logging**: Configurable file-based logging stored in your system's application data folder.
+- **Speedtest History**: Persists and displays recent speedtest run records (Download, Upload, Ping, Server, and Timestamp) directly in the UI. Features a 2-click clear confirmation flow and a button to open the raw JSON file natively.
 - **Headless CLI Mode**: Run speed tests directly from command line interfaces with interactive progress bars (`-c`/`--cli`) or parseable structured JSON (`-j`/`--json`).
 
 ## 🚀 Installation
