@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { testState } from "./state.js";
-import { handleButtonClick, initializeButtonHandler, startTest, stopTest, handleHistoryToggleClick, handleClearHistoryClick, handleOpenJsonClick, initializeHistoryHandlers } from "./handlers.js";
+import { handleButtonClick, initializeButtonHandler, startTest, stopTest, handleHistoryToggleClick, handleClearHistoryClick, handleOpenJsonClick, initializeHistoryHandlers, handleCloseClick, initializeCloseHandler } from "./handlers.js";
 import { initializeElements } from "./ui.js";
 
 describe("handlers", () => {
@@ -17,6 +17,7 @@ describe("handlers", () => {
       <button id="run-btn">Start</button>
       <speedometer-gauge id="speedometer"></speedometer-gauge>
       <button id="history-toggle-btn">🕒</button>
+      <button id="close-btn">✖</button>
       <div id="test-view" class="view-active"></div>
       <div id="history-view" class="view-hidden">
         <div class="history-header">
@@ -37,6 +38,7 @@ describe("handlers", () => {
           GetHistory: vi.fn().mockResolvedValue([]),
           ClearHistory: vi.fn().mockResolvedValue(undefined),
           OpenHistoryJSON: vi.fn().mockResolvedValue(undefined),
+          HideWindow: vi.fn().mockResolvedValue(undefined),
         },
       },
     };
@@ -159,5 +161,16 @@ describe("handlers", () => {
 
     document.getElementById("open-json-btn").click();
     expect(window.go.gui_wails.App.OpenHistoryJSON).toHaveBeenCalledOnce();
+  });
+
+  it("hides the window on close click", () => {
+    handleCloseClick();
+    expect(window.go.gui_wails.App.HideWindow).toHaveBeenCalledOnce();
+  });
+
+  it("registers the close button click listener", () => {
+    initializeCloseHandler();
+    document.getElementById("close-btn").click();
+    expect(window.go.gui_wails.App.HideWindow).toHaveBeenCalledOnce();
   });
 });

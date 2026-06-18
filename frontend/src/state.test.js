@@ -8,7 +8,6 @@ describe("TestState", () => {
 
     expect(state.getState()).toEqual({
       isTesting: false,
-      canHide: false,
       currentPhase: null,
       results: {
         server: "--",
@@ -50,12 +49,5 @@ describe("TestState", () => {
       download: "--",
       upload: "--",
     });
-  });
-
-  it("tracks hide eligibility", () => {
-    const state = new TestState();
-
-    state.setCanHide(true);
-    expect(state.canHide).toBe(true);
   });
 });
