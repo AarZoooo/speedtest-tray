@@ -8,3 +8,9 @@ frontend/coverage/
 app.log
 config.json
 history.json
+
+# Wails NSIS installer output
+build/windows/installer/wails_tools.nsh
+build/windows/installer/tmp/
+build/windows/installer/project.exe
+

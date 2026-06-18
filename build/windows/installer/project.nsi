@@ -6,11 +6,18 @@
 !define RUN_KEY "Software\Microsoft\Windows\CurrentVersion\Run"
 !define EXE_NAME "speedtest-tray.exe"
 
+!ifdef ARG_WAILS_ARM64_BINARY
+    OutFile "..\..\bin\speedtest-tray-arm64-installer.exe"
+!else
+    OutFile "..\..\bin\speedtest-tray-amd64-installer.exe"
+!endif
+
+
 !include "winmessages.nsh"
 !include "WordFunc.nsh"
 !include "LogicLib.nsh"
 !include "nsDialogs.nsh"
-!insertmacro StrRep
+!insertmacro WordReplace
 
 Var LaunchAtLoginCheckbox
 
@@ -45,7 +52,7 @@ FunctionEnd
 
 Section "Install"
     SetOutPath "$INSTDIR"
-    File "${EXE_NAME}"
+    File "..\..\bin\speedtest-tray.exe"
     ; Start Menu shortcut
     CreateDirectory "$SMPROGRAMS\SpeedTest Tray"
     CreateShortcut "$SMPROGRAMS\SpeedTest Tray\SpeedTest Tray.lnk" "$INSTDIR\${EXE_NAME}"
@@ -74,8 +81,8 @@ Section "Uninstall"
     ; Remove install dir from user PATH
     ReadRegStr $0 HKCU "Environment" "Path"
     ; Strip "$INSTDIR;" from PATH string
-    ${StrRep} $0 $0 "$INSTDIR;" ""
-    ${StrRep} $0 $0 ";$INSTDIR" ""
+    ${WordReplace} $0 "$INSTDIR;" "" "+" $0
+    ${WordReplace} $0 ";$INSTDIR" "" "+" $0
     WriteRegExpandStr HKCU "Environment" "Path" "$0"
     SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 
