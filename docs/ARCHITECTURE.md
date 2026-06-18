@@ -6,6 +6,8 @@ Speedtest Tray is a modular speed testing application with clean separation of c
 
 - **Config Layer** (`internal/config/`): Centralized configuration and constants
 - **Business Logic** (`internal/speedtest_util/`): Speed testing orchestration, progress calculation, and data persistence (history management)
+- **Autostart Layer** (`internal/autostart/`): Platform-specific launch-at-login settings (registry manipulation for Windows, LaunchAgent plists for macOS)
+- **Updater Layer** (`internal/updater/`): In-app self-update checks, downloads, progress tracking, and binary swapping/installer execution
 - **GUI Layer** (`internal/gui_wails/`): Wails framework integration
 - **CLI Layer** (`internal/cli/`): Headless CLI framework integration and progress output
 - **Frontend** (`frontend/`): Modularized JavaScript with state, handlers, and constants
@@ -71,6 +73,24 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
    - `LoadHistory()`: Reads and unmarshals JSON records, filtering out invalid/corrupted ones
    - `ClearHistory()`: Resets the history file by writing an empty array `[]`
 
+### internal/autostart
+
+**Purpose**: Platform-specific launch-at-login configuration and autostart manager
+
+- `autostart.go`: Defines the core `Manager` struct referencing the current running executable.
+- `autostart_windows.go`: Registry manager accessing `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` to enable/disable startup.
+- `autostart_darwin.go`: Integrates with Objective-C AppKit menu items and manages user LaunchAgents plists to register the app bundle for login launch.
+- `autostart_other.go`: No-op placeholder for other operating systems.
+
+### internal/updater
+
+**Purpose**: GitHub-based self-update engine
+
+- `updater.go`: Performs update checks by querying the GitHub Releases API. Compares semantic versioning tags to check for updates. Holds path constants for stashing temp downloaded installers.
+- `updater_windows.go`: Handles downloading the update binary, verifying checksum size, executing the new installer silently with `/S`, and terminating the active instance.
+- `updater_darwin.go`: Downloads the macOS update asset, swaps the bundle, clears Gatekeeper quarantine attributes, and manages permission recovery.
+- `updater_other.go`: No-op updater implementation for unsupported systems.
+
 ### internal/gui_wails
 
 **Purpose**: Wails framework integration layer
@@ -78,10 +98,10 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 **Key Components**:
 
 1. **App Struct** (`app.go`)
-   - Minimal Wails binding layer for window, tray, and test control
-   - Holds only Wails context and the active test cancellation handle
+   - Minimal Wails binding layer for window, tray, test control, autostart configuration, and updates
+   - Holds Wails context, the active test cancellation handle, and cached update information
    - On each `StartTest`, creates a fresh `SpeedTester` and `TestAdapter` for that run
-   - Methods: Startup, StartTest, StopTest
+   - Methods: Startup, StartTest, StopTest, GetLaunchAtLogin, SetLaunchAtLogin, CheckForUpdate, ApplyUpdate, SkipUpdate
 
 2. **TestAdapter** (`adapter.go`)
    - Bridges Wails events with business logic

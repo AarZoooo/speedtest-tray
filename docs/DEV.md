@@ -27,10 +27,10 @@ Here's the list of small features to add to the application:
 ## Major changes
 
 Here's the list of big changes to do to the application:
-- [ ] Add an installer instead of portable exe to bind into windows to also support autostart through task manager.
-- [ ] Add an option to enable updates
+- [x] Add an installer instead of portable exe to bind into windows to also support autostart through task manager.
+- [x] Add an option to enable updates
 - [x] Add headless CLI mode for the app
-- [ ] Automatically register the CLI command in the system PATH (or as a wrapper symlink) on installation/setup for easy global access (e.g., `speedtest-tray`). Note: This should only be implemented after the application has moved out of a portable-only build (i.e., once the system installer is added).
+- [x] Automatically register the CLI command in the system PATH (or as a wrapper symlink) on installation/setup for easy global access (e.g., `speedtest-tray`). Note: This should only be implemented after the application has moved out of a portable-only build (i.e., once the system installer is added).
 - [x] Add a build for OSes other than Windows to try and test a MacOS build
 - [x] Add support for successful speedtest history being saved and available to view in UI
 - [ ] Revamp UI with a more sharp, minimal monochrome visual. Less animations, visual effects, more utility.
