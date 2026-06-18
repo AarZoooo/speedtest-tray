@@ -18,6 +18,7 @@ Here's the list of small features to add to the application:
 - [x] Implement macOS application activation and window key focus on show.
 - [x] Implement timing-based double-toggle click prevention for tray/status bar clicks across Windows and macOS.
 - [x] Port the Open Logs Directory system tray option to the macOS status item menu.
+- [ ] Remove the click-elsewhere-to-close-ui feature (rely entirely on the close button to close the UI window).
 
 ## Major changes
 
