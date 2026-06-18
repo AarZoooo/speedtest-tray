@@ -11,3 +11,4 @@ This file outlines rules to follow during development of this application. These
 7. Before committing testable code, run `go test ./...` and `npm test` from `frontend/` when frontend files changed. Run `go test -race ./internal/speedtest_util ./internal/gui_wails` when touching runner, cancellation, or Wails event code.
 8. Go config constants are the source of truth for shared frontend/backend values. After changing shared constants or phases, run `go generate ./...` and commit the generated frontend config.
 9. After doing work on a feature/fix/bug or whatever that will be committed, edit and update related docs to include that in the commit as well.
+10. To trigger the CI/CD build pipeline in GitHub Actions, the commit message must contain the string `[release commit]` (otherwise, compilation and packaging jobs are skipped to save runner minutes).
