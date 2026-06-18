@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const updaterUserAgent = "speedtest-tray-updater"
+
 var (
 	apiURL     = "https://api.github.com"
 	targetOS   = runtime.GOOS
@@ -78,7 +80,7 @@ func Check(currentVersion, skippedVersion, owner, repo string) (UpdateInfo, erro
 	if err != nil {
 		return UpdateInfo{}, err
 	}
-	req.Header.Set("User-Agent", "speedtest-tray-updater")
+	req.Header.Set("User-Agent", updaterUserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {

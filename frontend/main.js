@@ -30,13 +30,5 @@ document.addEventListener("DOMContentLoaded", function () {
   window.runtime.EventsOn("update:available", handleUpdateAvailable);
   window.runtime.EventsOn("update:progress", handleUpdateProgress);
   window.runtime.EventsOn("update:error", handleUpdateError);
-
-  // Simulation: Trigger update available state immediately for visual testing in dev mode
-  setTimeout(() => {
-    handleUpdateAvailable({
-      LatestVersion: "1.2.0",
-      AssetSizeBytes: 4739281,
-      ReleasePageURL: "https://github.com/AarZoooo/speedtest-tray/releases"
-    });
-  }, 100);
 });
+

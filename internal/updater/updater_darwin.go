@@ -93,7 +93,7 @@ func Apply(info UpdateInfo, onProgress func(percent int)) error {
 		}
 
 		// Look for the binary
-		if header.Typeflag == tar.TypeReg && filepath.Base(header.Name) == "SpeedTest Tray" {
+		if header.Typeflag == tar.TypeReg && filepath.Base(header.Name) == config.AppName {
 			binOut, err := os.OpenFile(extractedBinaryPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 			if err != nil {
 				return err

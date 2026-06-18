@@ -5,7 +5,7 @@ import "time"
 // App branding
 const AppName = "SpeedTest Tray"
 
-const AppVersion = "1.0.1"
+const AppVersion = "1.0.2"
 
 const (
 	GitHubOwner = "AarZoooo"
