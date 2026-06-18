@@ -7,7 +7,7 @@ import (
 	"speedtest-tray/internal/config"
 )
 
-func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool)) {
+func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool)) {
 	go systray.Run(func() {
 		systray.SetTitle(config.AppName)
 		systray.SetTooltip(config.AppName)
@@ -18,6 +18,23 @@ func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *confi
 
 		show := systray.AddMenuItem("Show", "Show the speedtest window")
 		show.Click(app.ShowWindow)
+
+		systray.AddSeparator()
+
+		launchAtLogin := systray.AddMenuItemCheckbox(
+			"Launch at Login",
+			"Start SpeedTest Tray automatically on login",
+			app.GetLaunchAtLogin(),
+		)
+		launchAtLogin.Click(func() {
+			enabled := !launchAtLogin.Checked()
+			if enabled {
+				launchAtLogin.Check()
+			} else {
+				launchAtLogin.Uncheck()
+			}
+			toggleLaunchAtLogin(enabled)
+		})
 
 		systray.AddSeparator()
 

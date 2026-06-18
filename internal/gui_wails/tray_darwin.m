@@ -4,11 +4,13 @@
 extern void onStatusItemClick(void);
 extern void onQuitClick(void);
 extern void onToggleLoggingClick(int enabled);
+extern void onLaunchAtLoginClick(int enabled);
 extern void onOpenLogsClick(void);
 
 @interface StatusItemHandler : NSObject
 - (void)statusItemClicked:(id)sender;
 - (void)showClicked:(id)sender;
+- (void)launchAtLoginClicked:(id)sender;
 - (void)toggleLoggingClicked:(id)sender;
 - (void)openLogsClicked:(id)sender;
 - (void)quitClicked:(id)sender;
@@ -18,6 +20,7 @@ static NSStatusItem *statusItem = nil;
 static StatusItemHandler *handler = nil;
 static NSMenu *contextMenu = nil;
 static NSMenuItem *loggingMenuItem = nil;
+static NSMenuItem *launchAtLoginMenuItem = nil;
 
 @implementation StatusItemHandler
 
@@ -46,6 +49,12 @@ static NSMenuItem *loggingMenuItem = nil;
     onStatusItemClick();
 }
 
+- (void)launchAtLoginClicked:(id)sender {
+    BOOL newState = (launchAtLoginMenuItem.state == NSControlStateValueOff);
+    [launchAtLoginMenuItem setState:newState ? NSControlStateValueOn : NSControlStateValueOff];
+    onLaunchAtLoginClick(newState ? 1 : 0);
+}
+
 - (void)toggleLoggingClicked:(id)sender {
     BOOL newState = (loggingMenuItem.state == NSControlStateValueOff);
     [loggingMenuItem setState:newState ? NSControlStateValueOn : NSControlStateValueOff];
@@ -62,7 +71,7 @@ static NSMenuItem *loggingMenuItem = nil;
 
 @end
 
-void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState) {
+void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState, int initialLaunchAtLoginState) {
     printf("[objc] initStatusItem called with title: %s, iconLength: %d\n", title, iconLength);
     fflush(stdout);
     
@@ -133,6 +142,13 @@ void initStatusItem(const char* title, const void* iconData, int iconLength, int
         showItem.target = handler;
         [contextMenu addItem:showItem];
         
+        [contextMenu addItem:[NSMenuItem separatorItem]];
+
+        launchAtLoginMenuItem = [[NSMenuItem alloc] initWithTitle:@"Launch at Login" action:@selector(launchAtLoginClicked:) keyEquivalent:@""];
+        launchAtLoginMenuItem.target = handler;
+        [launchAtLoginMenuItem setState:initialLaunchAtLoginState ? NSControlStateValueOn : NSControlStateValueOff];
+        [contextMenu addItem:launchAtLoginMenuItem];
+
         [contextMenu addItem:[NSMenuItem separatorItem]];
         
         loggingMenuItem = [[NSMenuItem alloc] initWithTitle:@"Enable Session Logging" action:@selector(toggleLoggingClicked:) keyEquivalent:@""];
