@@ -28,7 +28,7 @@ and manual QA passes.
 
 ---
 
-## Root Branch: `feature/installer`
+## Root Branch: `feature/installer` [DONE]
 
 ### Goal
 Lay the foundation that all three sub-branches depend on:
@@ -380,7 +380,7 @@ jobs:
 
 ---
 
-## Sub-Branch 1: `feature/installer/cli-alias`
+## Sub-Branch 1: `feature/installer/cli-alias` [DONE]
 
 ### Branches from: `feature/installer`
 ### Merges back to: `feature/installer`
@@ -452,10 +452,10 @@ fi
 ### Commit message: `add Launch at Login toggle, NSIS autostart option, LaunchAgent, and uninstall data cleanup`
 
 ### Goal
-- In-app Launch at Login toggle in both tray menus
-- NSIS: optional autostart checkbox during install
-- macOS: LaunchAgent plist install in postinstall
-- Uninstaller: data cleanup dialog on both platforms
+- [x] In-app Launch at Login toggle in both tray menus
+- [x] NSIS: optional autostart checkbox during install
+- [x] macOS: LaunchAgent plist install in postinstall
+- [x] Uninstaller: data cleanup dialog on both platforms
 
 ### 1. `internal/gui_wails/app.go`
 
