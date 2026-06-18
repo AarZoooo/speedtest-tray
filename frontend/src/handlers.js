@@ -161,3 +161,14 @@ export function initializeHistoryHandlers() {
     openJsonBtn.addEventListener("click", handleOpenJsonClick);
   }
 }
+
+export function handleCloseClick() {
+  window.go.gui_wails.App.HideWindow();
+}
+
+export function initializeCloseHandler() {
+  const closeBtn = document.getElementById("close-btn");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", handleCloseClick);
+  }
+}

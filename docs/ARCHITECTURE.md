@@ -118,8 +118,8 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 - `src/generated/config.js`: Generated phase and UI config constants from `internal/config`
 - `src/state.js`: TestState class (centralized test state management)
 - `src/ui.js`: UI update handlers (results, gauge, status, button state, rendering history cards)
-- `src/handlers.js`: App controls (start/stop speedtests, toggle history view, clear history with 2-click confirm, open json natively)
-- `src/window.js`: Window events (show, blur, visibility)
+- `src/handlers.js`: App controls (start/stop speedtests, window close, toggle history view, clear history with 2-click confirm, open json natively)
+- `src/window.js`: Window events initialization
 - `speedometer.js`: Custom gauge component (Web Component)
 - `src/speedometer-config.js`: Gauge configuration constants
 - `style.css`: Global styles

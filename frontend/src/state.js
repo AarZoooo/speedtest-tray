@@ -4,7 +4,6 @@ import { PHASES } from "./constants.js";
 export class TestState {
   constructor() {
     this.isTesting = false;
-    this.canHide = false;
     this.currentPhase = null;
     this.results = {
       server: "--",
@@ -41,14 +40,9 @@ export class TestState {
     };
   }
 
-  setCanHide(value) {
-    this.canHide = value;
-  }
-
   getState() {
     return {
       isTesting: this.isTesting,
-      canHide: this.canHide,
       currentPhase: this.currentPhase,
       results: { ...this.results },
     };
