@@ -200,14 +200,31 @@ Progress tracked as phases progress:
 
 ## CI/CD and Build Pipeline
 
-The project uses GitHub Actions (defined in `.github/workflows/build.yml`) to build and package releases for Windows and macOS.
+The project uses GitHub Actions (defined in `.github/workflows/build.yml`) to test the codebase on every push and build release packages for Windows and macOS.
 
-### Job Trigger Restrictions
-To save GitHub Actions runner minutes (which are limited to 2,000 free minutes per month for private repositories), the build jobs only run under two conditions:
-1. The commit message contains the string `[release commit]`.
+### Job Structure
+
+The workflow defines three jobs that run in order:
+
+```
+test ──► build-windows
+     └──► build-macos
+```
+
+#### `test` — Runs on every push
+- Executes on a fast `ubuntu-latest` runner (no runner-minute cost concern).
+- Runs `go generate ./...` to ensure frontend config is up to date.
+- Runs the full Go test suite: `go test -v ./...`
+- Runs Go race detector tests on concurrency-sensitive packages: `go test -race ./internal/speedtest_util ./internal/gui_wails`
+- Installs frontend dependencies and runs `npm test` (Vitest).
+- **Both build jobs declare `needs: test`**, so they are skipped entirely if any test fails.
+
+#### `build-windows` and `build-macos` — Runs only on release commits
+To save GitHub Actions runner minutes (macOS and Windows runners consume minutes faster), these jobs only run when:
+1. The commit message contains the string `[ci]`.
 2. The workflow is manually dispatched from the GitHub Actions UI.
 
-All standard commits will automatically skip the compilation and packaging jobs.
+Standard commits will skip compilation and packaging but always run the `test` job.
 
 ### Platform Builds
 - **Windows Build:** Compiles the application using Wails for the `windows/amd64` platform and outputs a portable `.exe` executable.
