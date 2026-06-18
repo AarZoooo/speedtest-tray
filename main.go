@@ -115,6 +115,8 @@ func main() {
 			disableFileLogging()
 		}
 		config.SaveConfig(appConfig)
+	}, func(enabled bool) {
+		app.SetLaunchAtLogin(enabled)
 	})
 
 	options := newOptions(app)
@@ -125,7 +127,6 @@ func main() {
 		os.Exit(1)
 	}
 }
-
 
 func enableFileLogging() {
 	logDir := config.GetConfigDir()

@@ -2,12 +2,15 @@ package gui_wails
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
 
+	"speedtest-tray/internal/autostart"
 	"speedtest-tray/internal/config"
 	"speedtest-tray/internal/speedtest_util"
+	"speedtest-tray/internal/updater"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -21,6 +24,8 @@ type App struct {
 	MacIcon        []byte
 	lastHiddenTime time.Time
 	isTesting      bool
+	autostartMgr   *autostart.Manager
+	updateInfo     updater.UpdateInfo
 }
 
 // NewApp creates a new App instance
@@ -31,6 +36,24 @@ func NewApp() *App {
 // Startup initializes the app on Wails startup
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	updater.CleanupStagedInstaller()
+
+	mgr, err := autostart.New()
+	if err != nil {
+		slog.Error("Failed to init autostart manager", config.KeyError, err)
+	} else {
+		a.autostartMgr = mgr
+	}
+
+	go func() {
+		info, err := a.CheckForUpdate()
+		if err == nil && info.HasUpdate {
+			slog.Info(config.LogUpdateFound, "version", info.LatestVersion)
+			wailsRuntime.EventsEmit(a.ctx, "update:available", info)
+		} else if err == nil {
+			slog.Info(config.LogUpdateNoneFound)
+		}
+	}()
 	a.initMacStatusItem()
 }
 
@@ -140,4 +163,70 @@ func (a *App) OpenHistoryJSON() error {
 		}
 	}
 	return config.OpenDirectory(path)
+}
+
+func (a *App) GetLaunchAtLogin() bool {
+	if a.autostartMgr == nil {
+		return false
+	}
+	return a.autostartMgr.IsEnabled()
+}
+
+func (a *App) SetLaunchAtLogin(enabled bool) {
+	if a.autostartMgr == nil {
+		return
+	}
+	if err := a.autostartMgr.SetEnabled(enabled); err != nil {
+		msg := config.ErrAutostartDisable
+		if enabled {
+			msg = config.ErrAutostartEnable
+		}
+		slog.Error(msg, config.KeyError, err)
+	}
+}
+
+func (a *App) GetUpdateInfo() updater.UpdateInfo {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.updateInfo
+}
+
+func (a *App) ApplyUpdate() {
+	go func() {
+		err := updater.Apply(a.GetUpdateInfo(), func(percent int) {
+			wailsRuntime.EventsEmit(a.ctx, "update:progress", percent)
+		})
+		if err != nil {
+			slog.Error(config.ErrUpdateApply, config.KeyError, err)
+			wailsRuntime.EventsEmit(a.ctx, "update:error", err.Error())
+		}
+	}()
+}
+
+func (a *App) SkipUpdate(version string) {
+	cfg := config.LoadConfigOrDefault()
+	cfg.SkippedVersion = version
+	if err := config.SaveConfig(cfg); err != nil {
+		slog.Error(config.ErrUpdateSkip, config.KeyError, err)
+	}
+}
+
+func (a *App) CheckForUpdate() (updater.UpdateInfo, error) {
+	cfg := config.LoadConfigOrDefault()
+	info, err := updater.Check(
+		config.AppVersion,
+		cfg.SkippedVersion,
+		config.GitHubOwner,
+		config.GitHubRepo,
+	)
+	if err != nil {
+		slog.Error(config.ErrUpdateCheck, config.KeyError, err)
+		return updater.UpdateInfo{}, err
+	}
+
+	a.mu.Lock()
+	a.updateInfo = info
+	a.mu.Unlock()
+
+	return info, nil
 }

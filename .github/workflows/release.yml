@@ -1,0 +1,271 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  verify-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify AppVersion matches tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          GO_VERSION=$(grep 'AppVersion' internal/config/constants.go | grep -oP '"[^"]+"' | tr -d '"')
+          if [ "$TAG_VERSION" != "$GO_VERSION" ]; then
+            echo "ERROR: Tag $GITHUB_REF_NAME does not match AppVersion=$GO_VERSION in constants.go"
+            exit 1
+          fi
+          echo "Version sync OK: $GO_VERSION"
+
+  build-windows-amd64:
+    needs: verify-version
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install NSIS
+        run: choco install nsis -y
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate frontend config
+        run: go generate ./...
+
+      - name: Build Windows amd64 installer
+        run: wails build -platform windows/amd64 -nsis -o speedtest-tray.exe -clean
+
+      - name: Rename installer
+        shell: bash
+        run: |
+          find build/bin -name "*installer.exe" -exec mv {} SpeedTest-Tray-windows-amd64-installer.exe \;
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-amd64
+          path: SpeedTest-Tray-windows-amd64-installer.exe
+
+  build-windows-arm64:
+    needs: verify-version
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Install NSIS
+        run: choco install nsis -y
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate frontend config
+        run: go generate ./...
+
+      - name: Build Windows arm64 installer
+        run: wails build -platform windows/arm64 -nsis -o speedtest-tray.exe -clean
+
+      - name: Rename installer
+        shell: bash
+        run: |
+          find build/bin -name "*installer.exe" -exec mv {} SpeedTest-Tray-windows-arm64-installer.exe \;
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64
+          path: SpeedTest-Tray-windows-arm64-installer.exe
+
+  build-macos-intel:
+    needs: verify-version
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Wails and tools
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          brew install create-dmg fileicon
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate frontend config
+        run: go generate ./...
+
+      - name: Build macOS Intel
+        run: wails build -platform darwin/amd64 -clean
+
+      - name: Build PKG
+        run: |
+          pkgbuild --root "build/bin" \
+                   --identifier dev.aarju.speedtest-tray \
+                   --version ${{ github.ref_name }} \
+                   --scripts build/macos/pkg/scripts \
+                   SpeedTest-Tray-macOS-Intel.pkg
+
+      - name: Package macOS DMG
+        run: |
+          ICON_PATH=$(find "build/bin/SpeedTest Tray.app/Contents/Resources" -name "*.icns" | head -n 1)
+          echo "Found volume icon at: $ICON_PATH"
+          create-dmg \
+            --volname "SpeedTest Tray" \
+            --volicon "$ICON_PATH" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "SpeedTest Tray.app" 175 190 \
+            --app-drop-link 425 190 \
+            --hide-extension "SpeedTest Tray.app" \
+            "SpeedTest-Tray-macOS-Intel.dmg" \
+            "build/bin/"
+          fileicon set "SpeedTest-Tray-macOS-Intel.dmg" "$ICON_PATH"
+
+      - name: Package raw binary for self-update
+        run: |
+          tar -czf speedtest-tray-darwin-amd64.tar.gz \
+            -C "build/bin/SpeedTest Tray.app/Contents/MacOS" "SpeedTest Tray"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-intel
+          path: |
+            SpeedTest-Tray-macOS-Intel.pkg
+            SpeedTest-Tray-macOS-Intel.dmg
+            speedtest-tray-darwin-amd64.tar.gz
+
+  build-macos-arm:
+    needs: verify-version
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Wails and tools
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          brew install create-dmg fileicon
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate frontend config
+        run: go generate ./...
+
+      - name: Build macOS ARM
+        run: wails build -platform darwin/arm64 -clean
+
+      - name: Build PKG
+        run: |
+          pkgbuild --root "build/bin" \
+                   --identifier dev.aarju.speedtest-tray \
+                   --version ${{ github.ref_name }} \
+                   --scripts build/macos/pkg/scripts \
+                   SpeedTest-Tray-macOS-ARM.pkg
+
+      - name: Package macOS DMG
+        run: |
+          ICON_PATH=$(find "build/bin/SpeedTest Tray.app/Contents/Resources" -name "*.icns" | head -n 1)
+          echo "Found volume icon at: $ICON_PATH"
+          create-dmg \
+            --volname "SpeedTest Tray" \
+            --volicon "$ICON_PATH" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "SpeedTest Tray.app" 175 190 \
+            --app-drop-link 425 190 \
+            --hide-extension "SpeedTest Tray.app" \
+            "SpeedTest-Tray-macOS-ARM.dmg" \
+            "build/bin/"
+          fileicon set "SpeedTest-Tray-macOS-ARM.dmg" "$ICON_PATH"
+
+      - name: Package raw binary for self-update
+        run: |
+          tar -czf speedtest-tray-darwin-arm64.tar.gz \
+            -C "build/bin/SpeedTest Tray.app/Contents/MacOS" "SpeedTest Tray"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm
+          path: |
+            SpeedTest-Tray-macOS-ARM.pkg
+            SpeedTest-Tray-macOS-ARM.dmg
+            speedtest-tray-darwin-arm64.tar.gz
+
+  create-release:
+    needs: [build-windows-amd64, build-windows-arm64, build-macos-intel, build-macos-arm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/windows-amd64/SpeedTest-Tray-windows-amd64-installer.exe
+            artifacts/windows-arm64/SpeedTest-Tray-windows-arm64-installer.exe
+            artifacts/macos-intel/SpeedTest-Tray-macOS-Intel.pkg
+            artifacts/macos-intel/SpeedTest-Tray-macOS-Intel.dmg
+            artifacts/macos-intel/speedtest-tray-darwin-amd64.tar.gz
+            artifacts/macos-arm/SpeedTest-Tray-macOS-ARM.pkg
+            artifacts/macos-arm/SpeedTest-Tray-macOS-ARM.dmg
+            artifacts/macos-arm/speedtest-tray-darwin-arm64.tar.gz
+          generate_release_notes: true
