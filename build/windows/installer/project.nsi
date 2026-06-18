@@ -5,6 +5,10 @@
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\SpeedTest Tray"
 !define EXE_NAME "speedtest-tray.exe"
 
+!include "winmessages.nsh"
+!include "WordFunc.nsh"
+!insertmacro StrRep
+
 ; Use per-user installation — no UAC required
 RequestExecutionLevel user
 InstallDir "${INSTALL_DIR}"
@@ -21,6 +25,13 @@ Section "Install"
     ; Start Menu shortcut
     CreateDirectory "$SMPROGRAMS\SpeedTest Tray"
     CreateShortcut "$SMPROGRAMS\SpeedTest Tray\SpeedTest Tray.lnk" "$INSTDIR\${EXE_NAME}"
+
+    ; Add install dir to user PATH
+    ReadRegStr $0 HKCU "Environment" "Path"
+    StrCpy $0 "$0;$INSTDIR"
+    WriteRegExpandStr HKCU "Environment" "Path" "$0"
+    ; Broadcast WM_SETTINGCHANGE so open terminals pick up new PATH
+    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
     ; Register uninstaller
     WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "${PRODUCT_NAME}"
     WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" "$INSTDIR\uninstall.exe"
@@ -32,7 +43,14 @@ Section "Install"
 SectionEnd
 
 Section "Uninstall"
-    ; TODO: PATH removal added by cli-alias branch
+    ; Remove install dir from user PATH
+    ReadRegStr $0 HKCU "Environment" "Path"
+    ; Strip "$INSTDIR;" from PATH string
+    ${StrRep} $0 $0 "$INSTDIR;" ""
+    ${StrRep} $0 $0 ";$INSTDIR" ""
+    WriteRegExpandStr HKCU "Environment" "Path" "$0"
+    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+
     ; TODO: Run key removal added by autostart branch
     ; TODO: Data cleanup dialog added by autostart branch
     Delete "$INSTDIR\${EXE_NAME}"

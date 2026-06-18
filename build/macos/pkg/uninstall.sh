@@ -8,7 +8,13 @@ if [ ! -d "$APP" ]; then
     exit 1
 fi
 
-# Placeholder: symlink removal added by feature/installer/cli-alias
+# Remove CLI symlink
+CLI_LINK="/usr/local/bin/speedtest-tray"
+if [ -L "$CLI_LINK" ]; then
+    rm "$CLI_LINK"
+    echo "Removed CLI symlink."
+fi
+
 # Placeholder: LaunchAgent removal added by feature/installer/autostart
 
 # Remove app

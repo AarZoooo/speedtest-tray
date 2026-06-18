@@ -1,5 +1,13 @@
 #!/bin/bash
 set -e
-# Placeholder: CLI symlink added by feature/installer/cli-alias
+# Create CLI symlink
+CLI_LINK="/usr/local/bin/speedtest-tray"
+APP_BINARY="/Applications/SpeedTest Tray.app/Contents/MacOS/SpeedTest Tray"
+
+if [ -L "$CLI_LINK" ]; then
+    rm "$CLI_LINK"
+fi
+ln -sf "$APP_BINARY" "$CLI_LINK"
+
 # Placeholder: LaunchAgent setup added by feature/installer/autostart
 exit 0
