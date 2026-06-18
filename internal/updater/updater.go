@@ -14,6 +14,12 @@ import (
 	"time"
 )
 
+var (
+	apiURL     = "https://api.github.com"
+	targetOS   = runtime.GOOS
+	targetArch = runtime.GOARCH
+)
+
 // UpdateInfo holds the result of a version check.
 type UpdateInfo struct {
 	LatestVersion  string
@@ -65,7 +71,7 @@ func compareVersions(v1, v2 string) int {
 // Returns an UpdateInfo with HasUpdate=false if the current version
 // is up to date or the skipped version matches the latest.
 func Check(currentVersion, skippedVersion, owner, repo string) (UpdateInfo, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", owner, repo)
+	url := fmt.Sprintf("%s/repos/%s/%s/releases/latest", apiURL, owner, repo)
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", url, nil)
@@ -113,11 +119,11 @@ func Check(currentVersion, skippedVersion, owner, repo string) (UpdateInfo, erro
 		var matchesOS bool
 		var matchesExt bool
 
-		if runtime.GOOS == "windows" {
-			matchesOS = strings.Contains(lowerName, "windows") && strings.Contains(lowerName, runtime.GOARCH)
+		if targetOS == "windows" {
+			matchesOS = strings.Contains(lowerName, "windows") && strings.Contains(lowerName, targetArch)
 			matchesExt = strings.HasSuffix(lowerName, ".exe") || strings.HasSuffix(lowerName, ".zip")
-		} else if runtime.GOOS == "darwin" {
-			matchesOS = strings.Contains(lowerName, "darwin") && strings.Contains(lowerName, runtime.GOARCH)
+		} else if targetOS == "darwin" {
+			matchesOS = strings.Contains(lowerName, "darwin") && strings.Contains(lowerName, targetArch)
 			matchesExt = strings.HasSuffix(lowerName, ".tar.gz")
 		}
 
@@ -141,7 +147,7 @@ func Check(currentVersion, skippedVersion, owner, repo string) (UpdateInfo, erro
 }
 
 func getStagedPath() string {
-	if runtime.GOOS == "windows" {
+	if targetOS == "windows" {
 		return filepath.Join(os.TempDir(), "speedtest-tray-update.exe")
 	}
 	return filepath.Join(os.TempDir(), "speedtest-tray-update")

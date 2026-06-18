@@ -680,7 +680,7 @@ fi
 
 ---
 
-## Sub-Branch 3: `feature/installer/tests`
+## Sub-Branch 3: `feature/installer/tests` [DONE]
 
 ### Branches from: `feature/installer`
 ### Merges back to: `feature/installer`
@@ -933,7 +933,7 @@ jobs:
           generate_release_notes: true
 ```
 
-## Sub-Branch 4: `feature/installer/update-ui`
+## Sub-Branch 4: `feature/installer/update-ui` [DONE]
 
 ### Branches from: `feature/installer`
 ### Merges back to: `feature/installer`
