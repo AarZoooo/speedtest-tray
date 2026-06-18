@@ -204,11 +204,13 @@ The project uses GitHub Actions (defined in `.github/workflows/build.yml`) to te
 
 ### Job Structure
 
-The workflow defines three jobs that run in order:
+The workflow defines jobs that run in order:
 
 ```
-test ──► build-windows
-     └──► build-macos
+test ──► build-windows (amd64)
+     ├──► build-windows (arm64)
+     ├──► build-macos   (amd64 / Intel)
+     └──► build-macos   (arm64 / Apple Silicon)
 ```
 
 #### `test` — Runs on every push
@@ -227,11 +229,18 @@ To save GitHub Actions runner minutes (macOS and Windows runners consume minutes
 Standard commits will skip compilation and packaging but always run the `test` job.
 
 ### Platform Builds
-- **Windows Build:** Compiles the application using Wails for the `windows/amd64` platform and outputs a portable `.exe` executable.
-- **macOS Build:** 
-  - Compiles the application as a universal binary (`darwin/universal`).
-  - Packages the resulting `SpeedTest Tray.app` bundle into a custom styled `.dmg` (Disk Image) file using the `create-dmg` tool.
-  - The DMG mounts with a custom volume icon, hides the `.app` file extension, and places the application icon (on the left) and the `/Applications` folder shortcut (on the right) aligned and centered for a professional drag-and-drop installer layout.
+
+Each build job runs a **matrix strategy**, producing one artifact per architecture. No fat/universal binaries are used — each artifact contains only the code that runs natively on the target CPU.
+
+| Job             | Arch    | Runner           | Output                              |
+|-----------------|---------|------------------|-------------------------------------|
+| `build-windows` | `amd64` | `windows-latest` | `speedtest-tray-windows-amd64.exe`  |
+| `build-windows` | `arm64` | `windows-latest` | `speedtest-tray-windows-arm64.exe`  |
+| `build-macos`   | `amd64` | `macos-latest`   | `SpeedTest-Tray-macOS-Intel.dmg`    |
+| `build-macos`   | `arm64` | `macos-latest`   | `SpeedTest-Tray-macOS-ARM.dmg`      |
+
+- **Windows builds:** Cross-compiled from the x64 `windows-latest` runner using Wails and the MSVC toolchain. Each produces a standalone portable `.exe`.
+- **macOS builds:** The `macos-latest` runner runs on Apple Silicon, so `arm64` builds natively and `amd64` (Intel) cross-compiles via `GOARCH=amd64` with the macOS SDK. Each produces a `.dmg` with a custom volume icon and Applications shortcut.
 
 ## Configuration
 
