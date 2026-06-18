@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -158,5 +160,65 @@ func TestRunJSONFailure(t *testing.T) {
 	}
 	if output.Error != "no connection" {
 		t.Errorf("expected error %q, got %q", "no connection", output.Error)
+	}
+}
+
+func TestPrintHistory(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "speedtest_cli_history_test")
+	if err != nil {
+		t.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	tempFile := filepath.Join(tempDir, "history.json")
+	oldGetHistoryPath := speedtest_util.GetHistoryPath
+	speedtest_util.GetHistoryPath = func() string {
+		return tempFile
+	}
+	defer func() {
+		speedtest_util.GetHistoryPath = oldGetHistoryPath
+	}()
+
+	buf := &bytes.Buffer{}
+	err = PrintHistory(buf, false)
+	if err != nil {
+		t.Fatalf("PrintHistory empty failed: %v", err)
+	}
+	if !strings.Contains(buf.String(), "No speedtest history found.") {
+		t.Errorf("expected empty history message, got %q", buf.String())
+	}
+
+	err = speedtest_util.SaveToHistory("Server A", 10.0, 100.5, 50.2)
+	if err != nil {
+		t.Fatalf("failed to save run: %v", err)
+	}
+
+	buf.Reset()
+	err = PrintHistory(buf, false)
+	if err != nil {
+		t.Fatalf("PrintHistory tabular failed: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "Speedtest History:") {
+		t.Errorf("expected header 'Speedtest History:', got %q", out)
+	}
+	if !strings.Contains(out, "Server A") {
+		t.Errorf("expected output to contain server name, got %q", out)
+	}
+	if !strings.Contains(out, "100.5 Mbps") {
+		t.Errorf("expected output to contain download speed, got %q", out)
+	}
+
+	buf.Reset()
+	err = PrintHistory(buf, true)
+	if err != nil {
+		t.Fatalf("PrintHistory json failed: %v", err)
+	}
+	var history []speedtest_util.HistoryEntry
+	if err := json.Unmarshal(buf.Bytes(), &history); err != nil {
+		t.Fatalf("failed to parse json history: %v", err)
+	}
+	if len(history) != 1 || history[0].Server != "Server A" {
+		t.Errorf("unexpected json history: %v", history)
 	}
 }

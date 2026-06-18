@@ -25,6 +25,12 @@ const elements = {
   status: null,
   runBtn: null,
   speedometer: null,
+  historyToggleBtn: null,
+  clearHistoryBtn: null,
+  openJsonBtn: null,
+  testView: null,
+  historyView: null,
+  historyList: null,
 };
 
 // Initialize element references
@@ -36,6 +42,12 @@ export function initializeElements() {
   elements.status = document.getElementById("status");
   elements.runBtn = document.getElementById("run-btn");
   elements.speedometer = document.getElementById("speedometer");
+  elements.historyToggleBtn = document.getElementById("history-toggle-btn");
+  elements.clearHistoryBtn = document.getElementById("clear-history-btn");
+  elements.openJsonBtn = document.getElementById("open-json-btn");
+  elements.testView = document.getElementById("test-view");
+  elements.historyView = document.getElementById("history-view");
+  elements.historyList = document.getElementById("history-list");
   return elements;
 }
 
@@ -74,6 +86,7 @@ export function setButtonState(isTesting) {
     elements.runBtn.innerText = isTesting ? TEXT.STOP : TEXT.TRY_AGAIN;
     elements.runBtn.disabled = false;
   }
+  updateHistoryToggleState(isTesting);
 }
 
 // Handle test update event
@@ -117,6 +130,8 @@ export function handleTestComplete(data) {
     elements.runBtn.innerText = data.error || wasManualStop ? TEXT.TRY_AGAIN : TEXT.START_AGAIN;
   }
 
+  updateHistoryToggleState(false);
+
   if (wasManualStop || data.error?.toLowerCase() === "test stopped") {
     setStatus(TEXT.TEST_STOPPED);
     resetUI(TEXT.DEFAULT_VAL);
@@ -150,4 +165,84 @@ export function handleTestError(err) {
   setStatus(TEXT.ERROR_PREFIX + err);
   updateGauge(0);
   resetUI(TEXT.DEFAULT_VAL);
+  updateHistoryToggleState(false);
+}
+
+export function updateHistoryToggleState(isTesting) {
+  if (elements.historyToggleBtn) {
+    elements.historyToggleBtn.disabled = isTesting;
+    if (isTesting) {
+      elements.historyToggleBtn.style.opacity = "0.5";
+      elements.historyToggleBtn.style.cursor = "not-allowed";
+    } else {
+      elements.historyToggleBtn.style.opacity = "1";
+      elements.historyToggleBtn.style.cursor = "pointer";
+    }
+  }
+}
+
+export function renderHistory(history) {
+  if (!elements.historyList) return;
+
+  elements.historyList.innerHTML = "";
+
+  if (!history || history.length === 0) {
+    elements.historyList.innerHTML = `
+      <div class="empty-history">
+        <div class="empty-icon">🕒</div>
+        <div>No test history yet</div>
+      </div>
+    `;
+    if (elements.clearHistoryBtn) {
+      elements.clearHistoryBtn.disabled = true;
+    }
+    return;
+  }
+
+  if (elements.clearHistoryBtn) {
+    elements.clearHistoryBtn.disabled = false;
+  }
+
+  history.forEach(entry => {
+    const card = document.createElement("div");
+    card.className = "history-card";
+
+    let dateStr = "";
+    try {
+      const date = new Date(entry.timestamp);
+      dateStr = date.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch (e) {
+      dateStr = entry.timestamp;
+    }
+
+    card.innerHTML = `
+      <div class="history-card-header">
+        <span class="history-server">${entry.server || "Unknown Server"}</span>
+        <span class="history-date">${dateStr}</span>
+      </div>
+      <div class="history-metrics">
+        <div class="history-metric">
+          <span class="metric-icon">↓</span>
+          <span class="metric-value">${parseFloat(entry.download).toFixed(1)}</span>
+          <span class="metric-unit">Mbps</span>
+        </div>
+        <div class="history-metric">
+          <span class="metric-icon">↑</span>
+          <span class="metric-value">${parseFloat(entry.upload).toFixed(1)}</span>
+          <span class="metric-unit">Mbps</span>
+        </div>
+        <div class="history-metric">
+          <span class="metric-icon">⇄</span>
+          <span class="metric-value">${Math.round(entry.ping)}</span>
+          <span class="metric-unit">ms</span>
+        </div>
+      </div>
+    `;
+    elements.historyList.appendChild(card);
+  });
 }

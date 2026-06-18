@@ -42,12 +42,14 @@ var (
 )
 
 func main() {
-	cliFlag := flag.Bool("cli", false, "Run in headless CLI mode")
-	cliFlagShort := flag.Bool("c", false, "Run in headless CLI mode")
-	jsonFlag := flag.Bool("json", false, "Output results as JSON (implies CLI mode)")
-	jsonFlagShort := flag.Bool("j", false, "Output results as JSON (implies CLI mode)")
-	serverFlag := flag.String("server", "", "Target server ID (implies CLI mode)")
-	serverFlagShort := flag.String("s", "", "Target server ID (implies CLI mode)")
+	cliFlag := flag.Bool(config.FlagCLI, false, config.UsageCLI)
+	cliFlagShort := flag.Bool(config.FlagCLIShort, false, config.UsageCLI)
+	jsonFlag := flag.Bool(config.FlagJSON, false, config.UsageJSON)
+	jsonFlagShort := flag.Bool(config.FlagJSONShort, false, config.UsageJSON)
+	serverFlag := flag.String(config.FlagServer, "", config.UsageServer)
+	serverFlagShort := flag.String(config.FlagServerShort, "", config.UsageServer)
+	historyFlag := flag.Bool(config.FlagHistory, false, config.UsageHistory)
+	historyFlagShort := flag.Bool(config.FlagHistoryShort, false, config.UsageHistory)
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", config.AppName)
@@ -57,10 +59,18 @@ func main() {
 	}
 	flag.Parse()
 
-	isCLI := *cliFlag || *cliFlagShort || *jsonFlag || *jsonFlagShort || *serverFlag != "" || *serverFlagShort != ""
+	isCLI := *cliFlag || *cliFlagShort || *jsonFlag || *jsonFlagShort || *serverFlag != "" || *serverFlagShort != "" || *historyFlag || *historyFlagShort
 	if isCLI {
 		attachConsole()
 		jsonMode := *jsonFlag || *jsonFlagShort
+
+		if *historyFlag || *historyFlagShort {
+			if err := cli.PrintHistory(os.Stdout, jsonMode); err != nil {
+				os.Exit(1)
+			}
+			os.Exit(0)
+		}
+
 		serverID := *serverFlag
 		if serverID == "" {
 			serverID = *serverFlagShort

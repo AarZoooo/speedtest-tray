@@ -107,6 +107,7 @@ const (
 const (
 	UpdateChannelSize = 64
 	MaxLogLines       = 5000
+	MaxHistoryEntries = 50
 )
 
 const (
@@ -116,6 +117,12 @@ const (
 	FlagJSONShort       = "j"
 	FlagServer          = "server"
 	FlagServerShort     = "s"
+	FlagHistory         = "history"
+	FlagHistoryShort    = "h"
+	UsageCLI            = "Run in headless CLI mode"
+	UsageJSON           = "Output results as JSON (implies CLI mode)"
+	UsageServer         = "Target server ID (implies CLI mode)"
+	UsageHistory        = "Show speedtest history (implies CLI mode)"
 	CLIHeader           = "Speedtest Tray (Headless CLI)"
 	CLILineSeparator    = "------------------------------------------------------------"
 	CLIDoubleLine       = "============================================================"
