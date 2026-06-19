@@ -9,6 +9,7 @@ None
 - [ ] Installer looks hideous and feels like from early 2000 Windows XP times
 - [ ] Installer exe doesn't have the app icon, instead shows the old generic .exe icon
 - [ ] History shows dummy data on fresh install (history.json is prefilled with placeholder data)
+- [ ] App corners look more rounded than OS native container, hence a slight gap is visible right outside UI corners
 
 ## Features
 
