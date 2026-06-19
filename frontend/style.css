@@ -239,14 +239,14 @@ footer {
 
 .main-btn.running {
     background: var(--card-bg);
-    border-color: var(--danger);
+    border-color: transparent;
     color: white;
     box-shadow: var(--shadow-btn);
+    --btn-hover-color: var(--danger);
 }
 
 .main-btn.running:hover:not(:disabled) {
-    background: rgba(231, 76, 60, 0.1);
-    filter: none;
+    border-color: var(--btn-hover-color);
 }
 
 .main-btn:hover {
