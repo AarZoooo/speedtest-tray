@@ -10,7 +10,7 @@
     --danger: #e74c3c;
 
     /* Reusable Gradients */
-    --accent-gradient: linear-gradient(to bottom right, var(--accent-start), var(--accent-end));
+    --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
     --accent-gradient-right: linear-gradient(to right, var(--accent-start), var(--accent-end));
     --danger-gradient: linear-gradient(135deg, var(--danger), var(--danger));
 
@@ -227,7 +227,7 @@ footer {
 .main-btn {
     background: var(--accent-gradient);
     color: white;
-    border: 1.5px solid transparent;
+    border: none;
     padding: 12px;
     border-radius: 8px;
     font-weight: 600;
@@ -237,27 +237,41 @@ footer {
     transition:
         filter 0.2s,
         transform 0.1s,
-        box-shadow 0.2s,
-        background-color 0.2s,
-        border-color 0.2s;
+        box-shadow 0.2s;
 }
 
 .main-btn.running {
     background: var(--card-bg);
-    border-color: transparent;
     color: white;
     box-shadow: var(--shadow-btn);
     --btn-hover-border: var(--accent-gradient);
+    position: relative;
+    z-index: 1;
 }
 
 #run-btn.running {
     --btn-hover-border: var(--danger-gradient);
 }
 
-.main-btn.running:hover:not(:disabled) {
+/* Smooth gradient border fade-in on hover using absolute pseudo-element opacity transition */
+.main-btn.running::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
     background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
                 var(--btn-hover-border) border-box;
-    border-color: transparent;
+    border: 1.5px solid transparent;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+}
+
+.main-btn.running:hover:not(:disabled)::after {
+    opacity: 1;
 }
 
 .main-btn:hover {
