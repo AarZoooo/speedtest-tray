@@ -211,17 +211,17 @@ func newOptions(app *gui_wails.App) *options.App {
 		HideWindowOnClose: true,
 		Windows: &windows.Options{
 			WebviewIsTransparent:              true,
-			WindowIsTranslucent:               false,
-			BackdropType:                      windows.None,
+			WindowIsTranslucent:               true,
+			BackdropType:                      windows.Acrylic,
 			DisableWindowIcon:                 false,
-			DisableFramelessWindowDecorations: true,
+			DisableFramelessWindowDecorations: false,
 			IsZoomControlEnabled:              false,
 			DisablePinchZoom:                  true,
 		},
 		Mac: &mac.Options{
 			TitleBar:             mac.TitleBarHidden(),
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  false,
+			WindowIsTranslucent:  true,
 		},
 	}
 }

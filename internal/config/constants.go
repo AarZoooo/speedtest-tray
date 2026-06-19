@@ -66,7 +66,7 @@ const (
 const (
 	WindowWidth         = 320
 	WindowHeight        = 560
-	WindowCornerRadius  = 32
+	WindowCornerRadius  = 24
 	WindowOffsetYPixels = -20
 	StandardDPI         = 96.0
 )

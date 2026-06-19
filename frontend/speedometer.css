@@ -56,3 +56,22 @@
     font-size: 10px;
     font-weight: 600;
 }
+
+.needle.easing {
+    transition: transform 0.8s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.gauge-fill.easing,
+.gauge-bloom.easing {
+    transition: stroke-dasharray 0.8s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+/* Startup sweep animation transitions */
+.needle.sweeping {
+    transition: transform 0.5s ease-in-out;
+}
+
+.gauge-fill.sweeping,
+.gauge-bloom.sweeping {
+    transition: stroke-dasharray 0.5s ease-in-out;
+}

@@ -26,6 +26,7 @@ const elements = {
   runBtn: null,
   speedometer: null,
   historyToggleBtn: null,
+  updateToggleBtn: null,
   clearHistoryBtn: null,
   openJsonBtn: null,
   testView: null,
@@ -43,6 +44,7 @@ export function initializeElements() {
   elements.runBtn = document.getElementById("run-btn");
   elements.speedometer = document.getElementById("speedometer");
   elements.historyToggleBtn = document.getElementById("history-toggle-btn");
+  elements.updateToggleBtn = document.getElementById("update-toggle-btn");
   elements.clearHistoryBtn = document.getElementById("clear-history-btn");
   elements.openJsonBtn = document.getElementById("open-json-btn");
   elements.testView = document.getElementById("test-view");
@@ -85,6 +87,11 @@ export function setButtonState(isTesting) {
   if (elements.runBtn) {
     elements.runBtn.innerText = isTesting ? TEXT.STOP : TEXT.TRY_AGAIN;
     elements.runBtn.disabled = false;
+    if (isTesting) {
+      elements.runBtn.classList.add("running");
+    } else {
+      elements.runBtn.classList.remove("running");
+    }
   }
   updateHistoryToggleState(isTesting);
 }
@@ -105,12 +112,14 @@ export function handleTestUpdate(data) {
 
   if (data.phase === PHASES.DOWNLOADING) {
     if (parseFloat(data.download) > 0) {
+      if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
       elements.speedometer.setMax(CONFIG.GAUGE_MAX_DOWNLOAD);
       if (elements.download) elements.download.innerText = data.download + TEXT.MBPS_SUFFIX;
       updateGauge(data.download);
     }
   } else if (data.phase === PHASES.UPLOADING) {
     if (parseFloat(data.upload) > 0) {
+      if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
       elements.speedometer.setMax(CONFIG.GAUGE_MAX_UPLOAD);
       if (elements.upload) elements.upload.innerText = data.upload + TEXT.MBPS_SUFFIX;
       updateGauge(data.upload);
@@ -124,10 +133,20 @@ export function handleTestUpdate(data) {
 export function handleTestComplete(data) {
   const wasManualStop = !testState.isTesting && elements.status.innerText === TEXT.TEST_STOPPED;
 
+  // Stop sweep if still running
+  if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
+
   testState.stopTest();
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.remove("loading");
+  }
+
   if (elements.runBtn) {
     elements.runBtn.disabled = false;
     elements.runBtn.innerText = data.error || wasManualStop ? TEXT.TRY_AGAIN : TEXT.START_AGAIN;
+    elements.runBtn.classList.remove("running");
   }
 
   updateHistoryToggleState(false);
@@ -161,7 +180,19 @@ function failureStatus(error) {
 // Handle test error
 export function handleTestError(err) {
   testState.stopTest();
-  if (elements.runBtn) elements.runBtn.innerText = TEXT.TRY_AGAIN;
+
+  // Stop sweep if still running
+  if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.remove("loading");
+  }
+
+  if (elements.runBtn) {
+    elements.runBtn.innerText = TEXT.TRY_AGAIN;
+    elements.runBtn.classList.remove("running");
+  }
   setStatus(TEXT.ERROR_PREFIX + err);
   updateGauge(0);
   resetUI(TEXT.DEFAULT_VAL);
@@ -169,16 +200,19 @@ export function handleTestError(err) {
 }
 
 export function updateHistoryToggleState(isTesting) {
-  if (elements.historyToggleBtn) {
-    elements.historyToggleBtn.disabled = isTesting;
-    if (isTesting) {
-      elements.historyToggleBtn.style.opacity = "0.5";
-      elements.historyToggleBtn.style.cursor = "not-allowed";
-    } else {
-      elements.historyToggleBtn.style.opacity = "1";
-      elements.historyToggleBtn.style.cursor = "pointer";
+  const toggles = [elements.historyToggleBtn, elements.updateToggleBtn];
+  toggles.forEach(btn => {
+    if (btn) {
+      btn.disabled = isTesting;
+      if (isTesting) {
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+      } else {
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+      }
     }
-  }
+  });
 }
 
 export function renderHistory(history) {

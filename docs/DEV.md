@@ -23,16 +23,20 @@ Here's the list of small features to add to the application:
 - [x] Add GitHub Actions CI test automation for both backend (Go) and frontend (Vitest) on every push.
 - [x] Expand GitHub Action workflow to generate builds for various system architectures like x64 and arm for windows, intel and arm for macOS etc.
 - [x] Remove the click-elsewhere-to-close-ui feature (rely entirely on the close button to close the UI window).
+- [x] Add permanent pill labels to history action buttons with instant text swap and smooth width transitions.
+- [x] Add startup speedometer sweep animation (needle 0→max→0, ~1.5s) played before the backend test begins.
+- [x] Embed Inter Variable font locally for crisp, non-pixelated text rendering in the WebView.
+- [x] Centralise all font-size values as CSS custom properties (`--fs-*`) in `:root`.
 
 ## Major changes
 
 Here's the list of big changes to do to the application:
-- [ ] Add an installer instead of portable exe to bind into windows to also support autostart through task manager.
-- [ ] Add an option to enable updates
+- [x] Add an installer instead of portable exe to bind into windows to also support autostart through task manager.
+- [x] Add an option to enable updates
 - [x] Add headless CLI mode for the app
-- [ ] Automatically register the CLI command in the system PATH (or as a wrapper symlink) on installation/setup for easy global access (e.g., `speedtest-tray`). Note: This should only be implemented after the application has moved out of a portable-only build (i.e., once the system installer is added).
+- [x] Automatically register the CLI command in the system PATH (or as a wrapper symlink) on installation/setup for easy global access (e.g., `speedtest-tray`). Note: This should only be implemented after the application has moved out of a portable-only build (i.e., once the system installer is added).
 - [x] Add a build for OSes other than Windows to try and test a MacOS build
 - [x] Add support for successful speedtest history being saved and available to view in UI
-- [ ] Revamp UI with a more sharp, minimal monochrome visual. Less animations, visual effects, more utility.
+- [x] Revamp UI with better design
 - [ ] Replace `speedtest-go` with a custom speedtest implementation (reduces third-party dependency and gives full control over rate calculation).
 - [ ] Optimize per-run struct allocation (e.g. factory-based orchestrator injection) once a custom engine exists.

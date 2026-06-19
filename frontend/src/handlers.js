@@ -18,6 +18,20 @@ export async function startTest() {
   setStatus(TEXT.INITIALIZING);
   resetUI(TEXT.LOADER_HTML);
 
+  // Play the startup sweep animation — await it so the backend only starts after the animation finishes
+  const speedometer = document.getElementById("speedometer");
+  if (speedometer?.playStartupSweep) {
+    await speedometer.playStartupSweep();
+  }
+
+  // Only proceed if the test wasn't stopped during the animation
+  if (!testState.isTesting) return;
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.add("loading");
+  }
+
   console.log("JS: Invoking backend StartTest");
   try {
     await window.go.gui_wails.App.StartTest();
@@ -26,6 +40,9 @@ export async function startTest() {
     console.error("JS: Backend StartTest failed:", err);
     testState.stopTest();
     setButtonState(false);
+    if (header) {
+      header.classList.remove("loading");
+    }
   }
 }
 
@@ -33,11 +50,23 @@ export async function startTest() {
 export function stopTest() {
   console.log("JS: stopTest called");
   testState.stopTest();
-  if (document.getElementById("run-btn")) {
-    document.getElementById("run-btn").disabled = true;
+
+  // Stop sweep animation if running
+  const speedometer = document.getElementById("speedometer");
+  if (speedometer?.sweeping) speedometer.stopSweep();
+
+  const btn = document.getElementById("run-btn");
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.remove("running");
   }
   setStatus("Test Stopped");
   resetUI(TEXT.DEFAULT_VAL);
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.remove("loading");
+  }
 
   window.go.gui_wails.App.StopTest();
 }
@@ -78,16 +107,23 @@ const UPDATE_ICON_HTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" xmln
 let isConfirmingClear = false;
 let clearConfirmTimeout = null;
 
+function handleDocumentClick(event) {
+  const clearBtn = document.getElementById("clear-history-btn");
+  if (clearBtn && !clearBtn.contains(event.target)) {
+    resetClearConfirmState();
+  }
+}
+
 function resetClearConfirmState() {
   isConfirmingClear = false;
   if (clearConfirmTimeout) {
     clearTimeout(clearConfirmTimeout);
     clearConfirmTimeout = null;
   }
+  document.removeEventListener("click", handleDocumentClick);
   const clearBtn = document.getElementById("clear-history-btn");
   if (clearBtn) {
-    clearBtn.innerText = "Clear history";
-    clearBtn.classList.remove("danger");
+    clearBtn.classList.remove("confirming");
   }
 }
 
@@ -149,14 +185,17 @@ export async function handleHistoryToggleClick() {
   window.focus();
 }
 
-export async function handleClearHistoryClick() {
+export async function handleClearHistoryClick(event) {
+  if (event) {
+    event.stopPropagation();
+  }
   const clearBtn = document.getElementById("clear-history-btn");
   if (!clearBtn) return;
 
   if (!isConfirmingClear) {
     isConfirmingClear = true;
-    clearBtn.innerText = "Clear history (Sure?)";
-    clearBtn.classList.add("danger");
+    clearBtn.classList.add("confirming");
+    document.addEventListener("click", handleDocumentClick);
     clearConfirmTimeout = setTimeout(() => {
       resetClearConfirmState();
     }, 3000);
