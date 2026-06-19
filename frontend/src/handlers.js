@@ -18,6 +18,15 @@ export async function startTest() {
   setStatus(TEXT.INITIALIZING);
   resetUI(TEXT.LOADER_HTML);
 
+  // Play the startup sweep animation — await it so the backend only starts after the animation finishes
+  const speedometer = document.getElementById("speedometer");
+  if (speedometer?.playStartupSweep) {
+    await speedometer.playStartupSweep();
+  }
+
+  // Only proceed if the test wasn't stopped during the animation
+  if (!testState.isTesting) return;
+
   const header = document.querySelector("header");
   if (header) {
     header.classList.add("loading");
@@ -41,6 +50,11 @@ export async function startTest() {
 export function stopTest() {
   console.log("JS: stopTest called");
   testState.stopTest();
+
+  // Stop sweep animation if running
+  const speedometer = document.getElementById("speedometer");
+  if (speedometer?.sweeping) speedometer.stopSweep();
+
   const btn = document.getElementById("run-btn");
   if (btn) {
     btn.disabled = true;

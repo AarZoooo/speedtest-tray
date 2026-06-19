@@ -112,12 +112,14 @@ export function handleTestUpdate(data) {
 
   if (data.phase === PHASES.DOWNLOADING) {
     if (parseFloat(data.download) > 0) {
+      if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
       elements.speedometer.setMax(CONFIG.GAUGE_MAX_DOWNLOAD);
       if (elements.download) elements.download.innerText = data.download + TEXT.MBPS_SUFFIX;
       updateGauge(data.download);
     }
   } else if (data.phase === PHASES.UPLOADING) {
     if (parseFloat(data.upload) > 0) {
+      if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
       elements.speedometer.setMax(CONFIG.GAUGE_MAX_UPLOAD);
       if (elements.upload) elements.upload.innerText = data.upload + TEXT.MBPS_SUFFIX;
       updateGauge(data.upload);
@@ -130,6 +132,9 @@ export function handleTestUpdate(data) {
 // Handle test completion
 export function handleTestComplete(data) {
   const wasManualStop = !testState.isTesting && elements.status.innerText === TEXT.TEST_STOPPED;
+
+  // Stop sweep if still running
+  if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
 
   testState.stopTest();
 
@@ -175,6 +180,9 @@ function failureStatus(error) {
 // Handle test error
 export function handleTestError(err) {
   testState.stopTest();
+
+  // Stop sweep if still running
+  if (elements.speedometer?.sweeping) elements.speedometer.stopSweep();
 
   const header = document.querySelector("header");
   if (header) {

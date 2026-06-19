@@ -1,3 +1,12 @@
+/* Inter Variable font — embedded locally for crisp rendering in the WebView */
+@font-face {
+    font-family: "Inter";
+    src: url("assets/fonts/InterVariable.woff2") format("woff2-variations");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: block;
+}
+
 :root {
     --bg-color: #161617;
     --card-bg: #202022;
@@ -48,6 +57,18 @@
     --overlay-white-10: rgba(255, 255, 255, 0.1);
     --overlay-white-20: rgba(255, 255, 255, 0.2);
     --overlay-danger-15: color-mix(in srgb, var(--danger) 15%, transparent);
+
+    /* Font Size Scale */
+    --fs-xs: 0.7rem;
+    --fs-sm: 0.75rem;
+    --fs-body-sm: 0.8rem;
+    --fs-body: 0.85rem;
+    --fs-btn: 0.875rem;
+    --fs-body-lg: 0.9rem;
+    --fs-value: 1rem;
+    --fs-title: 1.05rem;
+    --fs-heading: 1.1rem;
+    --fs-icon-lg: 2rem;
 }
 
 * {
@@ -55,6 +76,7 @@
     margin: 0;
     padding: 0;
     user-select: none;
+    font: inherit;
 }
 
 html,
@@ -66,9 +88,8 @@ body {
 }
 
 body {
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-        sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
     color: var(--text-main);
     display: flex;
     justify-content: center;
@@ -76,6 +97,7 @@ body {
     padding: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .container {
@@ -225,12 +247,12 @@ header.loading::after {
 
 .label {
     color: var(--text-dim);
-    font-size: 0.85rem;
+    font-size: var(--fs-body);
 }
 
 .value {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: var(--fs-value);
     background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -249,7 +271,7 @@ footer {
 .status {
     text-align: center;
     color: var(--text-dim);
-    font-size: 0.8rem;
+    font-size: var(--fs-body-sm);
 }
 
 .main-btn {
@@ -258,6 +280,7 @@ footer {
     border: none;
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
+    font-size: var(--fs-btn);
     font-weight: 600;
     cursor: pointer;
     width: 100%;
@@ -446,7 +469,7 @@ footer {
 }
 
 .history-server {
-    font-size: 0.85rem;
+    font-size: var(--fs-body);
     font-weight: 600;
     color: var(--text-main);
     white-space: nowrap;
@@ -456,7 +479,7 @@ footer {
 }
 
 .history-date {
-    font-size: 0.75rem;
+    font-size: var(--fs-sm);
     color: var(--text-dim);
 }
 
@@ -474,7 +497,7 @@ footer {
 }
 
 .metric-icon {
-    font-size: 0.8rem;
+    font-size: var(--fs-body-sm);
     color: var(--text-dim);
 }
 
@@ -491,12 +514,12 @@ footer {
 }
 
 .metric-value {
-    font-size: 0.9rem;
+    font-size: var(--fs-body-lg);
     font-weight: 700;
 }
 
 .metric-unit {
-    font-size: 0.7rem;
+    font-size: var(--fs-xs);
     color: var(--text-dim);
 }
 
@@ -507,13 +530,13 @@ footer {
     justify-content: center;
     flex-grow: 1;
     color: var(--text-dim);
-    font-size: 0.85rem;
+    font-size: var(--fs-body);
     gap: 8px;
     padding: 80px 0;
 }
 
 .empty-icon {
-    font-size: 2rem;
+    font-size: var(--fs-icon-lg);
     opacity: 0.5;
 }
 
@@ -587,7 +610,7 @@ footer {
 }
 
 .history-action-btn .btn-text {
-    font-size: 0.8rem;
+    font-size: var(--fs-body-sm);
     font-weight: 600;
     overflow: hidden;
     white-space: nowrap;
@@ -654,7 +677,7 @@ footer {
 }
 
 .update-title {
-    font-size: 1.05rem;
+    font-size: var(--fs-title);
     font-weight: 500;
     color: var(--text-dim);
     margin-bottom: 16px;
@@ -686,13 +709,13 @@ footer {
 }
 
 .update-version-text {
-    font-size: 1.1rem;
+    font-size: var(--fs-heading);
     font-weight: 700;
     color: var(--text-main);
 }
 
 .update-size-container {
-    font-size: 0.9rem;
+    font-size: var(--fs-body-lg);
     display: flex;
     gap: 6px;
     color: var(--text-dim);
@@ -711,7 +734,7 @@ footer {
 
 .update-notes-link a {
     color: var(--text-dim);
-    font-size: 0.85rem;
+    font-size: var(--fs-body);
     text-decoration: underline;
     cursor: pointer;
     transition: color 0.2s;
@@ -766,7 +789,7 @@ footer {
 }
 
 .update-status-msg {
-    font-size: 0.9rem;
+    font-size: var(--fs-body-lg);
     color: var(--text-dim);
     text-align: center;
     margin: auto 0;
@@ -820,7 +843,7 @@ footer {
 }
 
 .update-progress-text {
-    font-size: 0.85rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     text-align: center;
     font-weight: 600;
