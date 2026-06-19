@@ -247,15 +247,17 @@ footer {
     border-color: transparent;
     color: white;
     box-shadow: var(--shadow-btn);
-    --btn-hover-border: var(--accent-gradient) 1.5;
+    --btn-hover-border: var(--accent-gradient);
 }
 
 #run-btn.running {
-    --btn-hover-border: var(--danger-gradient) 1.5;
+    --btn-hover-border: var(--danger-gradient);
 }
 
 .main-btn.running:hover:not(:disabled) {
-    border-image: var(--btn-hover-border);
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+                var(--btn-hover-border) border-box;
+    border-color: transparent;
 }
 
 .main-btn:hover {
