@@ -7,6 +7,7 @@ None
 ## Non-Blocking bugs
 
 - [ ] Show error message in UI if update check fails (currently silently falls back to up-to-date)
+- [ ] Fix installer app name configuration (currently displays generic "Name Setup" / "Name" instead of "SpeedTest Tray")
 
 ## Features
 
@@ -15,6 +16,11 @@ Here's the list of small features to add to the application:
   - [ ] Save this launch-minimized preference in `config.json`
 - [ ] Add the launch at login (autostart) preference to the `config.json` settings file
 - [ ] Read and apply `config.json` settings at application startup (e.g., launch minimized, launch at login)
+- [ ] Installer improvements:
+  - [ ] Pre-check the option of launching at startup (login) so speedrunners don't have to remember to enable it
+  - [ ] Add a pre-checked option to install the CLI alias
+  - [ ] Add a pre-checked option to create a desktop shortcut icon
+  - [ ] Show a post-install finish page with a pre-checked option to "Launch Speedtest Tray" instead of launching automatically without asking
 
 ## Major changes
 
