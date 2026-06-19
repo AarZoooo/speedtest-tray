@@ -49,7 +49,7 @@ body {
     background-color: var(--bg-color);
     width: 100%;
     height: 100%;
-    padding: 24px 24px 12px 24px;
+    padding: 16px 16px 12px 16px;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -63,7 +63,11 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    background-color: var(--card-bg);
+    margin: -16px -16px 16px -16px;
+    padding: 16px;
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(to right, var(--accent-start), var(--accent-end)) 1;
 }
 
 .header-logo {
@@ -98,6 +102,11 @@ header {
 .icon-btn:not(:disabled):hover {
     background-color: rgba(255, 255, 255, 0.08);
     color: var(--text-main);
+}
+
+#close-btn:not(:disabled):hover {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: var(--danger);
 }
 
 .icon-btn.selected {
@@ -411,7 +420,7 @@ footer {
 
 /* Update Button styling with badge: circular stroke around button using accent gradient */
 #update-toggle-btn.has-badge {
-    background: linear-gradient(var(--bg-color), var(--bg-color)) padding-box,
+    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
                 linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
 }
 
