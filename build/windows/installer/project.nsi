@@ -95,6 +95,24 @@ Function LaunchOptionsLeave
     ${NSD_GetState} $DesktopShortcutCheckbox $DesktopShortcutCheckbox
 FunctionEnd
 
+Function .onInit
+    loop:
+        FindWindow $0 "" "${PRODUCT_NAME}"
+        IntCmp $0 0 notRunning
+        MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PRODUCT_NAME} is currently running. Please close the app first." IDRETRY loop
+        Abort
+    notRunning:
+FunctionEnd
+
+Function un.onInit
+    loop:
+        FindWindow $0 "" "${PRODUCT_NAME}"
+        IntCmp $0 0 notRunning
+        MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PRODUCT_NAME} is currently running. Please close the app first." IDRETRY loop
+        Abort
+    notRunning:
+FunctionEnd
+
 ;--------------------------------
 ; Install Section
 

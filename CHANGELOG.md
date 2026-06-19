@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed the Windows installer branding to display "SpeedTest Tray" instead of "Name".
 - Fixed macOS PKG packages failing to open with a "damaged or incomplete" error by defining the correct installation path.
+- Fixed installer welcome and finish pages rendering blank on the left side by correcting the bitmap format.
+- Fixed uninstaller to prompt the user to close the app if it is currently running.
+- Fixed update view turning blank on manual update check error by correcting a nested HTML container tag.
+- Fixed running Start button styling to correctly display the idle secondary style (card background, no border).
 
 ## [1.1.1] - 2026-06-19
 

@@ -293,7 +293,7 @@ footer {
 
 .main-btn.running,
 .history-action-btn {
-    background-color: var(--card-bg);
+    background: var(--card-bg);
     box-shadow: var(--shadow-btn);
     position: relative;
     z-index: 1;
