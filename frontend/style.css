@@ -9,6 +9,11 @@
     --accent-middle: #5B40A8;
     --danger: #e74c3c;
 
+    /* Reusable Gradients */
+    --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    --accent-gradient-right: linear-gradient(to right, var(--accent-start), var(--accent-end));
+    --danger-gradient: linear-gradient(135deg, var(--danger), var(--danger));
+
     /* Centralized Shadows - Minimalist Intensity */
     --shadow-container: 0 10px 30px rgba(0, 0, 0, 0.3);
     --shadow-text: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
@@ -76,7 +81,7 @@ header::after {
     left: 0;
     width: 100%;
     height: 3px;
-    background: linear-gradient(to right, var(--accent-start), var(--accent-end));
+    background: var(--accent-gradient-right);
     background-size: 100% 100%;
     transition: background 0.3s ease;
 }
@@ -198,7 +203,7 @@ header.loading::after {
 .value {
     font-weight: 700;
     font-size: 1rem;
-    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -220,7 +225,7 @@ footer {
 }
 
 .main-btn {
-    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    background: var(--accent-gradient);
     color: white;
     border: 1.5px solid transparent;
     padding: 12px;
@@ -242,11 +247,11 @@ footer {
     border-color: transparent;
     color: white;
     box-shadow: var(--shadow-btn);
-    --btn-hover-border: linear-gradient(135deg, var(--accent-start), var(--accent-end)) 1.5;
+    --btn-hover-border: var(--accent-gradient) 1.5;
 }
 
 #run-btn.running {
-    --btn-hover-border: linear-gradient(135deg, var(--danger), var(--danger)) 1.5;
+    --btn-hover-border: var(--danger-gradient) 1.5;
 }
 
 .main-btn.running:hover:not(:disabled) {
@@ -475,12 +480,12 @@ footer {
 /* Update Button styling with badge: circular stroke around button using accent gradient */
 #update-toggle-btn.has-badge {
     background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-                linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
+                var(--accent-gradient) border-box;
 }
 
 #update-toggle-btn.has-badge:hover {
     background: linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)) padding-box,
-                linear-gradient(135deg, var(--accent-start), var(--accent-end)) border-box;
+                var(--accent-gradient) border-box;
 }
 
 #update-toggle-btn.has-badge.selected {
@@ -592,7 +597,7 @@ footer {
 }
 
 .primary-btn {
-    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    background: var(--accent-gradient);
     color: white;
     box-shadow: var(--shadow-btn);
 }
@@ -666,7 +671,7 @@ footer {
 .update-progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    background: var(--accent-gradient);
     border-radius: 4px;
     transition: width 0.1s ease;
 }
