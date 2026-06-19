@@ -6,7 +6,7 @@ None
 
 ## Non-Blocking bugs
 
-None
+- [ ] Fix Windows installer sidebar bitmap image rendering (image remains blank/invisible during setup)
 
 ## Features
 
