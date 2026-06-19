@@ -268,21 +268,25 @@ footer {
         box-shadow 0.2s;
 }
 
-.main-btn.running {
-    background: var(--card-bg);
-    color: white;
+.main-btn.running,
+.history-action-btn {
+    background-color: var(--card-bg);
     box-shadow: var(--shadow-btn);
-    --btn-hover-border: var(--accent-gradient);
     position: relative;
     z-index: 1;
+}
+
+.main-btn.running {
+    color: white;
+    --btn-hover-border: var(--accent-gradient);
 }
 
 #run-btn.running {
     --btn-hover-border: var(--danger);
 }
 
-/* Smooth gradient border fade-in on hover using absolute pseudo-element opacity transition */
-.main-btn.running::after {
+.main-btn.running::after,
+.history-action-btn::after {
     content: "";
     position: absolute;
     top: 0;
@@ -299,7 +303,8 @@ footer {
     z-index: -1;
 }
 
-.main-btn.running:hover:not(:disabled)::after {
+.main-btn.running:hover:not(:disabled)::after,
+.history-action-btn:hover:not(:disabled)::after {
     opacity: 1;
 }
 
@@ -388,7 +393,7 @@ footer {
     gap: 12px;
     margin-bottom: 12px;
     padding-right: 4px;
-    padding-bottom: 12px;
+    padding-bottom: 24px;
     mask-image: linear-gradient(
         to bottom,
         black 0%,
@@ -512,41 +517,61 @@ footer {
     opacity: 0.5;
 }
 
+#history-view {
+    position: relative;
+}
+
 .history-header {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 10;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    padding: 0;
+    pointer-events: none;
 }
 
 .history-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
     height: 32px;
     border-radius: 16px;
-    background-color: var(--overlay-white-5);
-    border: var(--border-width-thin) solid var(--border-color);
     color: var(--text-dim);
     cursor: pointer;
-    padding: 0;
-    transition:
-        width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        gap 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
+    padding: 0 12px;
+    border: none;
+    transition: color 0.2s ease;
     overflow: hidden;
     white-space: nowrap;
     outline: none;
+    pointer-events: auto;
+}
+
+#open-json-btn {
+    --btn-hover-border: var(--accent-gradient);
+}
+
+#clear-history-btn {
+    --btn-hover-border: var(--danger);
+    width: 126px;
+    transition:
+        width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.2s ease;
+}
+
+#clear-history-btn.confirming {
+    width: 86px;
 }
 
 .history-action-btn:hover:not(:disabled) {
-    background-color: var(--overlay-white-8);
     color: var(--text-main);
+}
+
+.history-action-btn:hover:not(:disabled)::after {
+    opacity: 1;
 }
 
 .history-action-btn:disabled {
@@ -562,34 +587,37 @@ footer {
 }
 
 .history-action-btn .btn-text {
-    max-width: 0;
-    opacity: 0;
-    transition:
-        max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.2s ease;
     font-size: 0.8rem;
     font-weight: 600;
     overflow: hidden;
+    white-space: nowrap;
+    margin-left: 6px;
+}
+
+#clear-history-btn .confirm-text {
+    display: none;
+}
+
+#clear-history-btn.confirming .default-text {
+    display: none;
+}
+
+#clear-history-btn.confirming .confirm-text {
+    display: inline;
 }
 
 .history-action-btn.confirming {
-    width: 84px;
-    padding: 0 10px;
-    gap: 6px;
     color: var(--danger);
-    border-color: var(--danger);
-    background-color: var(--overlay-danger-15);
-    justify-content: flex-start;
+    background-color: var(--card-bg);
+}
+
+.history-action-btn.confirming::after {
+    opacity: 1;
 }
 
 .history-action-btn.confirming:hover:not(:disabled) {
-    background-color: rgba(239, 68, 68, 0.25);
     color: var(--danger);
-}
-
-.history-action-btn.confirming .btn-text {
-    max-width: 50px;
-    opacity: 1;
+    filter: brightness(1.15);
 }
 
 /* Update Button styling with badge: circular stroke around button using accent gradient */
