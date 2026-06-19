@@ -259,7 +259,7 @@ export function initializeBannerHandler() {
 }
 
 export function showUpdateState(stateName) {
-  const states = ["update-checking-state", "update-uptodate-state", "update-available-state"];
+  const states = ["update-checking-state", "update-uptodate-state", "update-available-state", "update-error-state"];
   states.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -312,7 +312,11 @@ export async function performUpdateCheck() {
     }
   } catch (err) {
     console.error("Failed manual update check:", err);
-    showUpdateState("update-uptodate-state");
+    const errorMsgEl = document.getElementById("update-error-msg");
+    if (errorMsgEl) {
+      errorMsgEl.innerText = (err && err.message) ? err.message : (err || "Failed to check for updates");
+    }
+    showUpdateState("update-error-state");
   }
 }
 
@@ -458,6 +462,22 @@ export function handleUpdateError(err) {
                 <button id="update-skip-btn" class="update-action-btn secondary-btn">Skip Version</button>
             </div>
         </div>
+        <div id="update-error-state" class="update-state-container view-hidden">
+            <div class="update-center-content">
+                <svg class="update-dim-icon" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="update-version-text" style="color: var(--danger);">Check Failed</span>
+                <div class="update-size-container">
+                    <span class="update-size-label" id="update-error-msg">Failed to check for updates</span>
+                </div>
+            </div>
+            <div class="update-actions">
+                <button id="error-check-btn" class="update-action-btn primary-btn">Try again</button>
+            </div>
+        </div>
       `;
       // Re-initialize update view button listeners and state
       initializeUpdateHandlers();
@@ -517,6 +537,11 @@ export function initializeUpdateHandlers() {
   const manualCheckBtn = document.getElementById("manual-check-btn");
   if (manualCheckBtn) {
     manualCheckBtn.addEventListener("click", () => performUpdateCheck(true));
+  }
+
+  const errorCheckBtn = document.getElementById("error-check-btn");
+  if (errorCheckBtn) {
+    errorCheckBtn.addEventListener("click", () => performUpdateCheck());
   }
 }
 

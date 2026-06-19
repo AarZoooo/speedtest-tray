@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2026-06-19
+
+### Added
+- Added installer options for launch at login, CLI alias installation, and desktop shortcut creation (pre-checked by default).
+- Added a finish page to the installer with an option to launch the application on close.
+- Added custom sidebar bitmap image support to the installer screens.
+- Added launch-minimized and launch-at-login settings to the config file and system tray context menu.
+- Added a check-failure state view in the update panel to display error details and a retry option when update checks fail.
+
+### Changed
+- Configured the application to read and apply launch preferences from the configuration file at startup.
+
+### Fixed
+- Fixed the Windows installer branding to display "SpeedTest Tray" instead of "Name".
+- Fixed macOS PKG packages failing to open with a "damaged or incomplete" error by defining the correct installation path.
+
 ## [1.1.1] - 2026-06-19
 
 ### Fixed

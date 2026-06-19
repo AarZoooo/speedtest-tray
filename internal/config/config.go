@@ -10,13 +10,17 @@ import (
 )
 
 type CustomConfig struct {
-	SaveLogs       bool   `json:"save_logs"`
-	SkippedVersion string `json:"skipped_version,omitempty"`
+	SaveLogs        bool   `json:"save_logs"`
+	SkippedVersion  string `json:"skipped_version,omitempty"`
+	LaunchMinimized bool   `json:"launch_minimized"`
+	LaunchAtLogin   bool   `json:"launch_at_login"`
 }
 
 var DefaultConfig = CustomConfig{
-	SaveLogs:       false,
-	SkippedVersion: "",
+	SaveLogs:        false,
+	SkippedVersion:  "",
+	LaunchMinimized: false,
+	LaunchAtLogin:   true,
 }
 
 func GetConfigDir() string {

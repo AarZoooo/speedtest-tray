@@ -106,18 +106,31 @@ func main() {
 		enableFileLogging()
 	}
 
-	gui_wails.StartTray(app, iconBytes, macIconBytes, &appConfig, func(enabled bool) {
-		if enabled {
-			appConfig.SaveLogs = true
-			enableFileLogging()
-		} else {
-			appConfig.SaveLogs = false
-			disableFileLogging()
-		}
-		config.SaveConfig(appConfig)
-	}, func(enabled bool) {
-		app.SetLaunchAtLogin(enabled)
-	})
+	gui_wails.StartTray(
+		app,
+		iconBytes,
+		macIconBytes,
+		&appConfig,
+		func(enabled bool) {
+			if enabled {
+				appConfig.SaveLogs = true
+				enableFileLogging()
+			} else {
+				appConfig.SaveLogs = false
+				disableFileLogging()
+			}
+			config.SaveConfig(appConfig)
+		},
+		func(enabled bool) {
+			app.SetLaunchAtLogin(enabled)
+			appConfig.LaunchAtLogin = enabled
+			config.SaveConfig(appConfig)
+		},
+		func(enabled bool) {
+			appConfig.LaunchMinimized = enabled
+			config.SaveConfig(appConfig)
+		},
+	)
 
 	options := newOptions(app)
 	options.Logger = logger.NewDefaultLogger()

@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "SpeedTest Tray"
-!define PRODUCT_VERSION "1.1.1"
+!define PRODUCT_VERSION "1.1.2"
 !define PRODUCT_PUBLISHER "Aarju Pal"
 !define INSTALL_DIR "$LOCALAPPDATA\Programs\SpeedTest Tray"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\SpeedTest Tray"
@@ -15,6 +15,7 @@
 ; Request user or admin execution level (user level is fine for local appdata installs)
 RequestExecutionLevel user
 InstallDir "${INSTALL_DIR}"
+Name "${PRODUCT_NAME}"
 
 ;--------------------------------
 ; Include Modern UI
@@ -32,6 +33,8 @@ InstallDir "${INSTALL_DIR}"
 !define MUI_ABORTWARNING
 !define MUI_ICON "..\icon.ico"
 !define MUI_UNICON "..\icon.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "installer_sidebar.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "installer_sidebar.bmp"
 
 ;--------------------------------
 ; Pages
@@ -40,9 +43,15 @@ InstallDir "${INSTALL_DIR}"
 !insertmacro MUI_PAGE_DIRECTORY
 
 Var LaunchAtLoginCheckbox
+Var CliAliasCheckbox
+Var DesktopShortcutCheckbox
 Page custom LaunchOptionsPage LaunchOptionsLeave
 
 !insertmacro MUI_PAGE_INSTFILES
+
+!define MUI_FINISHPAGE_RUN "$INSTDIR\${EXE_NAME}"
+!define MUI_FINISHPAGE_RUN_TEXT "Launch SpeedTest Tray"
+!insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -67,13 +76,23 @@ Function LaunchOptionsPage
 
     ${NSD_CreateCheckbox} 0 30u 100% 12u "Launch SpeedTest Tray at login"
     Pop $LaunchAtLoginCheckbox
-    ${NSD_SetState} $LaunchAtLoginCheckbox ${BST_UNCHECKED}
+    ${NSD_SetState} $LaunchAtLoginCheckbox ${BST_CHECKED}
+
+    ${NSD_CreateCheckbox} 0 45u 100% 12u "Add CLI alias to PATH"
+    Pop $CliAliasCheckbox
+    ${NSD_SetState} $CliAliasCheckbox ${BST_CHECKED}
+
+    ${NSD_CreateCheckbox} 0 60u 100% 12u "Create Desktop shortcut"
+    Pop $DesktopShortcutCheckbox
+    ${NSD_SetState} $DesktopShortcutCheckbox ${BST_CHECKED}
 
     nsDialogs::Show
 FunctionEnd
 
 Function LaunchOptionsLeave
     ${NSD_GetState} $LaunchAtLoginCheckbox $LaunchAtLoginCheckbox
+    ${NSD_GetState} $CliAliasCheckbox $CliAliasCheckbox
+    ${NSD_GetState} $DesktopShortcutCheckbox $DesktopShortcutCheckbox
 FunctionEnd
 
 ;--------------------------------
@@ -87,12 +106,19 @@ Section "Install"
     CreateDirectory "$SMPROGRAMS\SpeedTest Tray"
     CreateShortcut "$SMPROGRAMS\SpeedTest Tray\SpeedTest Tray.lnk" "$INSTDIR\${EXE_NAME}"
 
-    ; Add install dir to user PATH
-    ReadRegStr $0 HKCU "Environment" "Path"
-    StrCpy $0 "$0;$INSTDIR"
-    WriteRegExpandStr HKCU "Environment" "Path" "$0"
-    ; Broadcast WM_SETTINGCHANGE so open terminals pick up new PATH
-    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+    ; Desktop shortcut (optional)
+    ${If} $DesktopShortcutCheckbox == ${BST_CHECKED}
+        CreateShortcut "$DESKTOP\SpeedTest Tray.lnk" "$INSTDIR\${EXE_NAME}"
+    ${EndIf}
+
+    ; Add install dir to user PATH (optional)
+    ${If} $CliAliasCheckbox == ${BST_CHECKED}
+        ReadRegStr $0 HKCU "Environment" "Path"
+        StrCpy $0 "$0;$INSTDIR"
+        WriteRegExpandStr HKCU "Environment" "Path" "$0"
+        ; Broadcast WM_SETTINGCHANGE so open terminals pick up new PATH
+        SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+    ${EndIf}
     
     ; Optional launch at login
     ${If} $LaunchAtLoginCheckbox == ${BST_CHECKED}
@@ -105,9 +131,6 @@ Section "Install"
     WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
     WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
     WriteUninstaller "$INSTDIR\uninstall.exe"
-    
-    ; Launch app after install
-    ExecShell "" "$INSTDIR\${EXE_NAME}"
 SectionEnd
 
 ;--------------------------------
@@ -132,6 +155,7 @@ SkipDataRemoval:
     Delete "$INSTDIR\${EXE_NAME}"
     Delete "$INSTDIR\uninstall.exe"
     Delete "$SMPROGRAMS\SpeedTest Tray\SpeedTest Tray.lnk"
+    Delete "$DESKTOP\SpeedTest Tray.lnk"
     RMDir "$SMPROGRAMS\SpeedTest Tray"
     RMDir "$INSTDIR"
     DeleteRegKey HKCU "${UNINSTALL_KEY}"

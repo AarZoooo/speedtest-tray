@@ -142,6 +142,7 @@ jobs:
         run: |
           pkgbuild --root "build/bin" \
                    --identifier dev.aarju.speedtest-tray \
+                   --install-location "/Applications" \
                    --version ${{ github.ref_name }} \
                    --scripts build/macos/pkg/scripts \
                    SpeedTest-Tray-macOS-Intel.pkg
@@ -212,6 +213,7 @@ jobs:
         run: |
           pkgbuild --root "build/bin" \
                    --identifier dev.aarju.speedtest-tray \
+                   --install-location "/Applications" \
                    --version ${{ github.ref_name }} \
                    --scripts build/macos/pkg/scripts \
                    SpeedTest-Tray-macOS-ARM.pkg

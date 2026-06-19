@@ -5,7 +5,7 @@ import "time"
 // App branding
 const AppName = "SpeedTest Tray"
 
-const AppVersion = "1.1.1"
+const AppVersion = "1.1.2"
 
 const (
 	GitHubOwner = "AarZoooo"
@@ -155,4 +155,9 @@ const (
 	CLIStatusCompleted = "Done."
 	JSONStatusSuccess  = "success"
 	JSONStatusFailed   = "failed"
+)
+
+const (
+	MenuStartMinimized    = "Start Minimized"
+	TooltipStartMinimized = "Start the application minimized to system tray"
 )

@@ -5,7 +5,7 @@ package gui_wails
 /*
 #cgo LDFLAGS: -framework AppKit -framework Foundation
 #include <stdlib.h>
-void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState, int initialLaunchAtLoginState);
+void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState, int initialLaunchAtLoginState, int initialLaunchMinimizedState);
 void getStatusItemPosition(double *x, double *y, double *width, double *height, double *screenWidth);
 void removeStatusItem(void);
 */
@@ -17,11 +17,13 @@ import (
 )
 
 var (
-	globalApp                   *App
-	toggleLoggingCallback       func(bool)
-	toggleLaunchAtLoginCallback func(bool)
-	initialLoggingVal           bool
-	initialLaunchAtLoginVal     bool
+	globalApp                     *App
+	toggleLoggingCallback         func(bool)
+	toggleLaunchAtLoginCallback   func(bool)
+	toggleLaunchMinimizedCallback func(bool)
+	initialLoggingVal             bool
+	initialLaunchAtLoginVal       bool
+	initialLaunchMinimizedVal     bool
 )
 
 //export onStatusItemClick
@@ -56,19 +58,29 @@ func onLaunchAtLoginClick(enabled C.int) {
 	}
 }
 
+//export onLaunchMinimizedClick
+func onLaunchMinimizedClick(enabled C.int) {
+	slog.Info("onLaunchMinimizedClick received from Objective-C", "enabled", enabled != 0)
+	if toggleLaunchMinimizedCallback != nil {
+		go toggleLaunchMinimizedCallback(enabled != 0)
+	}
+}
+
 //export onOpenLogsClick
 func onOpenLogsClick() {
 	slog.Info("onOpenLogsClick received from Objective-C")
 	config.OpenDirectory(config.GetConfigDir())
 }
 
-func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool)) {
+func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool), toggleLaunchMinimized func(bool)) {
 	slog.Info("StartTray called on macOS")
 	app.MacIcon = macIconBytes
 	toggleLoggingCallback = toggleLogging
 	toggleLaunchAtLoginCallback = toggleLaunchAtLogin
+	toggleLaunchMinimizedCallback = toggleLaunchMinimized
 	initialLoggingVal = appConfig.SaveLogs
 	initialLaunchAtLoginVal = app.GetLaunchAtLogin()
+	initialLaunchMinimizedVal = appConfig.LaunchMinimized
 }
 
 func (a *App) initMacStatusItem() {
@@ -97,7 +109,12 @@ func (a *App) initMacStatusItem() {
 		launchAtLoginVal = C.int(1)
 	}
 
-	C.initStatusItem(title, iconPtr, iconLen, loggingVal, launchAtLoginVal)
+	launchMinimizedVal := C.int(0)
+	if initialLaunchMinimizedVal {
+		launchMinimizedVal = C.int(1)
+	}
+
+	C.initStatusItem(title, iconPtr, iconLen, loggingVal, launchAtLoginVal, launchMinimizedVal)
 }
 
 func (a *App) cleanupMacStatusItem() {

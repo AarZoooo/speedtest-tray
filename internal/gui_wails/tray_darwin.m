@@ -5,12 +5,14 @@ extern void onStatusItemClick(void);
 extern void onQuitClick(void);
 extern void onToggleLoggingClick(int enabled);
 extern void onLaunchAtLoginClick(int enabled);
+extern void onLaunchMinimizedClick(int enabled);
 extern void onOpenLogsClick(void);
 
 @interface StatusItemHandler : NSObject
 - (void)statusItemClicked:(id)sender;
 - (void)showClicked:(id)sender;
 - (void)launchAtLoginClicked:(id)sender;
+- (void)launchMinimizedClicked:(id)sender;
 - (void)toggleLoggingClicked:(id)sender;
 - (void)openLogsClicked:(id)sender;
 - (void)quitClicked:(id)sender;
@@ -21,6 +23,7 @@ static StatusItemHandler *handler = nil;
 static NSMenu *contextMenu = nil;
 static NSMenuItem *loggingMenuItem = nil;
 static NSMenuItem *launchAtLoginMenuItem = nil;
+static NSMenuItem *launchMinimizedMenuItem = nil;
 
 @implementation StatusItemHandler
 
@@ -55,6 +58,12 @@ static NSMenuItem *launchAtLoginMenuItem = nil;
     onLaunchAtLoginClick(newState ? 1 : 0);
 }
 
+- (void)launchMinimizedClicked:(id)sender {
+    BOOL newState = (launchMinimizedMenuItem.state == NSControlStateValueOff);
+    [launchMinimizedMenuItem setState:newState ? NSControlStateValueOn : NSControlStateValueOff];
+    onLaunchMinimizedClick(newState ? 1 : 0);
+}
+
 - (void)toggleLoggingClicked:(id)sender {
     BOOL newState = (loggingMenuItem.state == NSControlStateValueOff);
     [loggingMenuItem setState:newState ? NSControlStateValueOn : NSControlStateValueOff];
@@ -71,7 +80,7 @@ static NSMenuItem *launchAtLoginMenuItem = nil;
 
 @end
 
-void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState, int initialLaunchAtLoginState) {
+void initStatusItem(const char* title, const void* iconData, int iconLength, int initialLoggingState, int initialLaunchAtLoginState, int initialLaunchMinimizedState) {
     printf("[objc] initStatusItem called with title: %s, iconLength: %d\n", title, iconLength);
     fflush(stdout);
     
@@ -148,6 +157,11 @@ void initStatusItem(const char* title, const void* iconData, int iconLength, int
         launchAtLoginMenuItem.target = handler;
         [launchAtLoginMenuItem setState:initialLaunchAtLoginState ? NSControlStateValueOn : NSControlStateValueOff];
         [contextMenu addItem:launchAtLoginMenuItem];
+
+        launchMinimizedMenuItem = [[NSMenuItem alloc] initWithTitle:@"Start Minimized" action:@selector(launchMinimizedClicked:) keyEquivalent:@""];
+        launchMinimizedMenuItem.target = handler;
+        [launchMinimizedMenuItem setState:initialLaunchMinimizedState ? NSControlStateValueOn : NSControlStateValueOff];
+        [contextMenu addItem:launchMinimizedMenuItem];
 
         [contextMenu addItem:[NSMenuItem separatorItem]];
         

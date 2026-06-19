@@ -45,6 +45,17 @@ func (a *App) Startup(ctx context.Context) {
 		a.autostartMgr = mgr
 	}
 
+	// Apply settings from config on startup
+	cfg := config.LoadConfigOrDefault()
+	a.SetLaunchAtLogin(cfg.LaunchAtLogin)
+
+	if !cfg.LaunchMinimized {
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			a.ShowWindow()
+		}()
+	}
+
 	go func() {
 		info, err := a.CheckForUpdate()
 		if err == nil && info.HasUpdate {

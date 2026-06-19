@@ -7,7 +7,7 @@ import (
 	"speedtest-tray/internal/config"
 )
 
-func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool)) {
+func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *config.CustomConfig, toggleLogging func(bool), toggleLaunchAtLogin func(bool), toggleLaunchMinimized func(bool)) {
 	go systray.Run(func() {
 		systray.SetTitle(config.AppName)
 		systray.SetTooltip(config.AppName)
@@ -34,6 +34,21 @@ func StartTray(app *App, iconBytes []byte, macIconBytes []byte, appConfig *confi
 				launchAtLogin.Uncheck()
 			}
 			toggleLaunchAtLogin(enabled)
+		})
+
+		launchMinimized := systray.AddMenuItemCheckbox(
+			config.MenuStartMinimized,
+			config.TooltipStartMinimized,
+			appConfig.LaunchMinimized,
+		)
+		launchMinimized.Click(func() {
+			enabled := !launchMinimized.Checked()
+			if enabled {
+				launchMinimized.Check()
+			} else {
+				launchMinimized.Uncheck()
+			}
+			toggleLaunchMinimized(enabled)
 		})
 
 		systray.AddSeparator()

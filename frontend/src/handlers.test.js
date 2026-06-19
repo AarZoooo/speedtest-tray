@@ -21,7 +21,8 @@ import {
   handleReleaseNotesClick,
   initializeUpdateHandlers,
   handleBannerClick,
-  initializeBannerHandler
+  initializeBannerHandler,
+  performUpdateCheck
 } from "./handlers.js";
 import { initializeElements } from "./ui.js";
 
@@ -50,11 +51,22 @@ describe("handlers", () => {
         <div id="history-list"></div>
       </div>
       <div id="update-view" class="view-hidden">
-        <span id="update-version-val"></span>
-        <span id="update-size-val"></span>
-        <button id="update-now-btn">Update Now</button>
-        <button id="update-skip-btn">Skip Version</button>
-        <a id="update-notes-btn">Release Notes</a>
+        <div id="update-checking-state" class="view-hidden"></div>
+        <div id="update-uptodate-state" class="view-hidden">
+          <span id="current-version-display"></span>
+          <button id="manual-check-btn"></button>
+        </div>
+        <div id="update-available-state" class="view-hidden">
+          <span id="update-version-val"></span>
+          <span id="update-size-val"></span>
+          <button id="update-now-btn">Update Now</button>
+          <button id="update-skip-btn">Skip Version</button>
+          <a id="update-notes-btn">Release Notes</a>
+        </div>
+        <div id="update-error-state" class="view-hidden">
+          <span id="update-error-msg"></span>
+          <button id="error-check-btn">Try again</button>
+        </div>
       </div>
     `;
     document.getElementById("speedometer").setValue = vi.fn();
@@ -385,6 +397,17 @@ describe("handlers", () => {
 
     expect(document.getElementById("test-view").classList.contains("view-active")).toBe(true);
     expect(document.getElementById("history-view").classList.contains("view-hidden")).toBe(true);
+  });
+
+  it("handles update check error by displaying error state", async () => {
+    window.go.gui_wails.App.CheckForUpdate.mockRejectedValue(new Error("check failed"));
+    initializeUpdateHandlers();
+
+    await performUpdateCheck();
+
+    const errorMsg = document.getElementById("update-error-msg");
+    expect(errorMsg.innerText).toBe("check failed");
+    expect(document.getElementById("update-error-state").classList.contains("view-hidden")).toBe(false);
   });
 });
 
