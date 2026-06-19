@@ -173,13 +173,11 @@ describe("handlers", () => {
     const clearBtn = document.getElementById("clear-history-btn");
 
     await handleClearHistoryClick();
-    expect(clearBtn.innerText).toBe("Clear history (Sure?)");
-    expect(clearBtn.classList.contains("danger")).toBe(true);
+    expect(clearBtn.classList.contains("confirming")).toBe(true);
     expect(window.go.gui_wails.App.ClearHistory).not.toHaveBeenCalled();
 
     await handleClearHistoryClick();
-    expect(clearBtn.innerText).toBe("Clear history");
-    expect(clearBtn.classList.contains("danger")).toBe(false);
+    expect(clearBtn.classList.contains("confirming")).toBe(false);
     expect(window.go.gui_wails.App.ClearHistory).toHaveBeenCalledOnce();
   });
 
@@ -188,11 +186,21 @@ describe("handlers", () => {
     const clearBtn = document.getElementById("clear-history-btn");
 
     handleClearHistoryClick();
-    expect(clearBtn.innerText).toBe("Clear history (Sure?)");
+    expect(clearBtn.classList.contains("confirming")).toBe(true);
 
     vi.advanceTimersByTime(3000);
-    expect(clearBtn.innerText).toBe("Clear history");
-    expect(clearBtn.classList.contains("danger")).toBe(false);
+    expect(clearBtn.classList.contains("confirming")).toBe(false);
+  });
+
+  it("resets confirmation state when clicking outside", () => {
+    const clearBtn = document.getElementById("clear-history-btn");
+
+    handleClearHistoryClick();
+    expect(clearBtn.classList.contains("confirming")).toBe(true);
+
+    const clickEvent = new MouseEvent("click", { bubbles: true });
+    document.dispatchEvent(clickEvent);
+    expect(clearBtn.classList.contains("confirming")).toBe(false);
   });
 
   it("opens history json file", async () => {
