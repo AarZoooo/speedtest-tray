@@ -87,6 +87,11 @@ export function setButtonState(isTesting) {
   if (elements.runBtn) {
     elements.runBtn.innerText = isTesting ? TEXT.STOP : TEXT.TRY_AGAIN;
     elements.runBtn.disabled = false;
+    if (isTesting) {
+      elements.runBtn.classList.add("running");
+    } else {
+      elements.runBtn.classList.remove("running");
+    }
   }
   updateHistoryToggleState(isTesting);
 }
@@ -136,6 +141,7 @@ export function handleTestComplete(data) {
   if (elements.runBtn) {
     elements.runBtn.disabled = false;
     elements.runBtn.innerText = data.error || wasManualStop ? TEXT.TRY_AGAIN : TEXT.START_AGAIN;
+    elements.runBtn.classList.remove("running");
   }
 
   updateHistoryToggleState(false);
@@ -175,7 +181,10 @@ export function handleTestError(err) {
     header.classList.remove("loading");
   }
 
-  if (elements.runBtn) elements.runBtn.innerText = TEXT.TRY_AGAIN;
+  if (elements.runBtn) {
+    elements.runBtn.innerText = TEXT.TRY_AGAIN;
+    elements.runBtn.classList.remove("running");
+  }
   setStatus(TEXT.ERROR_PREFIX + err);
   updateGauge(0);
   resetUI(TEXT.DEFAULT_VAL);

@@ -41,8 +41,10 @@ export async function startTest() {
 export function stopTest() {
   console.log("JS: stopTest called");
   testState.stopTest();
-  if (document.getElementById("run-btn")) {
-    document.getElementById("run-btn").disabled = true;
+  const btn = document.getElementById("run-btn");
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.remove("running");
   }
   setStatus("Test Stopped");
   resetUI(TEXT.DEFAULT_VAL);
