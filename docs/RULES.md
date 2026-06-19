@@ -12,3 +12,4 @@ This file outlines rules to follow during development of this application. These
 8. Go config constants are the source of truth for shared frontend/backend values. After changing shared constants or phases, run `go generate ./...` and commit the generated frontend config.
 9. After doing work on a feature/fix/bug or whatever that will be committed, edit and update related docs to include that in the commit as well.
 10. To trigger the CI/CD build pipeline in GitHub Actions, the commit message must contain the string `[ci]` (otherwise, compilation and packaging jobs are skipped to save runner minutes). Tests run automatically on every push regardless of this flag.
+11. Minimize hardware resources, CPU cycles, and memory footprint. Code changes must be optimized for performance, avoiding unnecessary hot-path allocations, ensuring goroutine/channel cleanup, and optimizing UI rendering frame rates.

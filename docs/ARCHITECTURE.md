@@ -253,17 +253,20 @@ Standard commits will skip compilation and packaging but always run the `test` j
 
 ### Platform Builds
 
-Each build job runs a **matrix strategy**, producing one artifact per architecture. No fat/universal binaries are used — each artifact contains only the code that runs natively on the target CPU.
+Each build job runs a **matrix strategy**, producing specific packaging formats per architecture. No fat/universal binaries are used — each artifact contains only the code that runs natively on the target CPU.
 
-| Job             | Arch    | Runner           | Output                              |
-|-----------------|---------|------------------|-------------------------------------|
-| `build-windows` | `amd64` | `windows-latest` | `speedtest-tray-windows-amd64.exe`  |
-| `build-windows` | `arm64` | `windows-latest` | `speedtest-tray-windows-arm64.exe`  |
-| `build-macos`   | `amd64` | `macos-latest`   | `SpeedTest-Tray-macOS-Intel.dmg`    |
-| `build-macos`   | `arm64` | `macos-latest`   | `SpeedTest-Tray-macOS-ARM.dmg`      |
+| Job             | Arch    | Runner           | Output Formats / Assets |
+|-----------------|---------|------------------|-------------------------|
+| `build-windows` | `amd64` | `windows-latest` | `SpeedTest-Tray-windows-amd64-installer.exe` |
+| `build-windows` | `arm64` | `windows-latest` | `SpeedTest-Tray-windows-arm64-installer.exe` |
+| `build-macos`   | `amd64` | `macos-latest`   | `SpeedTest-Tray-macOS-Intel.dmg`<br>`SpeedTest-Tray-macOS-Intel.pkg`<br>`speedtest-tray-darwin-amd64.tar.gz` |
+| `build-macos`   | `arm64` | `macos-latest`   | `SpeedTest-Tray-macOS-ARM.dmg`<br>`SpeedTest-Tray-macOS-ARM.pkg`<br>`speedtest-tray-darwin-arm64.tar.gz` |
 
-- **Windows builds:** Cross-compiled from the x64 `windows-latest` runner using Wails and the MSVC toolchain. Each produces a standalone portable `.exe`.
-- **macOS builds:** The `macos-latest` runner runs on Apple Silicon, so `arm64` builds natively and `amd64` (Intel) cross-compiles via `GOARCH=amd64` with the macOS SDK. Each produces a `.dmg` with a custom volume icon and Applications shortcut.
+- **Windows builds:** Compiled using Wails and packaged into per-user NSIS installers (`SpeedTest-Tray-windows-*-installer.exe`). These register the CLI `speedtest-tray` in the user's `PATH`. The installer is also used directly by the in-app self-updater for silent updates.
+- **macOS builds:** Compiled natively (for `arm64`) or cross-compiled (for `amd64`/Intel) using the macOS SDK. Each architecture produces three formats:
+  * `.dmg` (Disk Image): Standard drag-and-drop consumer installer.
+  * `.pkg` (Installer Package): Standard installer wizard that automates autostart plist registration and CLI symlinking (`/usr/local/bin/speedtest-tray`).
+  * `.tar.gz` (Archive): Contains the raw executable app bundle, used specifically by the in-app hot-swap auto-updater.
 
 ## Configuration
 

@@ -48,14 +48,21 @@
 ## 🚀 Installation
 
 ### Windows (Recommended)
-1. Download the latest installer `speedtest-tray-amd64-installer.exe` (or `-arm64-installer.exe`) from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
+1. Download the latest installer `SpeedTest-Tray-windows-amd64-installer.exe` (or `-arm64-installer.exe`) from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
 2. Run the installer. It will install the application per-user and register the `speedtest-tray` command-line executable in your user path.
 3. Open the app. It will launch and dock itself into your system tray.
 
-### macOS
-1. Download the latest `SpeedTest-Tray-macOS-ARM.dmg` (or `-Intel.dmg`) from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
-2. Open the `.dmg` file, and drag `SpeedTest Tray` to your `Applications` folder.
-3. Run the application to register the native menu bar accessory. The PKG version automates CLI symlinking to `/usr/local/bin/speedtest-tray`.
+### macOS (Recommended PKG)
+1. Download the latest `SpeedTest-Tray-macOS-ARM.pkg` (or `-Intel.pkg`) from the [**Releases**](https://github.com/AarZoooo/speedtest-tray/releases) page.
+2. Run the installer package. This automatically configures:
+   * **CLI Command**: Creates a `/usr/local/bin/speedtest-tray` symlink in your system PATH.
+   * **Autostart**: Installs the native LaunchAgent to boot the application on login.
+3. Open the application from your Applications folder.
+
+### macOS (Alternative DMG)
+If you prefer a standalone drag-and-drop installation without system integration:
+1. Download the latest `SpeedTest-Tray-macOS-ARM.dmg` (or `-Intel.dmg`).
+2. Open the `.dmg` file and drag `SpeedTest Tray` to your `Applications` folder.
 
 ### From Source
 If you prefer to build it yourself, ensure you have [Go](https://go.dev/) and [Wails](https://wails.io/) installed.
