@@ -56,12 +56,12 @@ jobs:
       - name: Rename installer
         shell: bash
         run: |
-          find build/bin -name "*installer.exe" -exec mv {} SpeedTest-Tray-windows-amd64-installer.exe \;
+          find build/bin -name "*installer.exe" -exec mv {} SpeedTest-Tray-windows-amd64-installer-${{ github.ref_name }}.exe \;
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-amd64
-          path: SpeedTest-Tray-windows-amd64-installer.exe
+          path: SpeedTest-Tray-windows-amd64-installer-${{ github.ref_name }}.exe
 
   build-windows-arm64:
     needs: verify-version
@@ -99,12 +99,12 @@ jobs:
       - name: Rename installer
         shell: bash
         run: |
-          find build/bin -name "*installer.exe" -exec mv {} SpeedTest-Tray-windows-arm64-installer.exe \;
+          find build/bin -name "*installer.exe" -exec mv {} SpeedTest-Tray-windows-arm64-installer-${{ github.ref_name }}.exe \;
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-arm64
-          path: SpeedTest-Tray-windows-arm64-installer.exe
+          path: SpeedTest-Tray-windows-arm64-installer-${{ github.ref_name }}.exe
 
   build-macos-intel:
     needs: verify-version
@@ -145,7 +145,7 @@ jobs:
                    --install-location "/Applications" \
                    --version ${{ github.ref_name }} \
                    --scripts build/macos/pkg/scripts \
-                   SpeedTest-Tray-macOS-Intel.pkg
+                   SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.pkg
 
       - name: Package macOS DMG
         run: |
@@ -160,22 +160,22 @@ jobs:
             --icon "SpeedTest Tray.app" 175 190 \
             --app-drop-link 425 190 \
             --hide-extension "SpeedTest Tray.app" \
-            "SpeedTest-Tray-macOS-Intel.dmg" \
+            "SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.dmg" \
             "build/bin/"
-          fileicon set "SpeedTest-Tray-macOS-Intel.dmg" "$ICON_PATH"
+          fileicon set "SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.dmg" "$ICON_PATH"
 
       - name: Package raw binary for self-update
         run: |
-          tar -czf speedtest-tray-darwin-amd64.tar.gz \
+          tar -czf speedtest-tray-darwin-amd64-${{ github.ref_name }}.tar.gz \
             -C "build/bin/SpeedTest Tray.app/Contents/MacOS" "SpeedTest Tray"
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-intel
           path: |
-            SpeedTest-Tray-macOS-Intel.pkg
-            SpeedTest-Tray-macOS-Intel.dmg
-            speedtest-tray-darwin-amd64.tar.gz
+            SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.pkg
+            SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.dmg
+            speedtest-tray-darwin-amd64-${{ github.ref_name }}.tar.gz
 
   build-macos-arm:
     needs: verify-version
@@ -216,7 +216,7 @@ jobs:
                    --install-location "/Applications" \
                    --version ${{ github.ref_name }} \
                    --scripts build/macos/pkg/scripts \
-                   SpeedTest-Tray-macOS-ARM.pkg
+                   SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.pkg
 
       - name: Package macOS DMG
         run: |
@@ -231,22 +231,22 @@ jobs:
             --icon "SpeedTest Tray.app" 175 190 \
             --app-drop-link 425 190 \
             --hide-extension "SpeedTest Tray.app" \
-            "SpeedTest-Tray-macOS-ARM.dmg" \
+            "SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.dmg" \
             "build/bin/"
-          fileicon set "SpeedTest-Tray-macOS-ARM.dmg" "$ICON_PATH"
+          fileicon set "SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.dmg" "$ICON_PATH"
 
       - name: Package raw binary for self-update
         run: |
-          tar -czf speedtest-tray-darwin-arm64.tar.gz \
+          tar -czf speedtest-tray-darwin-arm64-${{ github.ref_name }}.tar.gz \
             -C "build/bin/SpeedTest Tray.app/Contents/MacOS" "SpeedTest Tray"
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-arm
           path: |
-            SpeedTest-Tray-macOS-ARM.pkg
-            SpeedTest-Tray-macOS-ARM.dmg
-            speedtest-tray-darwin-arm64.tar.gz
+            SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.pkg
+            SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.dmg
+            speedtest-tray-darwin-arm64-${{ github.ref_name }}.tar.gz
 
   create-release:
     needs: [build-windows-amd64, build-windows-arm64, build-macos-intel, build-macos-arm]
@@ -254,20 +254,29 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+
+      - name: Extract Changelog Details
+        id: extract_changelog
+        run: python scripts/extract_changelog.py CHANGELOG.md ${{ github.ref_name }}
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          name: ${{ steps.extract_changelog.outputs.title }}
+          body_path: release_body.md
           files: |
-            artifacts/windows-amd64/SpeedTest-Tray-windows-amd64-installer.exe
-            artifacts/windows-arm64/SpeedTest-Tray-windows-arm64-installer.exe
-            artifacts/macos-intel/SpeedTest-Tray-macOS-Intel.pkg
-            artifacts/macos-intel/SpeedTest-Tray-macOS-Intel.dmg
-            artifacts/macos-intel/speedtest-tray-darwin-amd64.tar.gz
-            artifacts/macos-arm/SpeedTest-Tray-macOS-ARM.pkg
-            artifacts/macos-arm/SpeedTest-Tray-macOS-ARM.dmg
-            artifacts/macos-arm/speedtest-tray-darwin-arm64.tar.gz
-          generate_release_notes: true
+            artifacts/windows-amd64/SpeedTest-Tray-windows-amd64-installer-${{ github.ref_name }}.exe
+            artifacts/windows-arm64/SpeedTest-Tray-windows-arm64-installer-${{ github.ref_name }}.exe
+            artifacts/macos-intel/SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.pkg
+            artifacts/macos-intel/SpeedTest-Tray-macOS-Intel-${{ github.ref_name }}.dmg
+            artifacts/macos-intel/speedtest-tray-darwin-amd64-${{ github.ref_name }}.tar.gz
+            artifacts/macos-arm/SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.pkg
+            artifacts/macos-arm/SpeedTest-Tray-macOS-ARM-${{ github.ref_name }}.dmg
+            artifacts/macos-arm/speedtest-tray-darwin-arm64-${{ github.ref_name }}.tar.gz
