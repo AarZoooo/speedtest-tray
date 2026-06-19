@@ -521,29 +521,75 @@ footer {
 }
 
 .history-action-btn {
-    background: none;
-    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: var(--overlay-white-5);
+    border: var(--border-width-thin) solid var(--border-color);
     color: var(--text-dim);
-    font-size: 0.8rem;
-    font-weight: 500;
     cursor: pointer;
-    padding: 4px 0;
-    transition: color 0.2s;
-    text-decoration: underline;
+    padding: 0;
+    transition:
+        width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        gap 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    outline: none;
 }
 
 .history-action-btn:hover:not(:disabled) {
+    background-color: var(--overlay-white-8);
     color: var(--text-main);
 }
 
 .history-action-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    text-decoration: none;
 }
 
-.history-action-btn.danger:not(:disabled) {
+.history-action-btn svg.icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    display: block;
+}
+
+.history-action-btn .btn-text {
+    max-width: 0;
+    opacity: 0;
+    transition:
+        max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.2s ease;
+    font-size: 0.8rem;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.history-action-btn.confirming {
+    width: 84px;
+    padding: 0 10px;
+    gap: 6px;
     color: var(--danger);
+    border-color: var(--danger);
+    background-color: var(--overlay-danger-15);
+    justify-content: flex-start;
+}
+
+.history-action-btn.confirming:hover:not(:disabled) {
+    background-color: rgba(239, 68, 68, 0.25);
+    color: var(--danger);
+}
+
+.history-action-btn.confirming .btn-text {
+    max-width: 50px;
+    opacity: 1;
 }
 
 /* Update Button styling with badge: circular stroke around button using accent gradient */

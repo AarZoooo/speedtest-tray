@@ -1,0 +1,17 @@
+<svg viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 32,48 V 208" />
+    <path d="M 224,96 V 208" />
+    <path d="M 64,16 H 144" />
+    <path d="M 64,240 H 192" />
+    <path d="M 224,208 C 224,224 208,240 192,240" />
+    <path d="M 32,208 C 32,224 48,240 64,240" stroke-linejoin="miter" />
+    <path d="M 32,48 C 32,32 48,16 64,16" />
+    <path d="M 224,96 L 144,16" />
+    <path d="M 144,64 C 144,80 160,96 176,96" />
+    <path d="M 144,64 V 16" />
+    <path d="M 176,96 H 224" />
+    <path d="M 96,208 L 64,176 L 96,144" />
+    <path d="M 128,208 L 160,176 L 128,144" />
+  </g>
+</svg>
