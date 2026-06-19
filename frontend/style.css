@@ -242,11 +242,15 @@ footer {
     border-color: transparent;
     color: white;
     box-shadow: var(--shadow-btn);
-    --btn-hover-color: var(--danger);
+    --btn-hover-border: linear-gradient(135deg, var(--accent-start), var(--accent-end)) 1.5;
+}
+
+#run-btn.running {
+    --btn-hover-border: linear-gradient(135deg, var(--danger), var(--danger)) 1.5;
 }
 
 .main-btn.running:hover:not(:disabled) {
-    border-color: var(--btn-hover-color);
+    border-image: var(--btn-hover-border);
 }
 
 .main-btn:hover {
