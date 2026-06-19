@@ -125,6 +125,12 @@ export function handleTestComplete(data) {
   const wasManualStop = !testState.isTesting && elements.status.innerText === TEXT.TEST_STOPPED;
 
   testState.stopTest();
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.remove("loading");
+  }
+
   if (elements.runBtn) {
     elements.runBtn.disabled = false;
     elements.runBtn.innerText = data.error || wasManualStop ? TEXT.TRY_AGAIN : TEXT.START_AGAIN;
@@ -161,6 +167,12 @@ function failureStatus(error) {
 // Handle test error
 export function handleTestError(err) {
   testState.stopTest();
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.remove("loading");
+  }
+
   if (elements.runBtn) elements.runBtn.innerText = TEXT.TRY_AGAIN;
   setStatus(TEXT.ERROR_PREFIX + err);
   updateGauge(0);

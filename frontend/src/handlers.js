@@ -18,6 +18,11 @@ export async function startTest() {
   setStatus(TEXT.INITIALIZING);
   resetUI(TEXT.LOADER_HTML);
 
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.add("loading");
+  }
+
   console.log("JS: Invoking backend StartTest");
   try {
     await window.go.gui_wails.App.StartTest();
@@ -26,6 +31,9 @@ export async function startTest() {
     console.error("JS: Backend StartTest failed:", err);
     testState.stopTest();
     setButtonState(false);
+    if (header) {
+      header.classList.remove("loading");
+    }
   }
 }
 
@@ -38,6 +46,11 @@ export function stopTest() {
   }
   setStatus("Test Stopped");
   resetUI(TEXT.DEFAULT_VAL);
+
+  const header = document.querySelector("header");
+  if (header) {
+    header.classList.remove("loading");
+  }
 
   window.go.gui_wails.App.StopTest();
 }
