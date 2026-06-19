@@ -26,6 +26,7 @@ const elements = {
   runBtn: null,
   speedometer: null,
   historyToggleBtn: null,
+  updateToggleBtn: null,
   clearHistoryBtn: null,
   openJsonBtn: null,
   testView: null,
@@ -43,6 +44,7 @@ export function initializeElements() {
   elements.runBtn = document.getElementById("run-btn");
   elements.speedometer = document.getElementById("speedometer");
   elements.historyToggleBtn = document.getElementById("history-toggle-btn");
+  elements.updateToggleBtn = document.getElementById("update-toggle-btn");
   elements.clearHistoryBtn = document.getElementById("clear-history-btn");
   elements.openJsonBtn = document.getElementById("open-json-btn");
   elements.testView = document.getElementById("test-view");
@@ -181,16 +183,19 @@ export function handleTestError(err) {
 }
 
 export function updateHistoryToggleState(isTesting) {
-  if (elements.historyToggleBtn) {
-    elements.historyToggleBtn.disabled = isTesting;
-    if (isTesting) {
-      elements.historyToggleBtn.style.opacity = "0.5";
-      elements.historyToggleBtn.style.cursor = "not-allowed";
-    } else {
-      elements.historyToggleBtn.style.opacity = "1";
-      elements.historyToggleBtn.style.cursor = "pointer";
+  const toggles = [elements.historyToggleBtn, elements.updateToggleBtn];
+  toggles.forEach(btn => {
+    if (btn) {
+      btn.disabled = isTesting;
+      if (isTesting) {
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+      } else {
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+      }
     }
-  }
+  });
 }
 
 export function renderHistory(history) {
