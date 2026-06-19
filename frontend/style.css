@@ -10,7 +10,7 @@
     --danger: #e74c3c;
 
     /* Reusable Gradients */
-    --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+    --accent-gradient: linear-gradient(to bottom right, var(--accent-start), var(--accent-end));
     --accent-gradient-right: linear-gradient(to right, var(--accent-start), var(--accent-end));
     --danger-gradient: linear-gradient(135deg, var(--danger), var(--danger));
 
