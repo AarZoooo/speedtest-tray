@@ -57,7 +57,23 @@ class Speedometer extends HTMLElement {
   setValue(speed) {
     if (!this.gaugeValue) return;
 
-    this.currentValue = parseFloat(speed) || 0;
+    const val = parseFloat(speed) || 0;
+
+    if (val === 0 && this.currentValue > 0) {
+      this.needle.classList.add("easing");
+      this.gaugeFill.classList.add("easing");
+      if (this.gaugeBloom) {
+        this.gaugeBloom.classList.add("easing");
+      }
+    } else if (val > 0) {
+      this.needle.classList.remove("easing");
+      this.gaugeFill.classList.remove("easing");
+      if (this.gaugeBloom) {
+        this.gaugeBloom.classList.remove("easing");
+      }
+    }
+
+    this.currentValue = val;
     const clampedValue = Math.min(this.currentValue, this.GAUGE_MAX);
 
     const angle = (clampedValue / this.GAUGE_MAX) * 180;
