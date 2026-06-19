@@ -15,7 +15,7 @@
 **SpeedTest Tray** is a lightweight, high-performance system tray application designed for running on-demand internet speed tests from a compact, modern window. Built with Go and Wails, it combines native performance with a vibrant, hardware-accelerated UI.
 
 <p align="center">
-  <img src="assets/preview.gif" alt="SpeedTest Tray Demo" width="400">
+  <img src="assets/preview.png" alt="SpeedTest Tray Screenshot" width="400">
 </p>
 
 ## 📑 Table of Contents

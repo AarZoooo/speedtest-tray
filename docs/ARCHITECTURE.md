@@ -140,10 +140,11 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 - `src/ui.js`: UI update handlers (results, gauge, status, button state, rendering history cards)
 - `src/handlers.js`: App controls (start/stop speedtests, window close, toggle history view, clear history with 2-click confirm, open json natively)
 - `src/window.js`: Window events initialization
-- `speedometer.js`: Custom gauge component (Web Component)
+- `speedometer.js`: Custom gauge Web Component — includes `playStartupSweep()` / `stopSweep()` for the pre-test needle animation
 - `src/speedometer-config.js`: Gauge configuration constants
-- `style.css`: Global styles
-- `speedometer.css`: Gauge styles
+- `style.css`: Global styles — design tokens (colors, spacing, radii, shadows, font-size scale) defined as CSS custom properties in `:root`
+- `speedometer.css`: Gauge styles (SVG layout, needle, fill, bloom, easing and sweep transition classes)
+- `assets/fonts/InterVariable.woff2`: Embedded Inter Variable font (weight 100–900, single file) for crisp rendering in the WebView
 
 **Data Flow**:
 
@@ -151,6 +152,8 @@ fmt.Println(config.PhaseDownloading)  // "DOWNLOADING"
 User clicks "Start"
   ↓
 handlers.js: startTest()
+  ↓
+Speedometer plays startup sweep animation (needle 0→max→0, ~1.5s) — awaited before backend call
   ↓
 Calls window.go.gui_wails.App.StartTest()
   ↓
