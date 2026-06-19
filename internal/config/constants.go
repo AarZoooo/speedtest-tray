@@ -5,7 +5,7 @@ import "time"
 // App branding
 const AppName = "SpeedTest Tray"
 
-const AppVersion = "1.1.0"
+const AppVersion = "1.1.1"
 
 const (
 	GitHubOwner = "AarZoooo"
@@ -66,7 +66,7 @@ const (
 const (
 	WindowWidth         = 320
 	WindowHeight        = 560
-	WindowCornerRadius  = 24
+	WindowCornerRadius  = 16
 	WindowOffsetYPixels = -20
 	StandardDPI         = 96.0
 )

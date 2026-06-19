@@ -20,7 +20,7 @@ export const CONFIG = {
   UI_HIDE_DELAY_MS: 2000,
   GAUGE_MAX_DOWNLOAD: 1000,
   GAUGE_MAX_UPLOAD: 100,
-  APP_VERSION: "1.1.0",
+  APP_VERSION: "1.1.1",
 };
 
 export const ERRORS = {

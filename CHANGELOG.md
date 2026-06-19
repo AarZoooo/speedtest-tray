@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-06-19
+
+### Fixed
+- **Installer overhaul**: Migrated Windows installer to Modern UI 2 with customized branding and app icon integration.
+- **Corner radius gap**: Set HTML container corner radius to `8px` (and manual Win10 rounding fallback to `8px`) to match Windows 11 and macOS native window container standards, eliminating visible gaps.
+- **Test isolation**: Prevented development/placeholder history entries from polluting the user's real speedtest history during testing or build phases.
+
 ## [1.1.0] - 2026-06-19
 
 ### Added
