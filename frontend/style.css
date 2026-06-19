@@ -1,18 +1,25 @@
 :root {
-    --bg-color: #222225;
-    --card-bg: #2d2d30;
+    --bg-color: #161617;
+    --card-bg: #202022;
+    --border-dim: #3a3a3f;
     --text-main: #e3e2e9;
     --text-dim: #9999a5;
-    --border-dim: #57565E;
     --accent-start: #8b40da;
     --accent-end: #2b4076;
-    --accent-middle: #5B40A8;
+    --accent-middle: #5b40a8;
     --danger: #e74c3c;
 
     /* Reusable Gradients */
-    --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
-    --accent-gradient-right: linear-gradient(to right, var(--accent-start), var(--accent-end));
-    --danger-gradient: linear-gradient(135deg, var(--danger), var(--danger));
+    --accent-gradient: linear-gradient(
+        135deg,
+        var(--accent-start),
+        var(--accent-end)
+    );
+    --accent-gradient-right: linear-gradient(
+        to right,
+        var(--accent-start),
+        var(--accent-end)
+    );
 
     /* Centralized Shadows - Minimalist Intensity */
     --shadow-container: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -75,7 +82,7 @@ header {
 }
 
 header::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
@@ -87,10 +94,11 @@ header::after {
 }
 
 header.loading::after {
-    background: linear-gradient(to right, 
-        var(--accent-start), 
-        var(--accent-end), 
-        var(--accent-start), 
+    background: linear-gradient(
+        to right,
+        var(--accent-start),
+        var(--accent-end),
+        var(--accent-start),
         var(--accent-end),
         var(--accent-start)
     );
@@ -133,7 +141,9 @@ header.loading::after {
     border: 1.5px solid transparent;
     color: var(--text-dim);
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
 }
 
 .icon-btn:not(:disabled):hover {
@@ -250,20 +260,21 @@ footer {
 }
 
 #run-btn.running {
-    --btn-hover-border: var(--danger-gradient);
+    --btn-hover-border: var(--danger);
 }
 
 /* Smooth gradient border fade-in on hover using absolute pseudo-element opacity transition */
 .main-btn.running::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     border-radius: inherit;
-    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-                var(--btn-hover-border) border-box;
+    background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        var(--btn-hover-border) border-box;
     border: 1.5px solid transparent;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -296,9 +307,21 @@ footer {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg, var(--accent-end), var(--accent-start));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--loader-thickness)), black calc(100% - var(--loader-thickness)));
-    mask: radial-gradient(farthest-side, transparent calc(100% - var(--loader-thickness)), black calc(100% - var(--loader-thickness)));
+    background: conic-gradient(
+        from 0deg,
+        var(--accent-end),
+        var(--accent-start)
+    );
+    -webkit-mask: radial-gradient(
+        farthest-side,
+        transparent calc(100% - var(--loader-thickness)),
+        black calc(100% - var(--loader-thickness))
+    );
+    mask: radial-gradient(
+        farthest-side,
+        transparent calc(100% - var(--loader-thickness)),
+        black calc(100% - var(--loader-thickness))
+    );
     animation: spin 0.8s linear infinite;
     display: inline-block;
     vertical-align: middle;
@@ -346,8 +369,18 @@ footer {
     margin-bottom: 12px;
     padding-right: 4px;
     padding-bottom: 12px;
-    mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 12px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 12px), transparent 100%);
+    mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black calc(100% - 12px),
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        black 0%,
+        black calc(100% - 12px),
+        transparent 100%
+    );
 }
 
 .history-list::-webkit-scrollbar {
@@ -495,13 +528,16 @@ footer {
 
 /* Update Button styling with badge: circular stroke around button using accent gradient */
 #update-toggle-btn.has-badge {
-    background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
-                var(--accent-gradient) border-box;
+    background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        var(--accent-gradient) border-box;
 }
 
 #update-toggle-btn.has-badge:hover {
-    background: linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)) padding-box,
-                var(--accent-gradient) border-box;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08))
+            padding-box,
+        var(--accent-gradient) border-box;
 }
 
 #update-toggle-btn.has-badge.selected {
@@ -604,7 +640,9 @@ footer {
     border: none;
     font-weight: 600;
     cursor: pointer;
-    transition: filter 0.2s, transform 0.1s;
+    transition:
+        filter 0.2s,
+        transform 0.1s;
 }
 
 .update-action-btn:active {
@@ -639,8 +677,6 @@ footer {
     text-align: center;
     margin: auto 0;
 }
-
-
 
 .hidden-defs {
     width: 0;
@@ -695,6 +731,3 @@ footer {
     text-align: center;
     font-weight: 600;
 }
-
-
-
