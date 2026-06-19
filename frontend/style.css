@@ -536,8 +536,13 @@ footer {
 }
 
 .empty-icon {
-    font-size: var(--fs-icon-lg);
     opacity: 0.5;
+}
+
+.empty-icon svg.icon {
+    width: var(--fs-icon-lg);
+    height: var(--fs-icon-lg);
+    display: block;
 }
 
 #history-view {
@@ -698,6 +703,10 @@ footer {
     width: 44px;
     height: 44px;
     filter: brightness(1.2) drop-shadow(0 0 4px var(--accent-start));
+}
+
+#update-error-state .update-dim-icon {
+    filter: brightness(1.2) drop-shadow(0 0 4px var(--danger));
 }
 
 .update-dim-icon [stroke="currentColor"] {

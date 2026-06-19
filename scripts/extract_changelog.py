@@ -26,7 +26,7 @@ def main():
     if header_idx == -1:
         sys.exit(1)
         
-    title = lines[header_idx].replace('##', '').strip()
+    title = lines[header_idx].replace('##', '').replace('[', '').replace(']', '').strip()
     
     body_lines = []
     for line in lines[header_idx + 1:]:
