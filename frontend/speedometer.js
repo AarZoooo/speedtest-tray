@@ -4,6 +4,8 @@ class Speedometer extends HTMLElement {
     this.GAUGE_MAX = 1000;
     this.ARC_LENGTH = 125.6; // PI * 40
     this.currentValue = 0;
+    this._sweepTimeout = null;
+    this.sweeping = false;
   }
 
   connectedCallback() {
@@ -86,6 +88,65 @@ class Speedometer extends HTMLElement {
     }
 
     this.gaugeValue.textContent = Math.round(this.currentValue);
+  }
+
+  // Startup sweep: needle swings to max, holds, swings back — once.
+  // Returns a Promise that resolves when the full animation completes.
+  playStartupSweep() {
+    if (this.sweeping) return Promise.resolve();
+    this.sweeping = true;
+    // Engage sweep transitions
+    this.needle?.classList.add("sweeping");
+    this.gaugeFill?.classList.add("sweeping");
+    this.gaugeBloom?.classList.add("sweeping");
+    return new Promise((resolve) => this._runSweepCycle(resolve));
+  }
+
+  _runSweepCycle(resolve) {
+    if (!this.sweeping) {
+      resolve?.();
+      return;
+    }
+
+    // Sweep to max smoothly (500ms transition)
+    this._setSweepAngle(180);
+    // Hold at max for 500ms, then sweep back down
+    this._sweepTimeout = setTimeout(() => {
+      if (!this.sweeping) {
+        resolve?.();
+        return;
+      }
+      this._setSweepAngle(0);
+      // After sweep-down (500ms), mark as done and resolve
+      this._sweepTimeout = setTimeout(() => {
+        this.sweeping = false;
+        this._sweepTimeout = null;
+        this.needle?.classList.remove("sweeping");
+        this.gaugeFill?.classList.remove("sweeping");
+        this.gaugeBloom?.classList.remove("sweeping");
+        resolve?.();
+      }, 550);
+    }, 1050);
+  }
+
+  _setSweepAngle(angleDeg) {
+    if (!this.needle) return;
+    this.needle.style.transform = `rotate(${angleDeg}deg)`;
+    const fillLength = (angleDeg / 180) * this.ARC_LENGTH;
+    if (this.gaugeFill) this.gaugeFill.style.strokeDasharray = `${fillLength} ${this.ARC_LENGTH}`;
+    if (this.gaugeBloom) this.gaugeBloom.style.strokeDasharray = `${fillLength} ${this.ARC_LENGTH}`;
+  }
+
+  stopSweep() {
+    this.sweeping = false;
+    if (this._sweepTimeout !== null) {
+      clearTimeout(this._sweepTimeout);
+      this._sweepTimeout = null;
+    }
+    // Remove sweep transitions so normal setValue() takes over cleanly
+    this.needle?.classList.remove("sweeping");
+    this.gaugeFill?.classList.remove("sweeping");
+    this.gaugeBloom?.classList.remove("sweeping");
   }
 }
 
