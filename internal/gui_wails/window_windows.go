@@ -9,6 +9,7 @@ import (
 	"speedtest-tray/internal/config"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
+	sysWindows "golang.org/x/sys/windows"
 )
 
 var (
@@ -207,6 +208,14 @@ func (a *App) positionWindow() {
 }
 
 func (a *App) ApplyRoundedCorners() {
+	// On Windows 11 and above (Build >= 22000), DWM natively rounds the frameless window
+	// and handles translucency correctly when DisableFramelessWindowDecorations is false.
+	// Calling SetWindowRgn would override this, resulting in rectangular corners for
+	// the translucent Acrylic/Mica backdrop.
+	if ver := sysWindows.RtlGetVersion(); ver.MajorVersion > 10 || (ver.MajorVersion == 10 && ver.BuildNumber >= 22000) {
+		return
+	}
+
 	title, _ := syscall.UTF16PtrFromString(config.AppName)
 	hwnd, _, _ := procFindWindowW.Call(0, uintptr(unsafe.Pointer(title)))
 	if hwnd == 0 {

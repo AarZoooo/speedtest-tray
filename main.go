@@ -214,7 +214,7 @@ func newOptions(app *gui_wails.App) *options.App {
 			WindowIsTranslucent:               true,
 			BackdropType:                      windows.Acrylic,
 			DisableWindowIcon:                 false,
-			DisableFramelessWindowDecorations: true,
+			DisableFramelessWindowDecorations: false,
 			IsZoomControlEnabled:              false,
 			DisablePinchZoom:                  true,
 		},
